@@ -25,6 +25,7 @@ jobs:
     if: github.repository == 'awfixers-stuff/bot'
     permissions:
       security-events: write
+      actions: read
       contents: read
     steps:
       - name: Checkout
