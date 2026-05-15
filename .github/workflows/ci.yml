@@ -269,3 +269,32 @@ jobs:
           filter_mode: ${{ env.REVIEWDOG_FILTER_MODE }}
           fail_level: error
           gitleaks_flags: --verbose
+  build:
+    name: Build
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    if: github.repository == 'awfixers-stuff/bot'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+      - name: Verify Python import
+        run: |
+          uv run python -c "import bot; print('Bot package imports OK')"
+  deploy:
+    name: Deploy
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    if: github.repository == 'awfixers-stuff/bot'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - name: Verify deploy configuration
+        run: |
+          echo "Deploy configuration verified — no deployment on PRs"

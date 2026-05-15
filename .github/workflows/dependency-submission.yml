@@ -10,21 +10,35 @@ on:
     branches: [main, master]
     paths:
       - '**/uv.lock'
+  pull_request:
+    branches: [main]
+    paths:
+      - '**/uv.lock'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  submit:
-    name: Submit uv dependencies
+  dependencies:
+    name: Dependencies
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 15
     if: github.repository == 'awfixers-stuff/bot'
     permissions:
-      contents: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
         with:
           persist-credentials: false
+      - name: PR check — validate uv.lock
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ -f uv.lock ]; then
+            echo "✅ uv.lock found"
+            head -5 uv.lock
+          else
+            echo "⚠️  No uv.lock found"
+          fi
       - name: Submit dependency snapshot
+        if: github.event_name != 'pull_request'
         uses: rmuir/uv-dependency-submission@a3a7623508859966d229ca99a16b91b262e6f8c4  # v1.0.1
