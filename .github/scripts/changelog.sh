@@ -29,7 +29,7 @@ generate_entry() {
   fi
 
   local commits
-  commits="$(git log "${log_range}" --oneline --no-merges 2>/dev/null || true)"
+  commits="$(git log "${log_range}" --oneline --no-merges 2> /dev/null || true)"
 
   # Categorize commits by conventional commit prefix
   local features="" fixes="" perf="" docs="" refactor="" other="" deprecated="" removed="" deps=""
