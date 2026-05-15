@@ -189,7 +189,7 @@ def convert_admonitions(lines: list[str], filepath: str) -> list[str]:
 
             # Render Mintlify component
             attr = f' title="{title}"' if title else ""
-            expanded_attr = ' defaultOpen' if is_expanded else ""
+            expanded_attr = " defaultOpen" if is_expanded else ""
 
             if is_collapsible:
                 result.append(f"{' ' * base_indent}<Accordion{attr}{expanded_attr}>\n")
