@@ -1,0 +1,43 @@
+---
+title: Wandbox
+icon: lucide/code-2
+---
+
+# Wandbox
+
+Wandbox API Wrapper for Bot Bot.
+
+This module provides integration with the Wandbox online compiler API,
+allowing code execution and compilation for various programming languages
+within the Bot Discord bot.
+
+## Functions
+
+```python
+async def getoutput(code: str, compiler: str, options: str | None) -> dict[str, Any]
+```
+
+Compile and execute code using a specified compiler and return the output.
+
+Parameters
+----------
+code : str
+    The source code to be compiled and executed.
+compiler : str
+    The identifier or name of the compiler to use.
+options : str or None
+    Additional compiler options or flags. If None, an empty string is used.
+
+Returns
+-------
+dict[str, Any]
+    A dictionary containing the compiler output if the request is successful.
+
+Raises
+------
+BotAPIConnectionError
+    If connection/request fails or times out.
+BotAPIRequestError
+    If HTTP request fails with non-404 status code.
+BotAPIResourceNotFoundError
+    If compiler is not found (404).

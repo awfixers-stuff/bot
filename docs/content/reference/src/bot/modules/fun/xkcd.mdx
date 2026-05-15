@@ -1,0 +1,113 @@
+---
+title: Xkcd
+icon: lucide/code-2
+---
+
+# Xkcd
+
+Xkcd comic viewing commands.
+
+This module provides commands to fetch and display xkcd comics, including the
+latest comic, random comics, and specific comics by ID. Comics are displayed
+with interactive buttons for navigation to the comic's explanation and original page.
+
+## Classes
+
+Discord cog for xkcd comic viewing commands.
+
+Provides commands to fetch and display xkcd comics from the xkcd webcomic.
+Supports viewing the latest comic, random comics, and specific comics by ID.
+Comics are displayed with navigation buttons to the explanation and original pages.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Xkcd cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `hybrid_group`, `guild_only`*
+
+```python
+async def xkcd(self, ctx: commands.Context[Bot], comic_id: int | None) -> None
+```
+
+Xkcd related commands.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+comic_id : int | None
+    The ID of the xkcd comic to search for.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def latest(self, ctx: commands.Context[Bot]) -> None
+```
+
+Get the latest xkcd comic.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def random(self, ctx: commands.Context[Bot]) -> None
+```
+
+Get a random xkcd comic.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def specific(self, ctx: commands.Context[Bot], comic_id: int) -> None
+```
+
+Get a specific xkcd comic.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+comic_id : int
+    The ID of the comic to search for.
+
+```python
+async def get_comic_and_embed(self, latest: bool, number: int | None) -> tuple[discord.Embed, discord.ui.View | None, bool]
+```
+
+Get the xkcd comic and create an embed.
+
+Returns
+-------
+tuple[discord.Embed, discord.ui.View | None, bool]
+    Tuple of (embed, view, success_flag).
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Xkcd cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

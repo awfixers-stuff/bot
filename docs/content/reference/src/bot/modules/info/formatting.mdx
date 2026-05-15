@@ -1,0 +1,88 @@
+---
+title: Formatting
+icon: lucide/code-2
+---
+
+# Formatting
+
+Formatting utilities for Discord objects in info commands.
+
+## Functions
+
+```python
+def format_bool(value: bool) -> str
+```
+
+Convert boolean to checkmark/cross emoji.
+
+```python
+def format_datetime(dt: datetime | None, style: TimestampStyle) -> str
+```
+
+Format datetime to Discord relative format or fallback.
+
+```python
+def format_date_long(dt: datetime | None) -> str
+```
+
+Format datetime to long date string (e.g. 'January 25, 2025').
+
+```python
+def format_permissions(permissions: discord.Permissions) -> str
+```
+
+Format role permissions into a readable string.
+
+```python
+def format_guild_verification_level(level: discord.VerificationLevel) -> str
+```
+
+Format verification level to readable string.
+
+```python
+def format_guild_nsfw_level(guild: discord.Guild) -> str
+```
+
+Format NSFW level to readable string.
+
+```python
+def format_guild_content_filter(level: discord.ContentFilter) -> str
+```
+
+Format content filter level to readable string.
+
+```python
+def format_guild_notifications(level: discord.NotificationLevel) -> str
+```
+
+Format notification level to readable string.
+
+```python
+def format_guild_premium_tier(tier: object) -> str
+```
+
+Format premium tier to readable string.
+
+```python
+def format_invite_uses(invite: discord.Invite) -> str
+```
+
+Format invite uses to readable string.
+
+```python
+def format_invite_max_age(max_age: int | None) -> str
+```
+
+Format invite max age to readable string.
+
+```python
+def extract_invite_code(invite_input: str) -> str
+```
+
+Extract invite code from URL or return as-is.
+
+```python
+def chunks(it: Iterator[T], size: int) -> Generator[list[T]]
+```
+
+Split an iterator into chunks of a specified size.

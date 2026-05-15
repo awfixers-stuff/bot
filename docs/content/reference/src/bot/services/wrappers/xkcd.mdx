@@ -1,0 +1,157 @@
+---
+title: Xkcd
+icon: lucide/code-2
+---
+
+# Xkcd
+
+xkcd Comics API Wrapper for Bot Bot.
+
+This module provides integration with the xkcd webcomic API,
+allowing the bot to fetch and display xkcd comics with full metadata
+and image processing capabilities.
+
+## Classes
+
+Exception raised for HTTP-related errors in xkcd API calls.
+
+### Methods
+
+```python
+def __init__(self, status_code: int, reason: str) -> None
+```
+
+Initialize the HttpError.
+
+Parameters
+----------
+status_code : int
+    The status code of the error.
+reason : str
+    The reason of the error.
+
+A class representing an xkcd comic.
+
+### Methods
+
+```python
+def __init__(self, xkcd_dict: dict[str, Any], raw_image: bytes | None, comic_url: str | None, explanation_url: str | None) -> None
+```
+
+Initialize a Comic instance from xkcd API data.
+
+Parameters
+----------
+xkcd_dict : dict[str, Any]
+    Dictionary containing xkcd comic metadata from the API.
+raw_image : bytes, optional
+    Raw image data for the comic.
+comic_url : str, optional
+    Direct URL to the comic page.
+explanation_url : str, optional
+    URL to the comic explanation.
+
+```python
+def update_raw_image(self, raw_image: bytes) -> None
+```
+
+Update the raw image of the comic.
+
+Parameters
+----------
+raw_image : bytes
+    The raw image data.
+
+xkcd API client for fetching and managing comics.
+
+### Methods
+
+```python
+def __init__(self, api_url: str, explanation_wiki_url: str) -> None
+```
+
+Initialize the Client.
+
+Parameters
+----------
+api_url : str, optional
+    The URL of the xkcd API, by default "https://xkcd.com"
+explanation_wiki_url : str, optional
+    The URL of the xkcd explanation wiki, by default "https://www.explainxkcd.com/wiki/index.php/"
+
+```python
+def latest_comic_url(self) -> str
+```
+
+Get the URL for the latest comic.
+
+Returns
+-------
+str
+    The URL for the latest comic.
+
+```python
+def comic_id_url(self, comic_id: int) -> str
+```
+
+Get the URL for a specific comic ID.
+
+Parameters
+----------
+comic_id : int
+    The ID of the comic.
+
+Returns
+-------
+str
+    The URL for the specific comic ID.
+
+```python
+def get_latest_comic(self, raw_comic_image: bool) -> Comic
+```
+
+Get the latest xkcd comic.
+
+Parameters
+----------
+raw_comic_image : bool, optional
+    Whether to fetch the raw image data, by default False
+
+Returns
+-------
+Comic
+    The latest xkcd comic.
+
+```python
+def get_comic(self, comic_id: int, raw_comic_image: bool) -> Comic
+```
+
+Get a specific xkcd comic.
+
+Parameters
+----------
+comic_id : int
+    The ID of the comic to fetch.
+raw_comic_image : bool, optional
+    Whether to fetch the raw image data, by default False
+
+Returns
+-------
+Comic
+    The fetched xkcd comic.
+
+```python
+def get_random_comic(self, raw_comic_image: bool) -> Comic
+```
+
+Get a random xkcd comic.
+
+Parameters
+----------
+raw_comic_image : bool, optional
+    Whether to fetch the raw image data, by default False
+
+Returns
+-------
+Comic
+    The random xkcd comic.

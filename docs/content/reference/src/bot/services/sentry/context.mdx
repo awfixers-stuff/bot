@@ -1,0 +1,69 @@
+---
+title: Context
+icon: lucide/code-2
+---
+
+# Context
+
+Context management for Sentry events.
+
+## Functions
+
+```python
+def set_user_context(user: discord.User | discord.Member) -> None
+```
+
+Set user context for Sentry events using Discord user information.
+
+This function identifies users in Sentry using their Discord user ID as the
+primary identifier. This enables user-based filtering, grouping, and analytics
+in Sentry, allowing you to see which users encountered errors.
+
+Parameters
+----------
+user : discord.User | discord.Member
+    The Discord user to set as context. Must have an `id` attribute.
+
+Notes
+-----
+The user ID (Discord snowflake) is used as Sentry's user identifier, enabling:
+- User-based error grouping and filtering
+- User impact analysis (how many users affected)
+- User-specific error tracking
+- User analytics in Sentry Insights
+
+Additional Discord-specific data is included as custom user attributes:
+- Username and display name for better identification
+- Guild information (if member)
+- Permissions and roles (if member)
+- Bot/system flags
+
+```python
+def set_tag(key: str, value: Any) -> None
+```
+
+Set a tag in the current Sentry scope.
+
+```python
+def set_context(key: str, value: dict[str, Any]) -> None
+```
+
+Set context data in the current Sentry scope.
+
+```python
+def set_command_context(ctx: ContextOrInteraction) -> None
+```
+
+Set command context for Sentry events.
+
+```python
+def track_command_start(command_name: str) -> None
+```
+
+Track command execution start time.
+
+```python
+def track_command_end(command_name: str, success: bool, error: Exception | None) -> None
+```
+
+Track command execution end and performance metrics.

@@ -1,0 +1,63 @@
+---
+title: Create Snippet
+icon: lucide/code-2
+---
+
+# Create Snippet
+
+Create snippet commands.
+
+This module provides functionality for creating new code snippets
+and aliases in Discord guilds with validation and permission checking.
+
+## Classes
+
+Discord cog for creating snippets and aliases.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the create snippet cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def create_snippet(self, ctx: commands.Context[Bot], name: str, content: str) -> None
+```
+
+Create a new snippet or an alias.
+
+If the provided content exactly matches the name of an existing snippet,
+an alias pointing to that snippet will be created instead.
+
+Snippet names must be alphanumeric (allowing dashes) and under a configured length.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+name : str
+    The desired name for the new snippet.
+content : str
+    The content of the snippet, or the name of a snippet to alias.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the CreateSnippet cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

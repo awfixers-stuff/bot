@@ -1,0 +1,99 @@
+---
+title: Git
+icon: lucide/code-2
+---
+
+# Git
+
+Git Plugin for Bot Bot.
+
+This plugin provides GitHub integration commands for repository management,
+issue creation, and issue retrieval through the Bot Discord bot.
+
+## Classes
+
+GitHub integration plugin for repository and issue management.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Git plugin.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to initialize the plugin with.
+
+*Decorated with: `hybrid_group`, `guild_only`, `requires_command_permission`*
+
+```python
+async def git(self, ctx: commands.Context[Bot]) -> None
+```
+
+Github related commands.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def get_repo(self, ctx: commands.Context[Bot]) -> None
+```
+
+Get repository information.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def create_issue(self, ctx: commands.Context[Bot], title: str, body: str) -> None
+```
+
+Create an issue.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+title : str
+    The title of the issue.
+body : str
+    The body of the issue.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def get_issue(self, ctx: commands.Context[Bot], issue_number: int) -> None
+```
+
+Get an issue by issue number.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+issue_number : int
+    The number of the issue to retrieve.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the git plugin.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

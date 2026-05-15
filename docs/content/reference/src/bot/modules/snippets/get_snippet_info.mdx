@@ -1,0 +1,53 @@
+---
+title: Get Snippet Info
+icon: lucide/code-2
+---
+
+# Get Snippet Info
+
+Get snippet information commands.
+
+This module provides functionality for displaying detailed information
+about existing code snippets in Discord guilds.
+
+## Classes
+
+Discord cog for displaying snippet information.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the snippet info cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def snippet_info(self, ctx: commands.Context[Bot], name: str) -> None
+```
+
+Display detailed information about a snippet.
+
+Shows the author, creation date, content/alias target, uses, and lock status.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+name : str
+    The name of the snippet to get information about.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Load the SnippetInfo cog.

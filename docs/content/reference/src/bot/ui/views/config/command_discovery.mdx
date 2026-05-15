@@ -1,0 +1,34 @@
+---
+title: Command Discovery
+icon: lucide/code-2
+---
+
+# Command Discovery
+
+Command discovery utilities for ConfigDashboard.
+
+Provides functions to discover and filter commands that use the permission
+decorator for the command permissions UI (moderation, levels/XP, etc.).
+
+## Functions
+
+```python
+def get_moderation_commands(bot: Bot) -> list[str]
+```
+
+Discover all command names that use the permission decorator from loaded cogs.
+
+Only includes the main command name, not aliases. Commands are discovered
+from cogs whose module contains "moderation" or "levels" (covers moderation
+commands and level/XP/blacklist management). Restricted commands
+(owner/sysadmin only) are automatically excluded.
+
+Parameters
+----------
+bot : Bot
+    The bot instance
+
+Returns
+-------
+list[str]
+    Sorted list of unique command names (restricted commands excluded)

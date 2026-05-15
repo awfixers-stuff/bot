@@ -1,0 +1,130 @@
+---
+title: Cases
+icon: lucide/code-2
+---
+
+# Cases
+
+Moderation case management and viewing commands.
+
+This module provides comprehensive case management functionality for Discord
+moderation, including viewing, modifying, and managing moderation cases with
+interactive menus and detailed information display.
+
+## Classes
+
+Protocol for objects that behave like Discord users.
+
+Attributes
+----------
+id : int
+    The user's unique identifier.
+name : str
+    The user's display name.
+avatar : Any
+    The user's avatar.
+
+A mock user object for cases where we can't find the real user.
+
+### Methods
+
+```python
+def __init__(self, user_id: int) -> None
+```
+
+Initialize a mock user object.
+
+Parameters
+----------
+user_id : int
+    The ID of the user this mock represents.
+
+Discord cog for moderation case management and viewing.
+
+This cog provides comprehensive case management functionality including
+viewing, modifying, and managing moderation cases with interactive menus.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Cases cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `hybrid_group`, `guild_only`, `requires_command_permission`*
+
+```python
+async def cases(self, ctx: commands.Context[Bot], argument: str | None) -> None
+```
+
+View all moderation cases in the server.
+
+Use subcommands to view specific cases or filter by criteria.
+
+Shortcut: `$cases <user>` automatically runs `$cases search -u <user>`.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def cases_view(self, ctx: commands.Context[Bot], case_number: int) -> None
+```
+
+View a specific moderation case by its number.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context in which the command is being invoked.
+case_number : int
+    The case number to view (e.g., 123).
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def cases_search(self, ctx: commands.Context[Bot], flags: CasesViewFlags) -> None
+```
+
+Search/filter moderation cases by criteria.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context in which the command is being invoked.
+flags : CasesViewFlags
+    Filter criteria (--type, --user, --moderator).
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def cases_modify(self, ctx: commands.Context[Bot], case_number: int, flags: CaseModifyFlags) -> None
+```
+
+Modify a moderation case.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context in which the command is being invoked.
+case_number : int
+    The case number to modify.
+flags : CaseModifyFlags
+    Modification options (--status, --reason).
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Cases cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

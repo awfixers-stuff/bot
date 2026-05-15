@@ -1,0 +1,81 @@
+---
+title: Bot
+icon: lucide/code-2
+---
+
+# Bot
+
+Bot Discord bot core implementation.
+
+This module defines the main Bot bot class, which extends discord.py's Bot
+and provides comprehensive lifecycle management including setup orchestration,
+cog loading, database integration, error handling, telemetry, and graceful
+resource cleanup.
+
+## Classes
+
+Main bot class orchestrating lifecycle, database, cogs, telemetry, and shutdown.
+
+### Methods
+
+```python
+def __init__(self, *args: Any, **kwargs: Any) -> None
+```
+
+*Decorated with: `property`*
+
+```python
+def maintenance_mode(self) -> bool
+```
+
+Check if bot is in maintenance mode.
+
+*Decorated with: `property`*
+
+```python
+def db(self) -> DatabaseCoordinator
+```
+
+Get the database coordinator (cached).
+
+```python
+async def is_jailed(self, guild_id: int, user_id: int) -> bool
+```
+
+Check if a user is currently jailed (latest JAIL/UNJAIL case is JAIL).
+
+```python
+async def setup_hook(self) -> None
+```
+
+Discord.py lifecycle hook called before connecting to Discord.
+
+Performs one-time bot setup including database connection, cog loading,
+cache initialization, and scheduling post-ready startup tasks.
+
+```python
+def get_prefix_cache_stats(self) -> dict[str, int]
+```
+
+Get prefix cache statistics for monitoring.
+
+```python
+async def on_disconnect(self) -> None
+```
+
+Discord.py event handler for disconnect events.
+
+Called when the bot loses connection to Discord. Logs a warning and
+reports to Sentry for monitoring. Disconnects are normal and discord.py
+will automatically attempt to reconnect.
+
+```python
+async def shutdown(self) -> None
+```
+
+Gracefully shut down the bot and clean up all resources.
+
+Performs shutdown in three phases: cancel startup task, clean up
+background tasks, and close Discord, database, and HTTP connections.
+This method is idempotent - calling it multiple times is safe. All
+phases are traced with Sentry for monitoring shutdown performance.

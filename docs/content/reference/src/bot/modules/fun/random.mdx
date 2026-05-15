@@ -1,0 +1,121 @@
+---
+title: Random
+icon: lucide/code-2
+---
+
+# Random
+
+Random generation commands for entertainment and utility.
+
+This module provides various random generation commands including coin flips,
+dice rolls, magic 8-ball responses, and random number generation. All commands
+are designed for fun and entertainment in Discord servers.
+
+## Classes
+
+Discord cog for random generation commands.
+
+Provides various random generation commands including coin flips, dice rolls,
+magic 8-ball responses, and random number generation. All commands are
+designed to be fun and entertaining for Discord server members.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Random cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `hybrid_group`, `guild_only`*
+
+```python
+async def random(self, ctx: commands.Context[Bot]) -> None
+```
+
+Random generation commands.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def coinflip(self, ctx: commands.Context[Bot]) -> None
+```
+
+Flip a coin.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def eight_ball(self, ctx: commands.Context[Bot], question: str, cow: bool = False) -> None
+```
+
+Ask the magic 8ball a question.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+question : str
+    The question to ask the 8ball.
+cow : bool, optional
+    Whether to use the cow ASCII art, by default False.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def dice(self, ctx: commands.Context[Bot], sides: int) -> None
+```
+
+Roll a dice.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+sides : int, optional
+    The number of sides on the dice, by default 6.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def random_number(self, ctx: commands.Context[Bot], minimum_str: str, maximum_str: str) -> None
+```
+
+Generate a random number between two values.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+minimum_str : str, optional
+    The minimum value of the random number, by default 0. Converted to int after removing certain characters.
+maximum_str : str, optional
+    The maximum value of the random number, by default 100. Converted to int after removing certain characters.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Random cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

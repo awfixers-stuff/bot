@@ -1,0 +1,102 @@
+---
+title: Execution Service
+icon: lucide/code-2
+---
+
+# Execution Service
+
+Execution service for moderation operations.
+
+Handles retry logic, circuit breakers, and execution management
+using proper service composition.
+
+## Classes
+
+Service for executing moderation actions with retry logic.
+
+Provides circuit breaker patterns and proper error handling
+for Discord API operations.
+
+This is a singleton to ensure circuit breakers are shared across
+all moderation cogs. Discord API failures are global, so circuit
+breakers should apply to all operations, not just per-cog.
+
+### Methods
+
+```python
+def __init__(self, failure_threshold: int, recovery_timeout: float, max_retries: int, base_delay: float, max_circuit_entries: int, circuit_cleanup_interval: float) -> None
+```
+
+Initialize the execution service.
+
+Parameters
+----------
+failure_threshold : int, optional
+    Number of failures before opening circuit breaker, by default 5.
+recovery_timeout : float, optional
+    Seconds to wait before retrying after circuit opens, by default 60.0.
+max_retries : int, optional
+    Maximum number of retry attempts for operations, by default 3.
+base_delay : float, optional
+    Base delay in seconds for exponential backoff, by default 1.0.
+max_circuit_entries : int, optional
+    Maximum number of circuit breaker entries before eviction, by default 100.
+circuit_cleanup_interval : float, optional
+    Interval in seconds for periodic cleanup of old circuit entries, by default 300.0.
+
+Notes
+-----
+Only initializes on first call. Subsequent calls are no-ops to preserve
+singleton state.
+
+```python
+async def execute_with_retry(self, operation_type: str, action: Callable[..., Coroutine[Any, Any, Any]], *args: Any, **kwargs: Any) -> Any
+```
+
+Execute an action with retry logic and circuit breaker.
+
+Parameters
+----------
+operation_type : str
+    Type of operation for circuit breaker.
+action : Callable[..., Coroutine[Any, Any, Any]]
+    The async callable to execute (must be a callable, not a coroutine).
+*args : Any
+    Positional arguments for the action.
+**kwargs : Any
+    Keyword arguments for the action.
+
+Returns
+-------
+Any
+    The result of the action.
+
+Raises
+------
+RuntimeError
+    If the circuit breaker is open for this operation type.
+discord.Forbidden
+    If the bot lacks permissions.
+discord.HTTPException
+    If a Discord API error occurs.
+discord.NotFound
+    If the resource is not found.
+
+```python
+def get_operation_type(self, case_type: DBCaseType) -> str
+```
+
+Get the operation type for circuit breaker based on case type.
+
+Uses the case type name directly as the operation type for simplicity
+and clear correlation between operations and their failure patterns.
+
+Parameters
+----------
+case_type : DBCaseType
+    The case type.
+
+Returns
+-------
+str
+    Operation type string for circuit breaker configuration.

@@ -1,0 +1,58 @@
+---
+title: Mail
+icon: lucide/code-2
+---
+
+# Mail
+
+Mail Plugin for Bot Bot.
+
+This plugin provides email account management functionality for the ATL Discord server,
+allowing administrators to create and manage email accounts through the Mailcow API.
+
+## Classes
+
+Mail plugin for managing email accounts via Mailcow API.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Mail plugin.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to initialize the plugin with.
+
+*Decorated with: `command`, `requires_command_permission`*
+
+```python
+async def register(self, interaction: discord.Interaction, member: discord.Member, username: str) -> None
+```
+
+Register a user for mail.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction object for the command.
+member : discord.Member
+    The member to register for mail.
+username : str
+    The username to register for mail.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the mail plugin.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

@@ -1,0 +1,50 @@
+---
+title: Permissions
+icon: lucide/code-2
+---
+
+# Permissions
+
+Permission and Discord check failures.
+
+## Classes
+
+Base exception for permission-related errors.
+
+Raised when a user doesn't have the required permission rank.
+
+### Methods
+
+```python
+def __init__(self, permission: str) -> None
+```
+
+Raised when a user doesn't have the required permission rank for an app command.
+
+### Methods
+
+```python
+def __init__(self, permission: str) -> None
+```
+
+Raised when a user doesn't have permission to run a command (dynamic system).
+
+Inherits from both commands.CheckFailure and app_commands.CheckFailure to ensure
+proper error handling for both prefix and app commands in discord.py.
+
+### Methods
+
+```python
+def __init__(self, required_rank: int, user_rank: int, command_name: str | None) -> None
+```
+
+Initialize the permission denied error.
+
+Parameters
+----------
+required_rank : int
+    The minimum permission rank required to run the command.
+user_rank : int
+    The actual permission rank of the user.
+command_name : str, optional
+    The name of the command that was attempted, by default None.

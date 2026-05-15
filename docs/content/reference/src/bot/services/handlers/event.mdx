@@ -1,0 +1,86 @@
+---
+title: Event
+icon: lucide/code-2
+---
+
+# Event
+
+Event handlers for Bot Bot such as on ready, on guild join, on guild remove, on member join (level role restore), on message and on guild channel create.
+
+## Classes
+
+Event handlers for on_ready, guild join/remove, member join (level role restore), on_message, and guild channel create.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the EventHandler cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.
+
+*Decorated with: `listener`*
+
+```python
+async def on_ready(self) -> None
+```
+
+Handle bot ready event.
+
+*Decorated with: `listener`*
+
+```python
+async def on_guild_join(self, guild: discord.Guild) -> None
+```
+
+On guild join event handler.
+
+*Decorated with: `listener`*
+
+```python
+async def on_member_join(self, member: discord.Member) -> None
+```
+
+Re-apply XP level roles when a member rejoins with existing level data.
+
+*Decorated with: `listener`*
+
+```python
+async def on_guild_remove(self, guild: discord.Guild) -> None
+```
+
+On guild remove event handler.
+
+*Decorated with: `listener`*
+
+```python
+async def on_message(self, message: discord.Message) -> None
+```
+
+On message event handler.
+
+*Decorated with: `listener`*
+
+```python
+async def on_guild_channel_create(self, channel: discord.abc.GuildChannel) -> None
+```
+
+Automatically deny view permissions for jail role on new channels.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Cog setup for event handler.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.

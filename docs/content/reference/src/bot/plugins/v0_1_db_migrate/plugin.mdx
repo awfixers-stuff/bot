@@ -1,0 +1,214 @@
+---
+title: Plugin
+icon: lucide/code-2
+---
+
+# Plugin
+
+Migrate prisma (pre v0.1.0) to sqlmodel (v0.1.0).
+
+## Classes
+
+Database migration plugin for migrating from Prisma to SQLModel.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the database migration plugin.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.
+
+```python
+def cog_check(self, ctx: commands.Context[Any]) -> bool
+```
+
+Check if user can use migration commands.
+
+Parameters
+----------
+ctx : commands.Context[Any]
+    Command context.
+
+Returns
+-------
+bool
+    True if user is bot owner or sysadmin, False otherwise.
+
+*Decorated with: `group`*
+
+```python
+async def migrate_group(self, ctx: commands.Context[Bot]) -> None
+```
+
+Database migration commands.
+
+Use subcommands to audit, migrate, and validate data.
+
+*Decorated with: `command`*
+
+```python
+async def migrate_audit(self, ctx: commands.Context[Bot]) -> None
+```
+
+Inspect old database schema.
+
+Generates a comprehensive schema report showing tables, columns,
+relationships, and indexes from the old Prisma database.
+
+*Decorated with: `command`*
+
+```python
+async def migrate_check_pk(self, ctx: commands.Context[Bot], table_name: str) -> None
+```
+
+Check primary key constraint for a specific table.
+
+Parameters
+----------
+table_name : str, optional
+    Table name to check (default: AFKModel).
+
+*Decorated with: `command`*
+
+```python
+async def migrate_check_duplicates(self, ctx: commands.Context[Bot], table_name: str) -> None
+```
+
+Check for duplicate member_id values across guilds in AFKModel.
+
+This helps identify potential data issues if the old schema
+only has member_id as PK instead of composite (member_id, guild_id).
+
+Parameters
+----------
+table_name : str, optional
+    Table name to check (default: AFKModel).
+
+*Decorated with: `command`*
+
+```python
+async def migrate_validate_schema(self, ctx: commands.Context[Bot]) -> None
+```
+
+Validate old database schema for migration compatibility.
+
+Checks the schema report against expected mappings to identify
+potential issues before migration execution.
+
+*Decorated with: `command`*
+
+```python
+async def migrate_map(self, ctx: commands.Context[Bot]) -> None
+```
+
+Display model mapping configuration.
+
+Shows how old Prisma models map to new SQLModel models,
+including field name conversions and type transformations.
+
+*Decorated with: `command`*
+
+```python
+async def migrate_dry_run(self, ctx: commands.Context[Bot], table_name: str | None) -> None
+```
+
+Test migration without committing changes.
+
+Parameters
+----------
+table_name : str | None, optional
+    Table name to test. If None, tests all tables.
+
+*Decorated with: `command`*
+
+```python
+async def migrate_table(self, ctx: commands.Context[Bot], table_name: str) -> None
+```
+
+Migrate a single table.
+
+Parameters
+----------
+table_name : str
+    New SQLModel table name to migrate.
+
+*Decorated with: `command`*
+
+```python
+async def migrate_all(self, ctx: commands.Context[Bot]) -> None
+```
+
+Migrate all tables in dependency order.
+
+⚠️ **WARNING**: This will migrate all data from the old database.
+Make sure you have backups and have tested with dry-run first!
+
+*Decorated with: `command`*
+
+```python
+async def migrate_validate(self, ctx: commands.Context[Bot]) -> None
+```
+
+Validate migrated data.
+
+Compares row counts, spot-checks records, and verifies
+relationships and constraints between old and new databases.
+
+*Decorated with: `command`*
+
+```python
+async def migrate_status(self, ctx: commands.Context[Bot]) -> None
+```
+
+Show migration status and progress.
+
+Displays information about which tables have been migrated
+and their row counts.
+
+## Functions
+
+```python
+def truncate_error_message(error: Exception, max_length: int) -> str
+```
+
+Truncate error message to avoid Discord's 4000 character limit.
+
+Parameters
+----------
+error : Exception
+    The exception to format.
+max_length : int, optional
+    Maximum length before truncation (default: 3900).
+
+Returns
+-------
+str
+    Truncated error message.
+
+```python
+def is_bot_owner_or_sysadmin(ctx: commands.Context[Bot]) -> bool
+```
+
+Check if user is bot owner or sysadmin.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    Command context.
+
+Returns
+-------
+bool
+    True if user is bot owner or sysadmin, False otherwise.
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the database migration plugin.

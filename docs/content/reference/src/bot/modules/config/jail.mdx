@@ -1,0 +1,29 @@
+---
+title: Jail
+icon: lucide/code-2
+---
+
+# Jail
+
+Jail channel and role configuration using the unified dashboard.
+
+## Classes
+
+Management for jail channel and jail role configuration.
+
+### Methods
+
+```python
+async def configure_jail(self, ctx: commands.Context[Bot]) -> None
+```
+
+Configure the jail channel and jail role using the unified config dashboard.
+
+This command launches the configuration dashboard in jail mode so
+administrators can set the channel where jailed members can communicate
+and the role that restricts their access to the rest of the server.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command invocation.

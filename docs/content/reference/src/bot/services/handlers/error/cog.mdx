@@ -1,0 +1,73 @@
+---
+title: Cog
+icon: lucide/code-2
+---
+
+# Cog
+
+Comprehensive error handler for Discord commands and client events.
+
+## Classes
+
+Centralized error handling for commands and client events.
+
+Handles app command (tree.on_error), prefix/hybrid (on_command_error), and
+raw client events (Client.on_error for on_ready, on_member_join, etc.).
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the error handler cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+```python
+async def cog_load(self) -> None
+```
+
+Override app command and client event error handlers.
+
+```python
+async def cog_unload(self) -> None
+```
+
+Restore original app command and client error handlers.
+
+```python
+async def cog_reload(self) -> None
+```
+
+Handle cog reload — re-import references from sibling modules.
+
+*Decorated with: `listener`*
+
+```python
+async def on_command_error(self, ctx: commands.Context[Bot], error: commands.CommandError) -> None
+```
+
+Handle prefix command errors.
+
+```python
+async def on_app_command_error(self, interaction: discord.Interaction[Bot], error: app_commands.AppCommandError) -> None
+```
+
+Handle app command errors.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Cog setup for error handler.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.

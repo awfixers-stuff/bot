@@ -1,0 +1,55 @@
+---
+title: Edit Snippet
+icon: lucide/code-2
+---
+
+# Edit Snippet
+
+Edit snippet commands.
+
+This module provides functionality for editing existing code snippets
+in Discord guilds with ownership and permission validation.
+
+## Classes
+
+Discord cog for editing snippets.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the edit snippet cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def edit_snippet(self, ctx: commands.Context[Bot], name: str, content: str) -> None
+```
+
+Edit an existing snippet.
+
+Checks for ownership and lock status before editing.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+name : str
+    The name of the snippet to edit.
+content : str
+    The new content for the snippet.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Load the EditSnippet cog.

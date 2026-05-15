@@ -1,0 +1,231 @@
+---
+title: Callbacks
+icon: lucide/code-2
+---
+
+# Callbacks
+
+Callback utilities for ConfigDashboard.
+
+Provides reusable patterns for authorization checks, error handling,
+and cache invalidation in callback functions.
+
+## Functions
+
+```python
+async def validate_author(interaction: discord.Interaction, author: discord.User | discord.Member, error_message: str) -> bool
+```
+
+Validate that the interaction user is the authorized author.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction to validate
+author : discord.User | discord.Member
+    The authorized author
+error_message : str
+    Error message to send if validation fails
+
+Returns
+-------
+bool
+    True if authorized, False otherwise
+
+```python
+async def validate_interaction_data(interaction: discord.Interaction) -> bool
+```
+
+Validate that interaction has valid data.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction to validate
+
+Returns
+-------
+bool
+    True if valid, False otherwise
+
+```python
+async def handle_callback_error(interaction: discord.Interaction, error: Exception, operation: str, context: str) -> None
+```
+
+Handle errors in callback functions with consistent error messages.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction that triggered the error
+error : Exception
+    The exception that occurred
+operation : str
+    Description of the operation that failed
+context : str, optional
+    Additional context for the error message
+
+```python
+async def invalidate_and_rebuild(dashboard: ConfigDashboard, mode: str, rebuild_method: Callable[[], Awaitable[None]], interaction: discord.Interaction) -> None
+```
+
+Invalidate cache, rebuild mode, and update message.
+
+Parameters
+----------
+dashboard : ConfigDashboard
+    The dashboard instance
+mode : str
+    The mode to rebuild
+rebuild_method : Callable[[], Awaitable[None]]
+    Async method to rebuild the mode
+interaction : discord.Interaction
+    The interaction to update the message for
+
+```python
+def create_authorized_callback(dashboard: ConfigDashboard, callback_func: Callable[[discord.Interaction], Awaitable[None]], unauthorized_message: str) -> Callable[[discord.Interaction], Awaitable[None]]
+```
+
+Wrap a callback function with authorization checks.
+
+Parameters
+----------
+dashboard : ConfigDashboard
+    The dashboard instance
+callback_func : Callable[[discord.Interaction], Awaitable[None]]
+    The callback function to wrap
+unauthorized_message : str
+    Message to send if user is not authorized
+
+Returns
+-------
+Callable[[discord.Interaction], Awaitable[None]]
+    Wrapped callback with authorization checks
+
+```python
+def create_role_update_callback(dashboard: ConfigDashboard, rank_value: int, rank_db_id: int) -> Any
+```
+
+Create a callback for role selection that updates the database based on new state.
+
+```python
+def create_command_rank_callback(dashboard: ConfigDashboard, command_name: str) -> Any
+```
+
+Create a callback for command rank assignment.
+
+```python
+def create_jail_channel_callback(dashboard: ConfigDashboard) -> Any
+```
+
+Create a callback for jail channel selection.
+
+```python
+def create_jail_role_callback(dashboard: ConfigDashboard) -> Any
+```
+
+Create a callback for jail role selection.
+
+```python
+def create_jail_setup_all_callback(dashboard: ConfigDashboard) -> Any
+```
+
+Create a callback for the 'Setup all channels' jail button.
+
+Denies the jail role from viewing every channel except the jail channel,
+and allows view/send on the jail channel. Applies to text, voice, forum,
+stage, and category channels.
+
+```python
+def create_channel_callback(dashboard: ConfigDashboard, option_key: str) -> Any
+```
+
+Create a callback for channel selection.
+
+```python
+def create_edit_rank_callback(dashboard: ConfigDashboard, rank_value: int, current_name: str, current_description: str | None) -> Any
+```
+
+Create a callback for editing a rank.
+
+```python
+def create_delete_rank_callback(dashboard: ConfigDashboard, rank_value: int, rank_name: str) -> Any
+```
+
+Create a callback for deleting a rank.
+
+```python
+def create_cancel_assignment_callback() -> Any
+```
+
+Create callback for canceling role assignment.
+
+```python
+def create_confirm_assignment_callback(dashboard: ConfigDashboard, rank_id: int, rank_db_id: int, selected_roles: list[discord.Role]) -> Any
+```
+
+Create callback for confirming role assignment.
+
+```python
+def create_role_selection_callback(dashboard: ConfigDashboard, rank_id: int, role_select: discord.ui.RoleSelect[discord.ui.LayoutView], assign_view: discord.ui.LayoutView, assign_container: discord.ui.Container[discord.ui.LayoutView], selected_roles: list[discord.Role], confirm_callback: Any, cancel_callback: Any) -> Any
+```
+
+Create callback for role selection that updates the UI.
+
+```python
+async def wrapped_callback(interaction: discord.Interaction) -> None
+```
+
+```python
+async def callback(interaction: discord.Interaction) -> None
+```
+
+Handle role selection update.
+
+```python
+async def callback(interaction: discord.Interaction) -> None
+```
+
+Handle command rank selection.
+
+```python
+async def callback(interaction: discord.Interaction) -> None
+```
+
+```python
+async def callback(interaction: discord.Interaction) -> None
+```
+
+```python
+async def callback(interaction: discord.Interaction) -> None
+```
+
+```python
+async def callback(interaction: discord.Interaction) -> None
+```
+
+Handle channel selection.
+
+```python
+async def callback(interaction: discord.Interaction) -> None
+```
+
+Handle rank edit button click - opens modal.
+
+```python
+async def callback(interaction: discord.Interaction) -> None
+```
+
+Handle rank deletion.
+
+```python
+async def cancel_assignment_callback(interaction: discord.Interaction) -> None
+```
+
+```python
+async def confirm_assignment_callback(interaction: discord.Interaction) -> None
+```
+
+```python
+async def on_role_select(interaction: discord.Interaction) -> None
+```

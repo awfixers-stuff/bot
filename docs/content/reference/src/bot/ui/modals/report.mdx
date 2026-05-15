@@ -1,0 +1,41 @@
+---
+title: Report
+icon: lucide/code-2
+---
+
+# Report
+
+Discord Report Modal for Bot Bot.
+
+This module provides a modal dialog for users to submit anonymous reports
+to the server moderation team with proper logging and thread creation.
+
+## Classes
+
+Modal for submitting anonymous user reports.
+
+### Methods
+
+```python
+def __init__(self, title: str = 'Submit an anonymous report', bot: Bot) -> None
+```
+
+Initialize the report modal.
+
+Parameters
+----------
+title : str, optional
+    The modal title, by default "Submit an anonymous report".
+bot : Bot
+    The bot instance to use for database access and operations.
+
+```python
+async def on_submit(self, interaction: discord.Interaction) -> None
+```
+
+Send the report to the moderation team.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction that triggered the command.

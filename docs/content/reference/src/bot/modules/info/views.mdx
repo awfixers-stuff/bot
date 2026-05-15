@@ -1,0 +1,37 @@
+---
+title: Views
+icon: lucide/code-2
+---
+
+# Views
+
+Components V2 views for info command displays.
+
+## Classes
+
+Components V2 pagination view for info command lists.
+
+Replaces reactionmenu.ViewMenu with a Components V2 implementation.
+
+### Methods
+
+```python
+def __init__(self, items: Iterable[str], title: str, list_type: str, guild_name: str, chunk_size: int, timeout: float) -> None
+```
+
+Initialize the paginator view.
+
+Parameters
+----------
+items : Iterable[str]
+    The items to paginate.
+title : str
+    The title of the paginated view.
+list_type : str
+    The type of list (e.g., "roles", "emojis").
+guild_name : str
+    The name of the guild.
+chunk_size : int, optional
+    The size of each chunk, by default 50.
+timeout : float, optional
+    View timeout in seconds, by default 300.0.

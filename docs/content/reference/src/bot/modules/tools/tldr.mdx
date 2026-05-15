@@ -1,0 +1,130 @@
+---
+title: Tldr
+icon: lucide/code-2
+---
+
+# Tldr
+
+TLDR command integration for Discord.
+
+This module provides TLDR (Too Long; Didn't Read) command documentation
+lookup functionality, allowing users to search and view command summaries
+from various platforms with interactive pagination.
+
+## Classes
+
+Discord cog for TLDR command integration.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the TLDR cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+```python
+async def cog_load(self) -> None
+```
+
+Schedule cache check when the cog is loaded (initial startup only).
+
+```python
+async def cog_unload(self) -> None
+```
+
+Clean up resources when the cog is unloaded.
+
+```python
+def detect_bot_language(self) -> str
+```
+
+Detect the bot's default language. For Discord bots, default to English.
+
+Returns
+-------
+str
+    The language code (always "en" for this bot).
+
+```python
+async def command_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]
+```
+
+Autocomplete for the command parameter.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction triggering autocomplete.
+current : str
+    Current input value.
+
+Returns
+-------
+list[app_commands.Choice[str]]
+    List of command choices for autocomplete.
+
+```python
+async def platform_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]
+```
+
+Autocomplete for the platform parameter.
+
+Returns
+-------
+list[app_commands.Choice[str]]
+    List of platform choices for autocomplete.
+
+```python
+async def language_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]
+```
+
+Autocomplete for the language parameter.
+
+Returns
+-------
+list[app_commands.Choice[str]]
+    List of language choices for autocomplete.
+
+*Decorated with: `command`, `guild_only`, `describe`, `autocomplete`*
+
+```python
+async def slash_tldr(self, interaction: discord.Interaction, command: str, platform: str | None, language: str | None, show_short: bool | None, show_long: bool | None, show_both: bool | None) -> None
+```
+
+Show a TLDR page for a CLI command.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def prefix_tldr(self, ctx: commands.Context[Bot], command: str, flags: TldrFlags) -> None
+```
+
+Show a TLDR page for a CLI command. If spaces are required, use hyphens instead.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+command : str
+    The command to look up (e.g. tar, git-commit, etc).
+flags : TldrFlags
+    The flags for the command. (platform: str | None, language: str | None, show_short: bool, show_long: bool, show_both: bool)
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Tldr cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

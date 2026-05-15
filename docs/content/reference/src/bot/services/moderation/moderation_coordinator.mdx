@@ -1,0 +1,34 @@
+---
+title: Moderation Coordinator
+icon: lucide/code-2
+---
+
+# Moderation Coordinator
+
+Moderation coordinator service.
+
+Orchestrates all moderation services and provides the main interface
+for moderation operations, replacing the mixin-based approach.
+
+## Classes
+
+Internal sentinel: Discord action failed, case voided/cancelled.
+
+Main coordinator for moderation operations.
+
+Orchestrates case creation, communication, and execution
+using proper service composition instead of mixins.
+
+### Methods
+
+```python
+def __init__(self, case_service: CaseService, communication_service: CommunicationService, execution_service: ExecutionService)
+```
+
+```python
+async def execute_moderation_action(self, ctx: commands.Context[Bot], case_type: DBCaseType, user: discord.Member | discord.User, reason: str, silent: bool, dm_action: str | None, actions: Sequence[tuple[Callable[..., Coroutine[Any, Any, Any]], type[Any]]] | None, duration: int | None, expires_at: datetime | None, **extra_case_data: Any) -> Case | None
+```
+
+Execute a complete moderation action.
+
+Orchestrates: DM → Discord actions → case creation → response embeds → mod log.

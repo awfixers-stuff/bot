@@ -1,0 +1,209 @@
+---
+title: Models
+icon: lucide/code-2
+---
+
+# Models
+
+Database Models for Bot Bot.
+
+This module defines all the SQLModel-based database models used by the Bot Discord bot,
+including models for guilds, moderation cases, snippets, reminders, levels, starboard,
+and permission management.
+
+## Classes
+
+Permission ranks for role-based access control.
+
+Defines hierarchical permission ranks that can be assigned to roles,
+controlling access to bot commands and features.
+
+Attributes
+----------
+id : int, optional
+    Auto-generated primary key.
+rank : int
+    Numeric permission rank (0-10, higher = more permissions).
+name : str
+    Human-readable name for the permission rank.
+description : str, optional
+    Optional description of the rank's purpose and permissions.
+
+Assigns permission ranks to Discord roles.
+
+Maps Discord roles to permission ranks, granting all members with that role
+the associated permission level.
+
+Attributes
+----------
+id : int, optional
+    Auto-generated primary key.
+permission_rank_id : int
+    ID of the permission rank being assigned.
+role_id : int
+    Discord role ID receiving the permission rank.
+
+Assigns permission requirements to specific commands.
+
+Defines the minimum permission rank required for specific commands,
+overriding default permission requirements.
+
+Attributes
+----------
+id : int, optional
+    Auto-generated primary key.
+command_name : str
+    Name of the command (unique).
+required_rank : int
+    Minimum permission rank required (0-10).
+description : str, optional
+    Optional description of the command.
+
+Moderation case records.
+
+Represents individual moderation actions taken against users,
+such as bans, kicks, timeouts, warnings, etc.
+
+Attributes
+----------
+id : int
+    Unique case identifier.
+case_status : bool
+    Whether the case is valid or voided.
+case_processed : bool
+    Whether expiration has been processed.
+case_type : CaseType
+    Type of moderation action taken.
+case_reason : str
+    Reason for the moderation action.
+case_moderator_id : int
+    Discord user ID of the moderator who took action.
+case_user_id : int
+    Discord user ID of the moderated user.
+case_user_roles : list[int]
+    User's roles at the time of the case.
+case_number : int, optional
+    Sequential case number.
+case_expires_at : datetime, optional
+    When temporary action expires.
+case_metadata : dict, optional
+    Additional case-specific metadata.
+mod_log_message_id : int, optional
+    Discord message ID in mod log.
+
+Custom command snippets.
+
+Represents user-defined text snippets that can be triggered by custom commands.
+
+Attributes
+----------
+id : int, optional
+    Auto-generated primary key.
+snippet_name : str
+    Name of the snippet command (unique).
+snippet_content : str, optional
+    Content/text of the snippet.
+snippet_user_id : int
+    Discord user ID who created the snippet.
+uses : int
+    Number of times this snippet has been used.
+locked : bool
+    Whether the snippet is locked (prevents editing/deletion).
+alias : str, optional
+    Optional alias name for the snippet.
+
+Scheduled reminders for users.
+
+Represents reminders that users can set to be notified about at a specific time.
+
+Attributes
+----------
+id : int, optional
+    Auto-generated primary key.
+reminder_content : str
+    Content of the reminder message.
+reminder_expires_at : datetime
+    When the reminder should trigger.
+reminder_channel_id : int
+    Channel ID where reminder should be sent.
+reminder_user_id : int
+    Discord user ID who set the reminder.
+reminder_sent : bool
+    Whether the reminder has been sent.
+
+Away From Keyboard status for users.
+
+Tracks when users set themselves as AFK and provides a reason
+for their absence.
+
+Attributes
+----------
+member_id : int
+    Discord user ID (primary key).
+nickname : str
+    User's nickname when they went AFK.
+reason : str
+    Reason for being AFK.
+since : datetime
+    When the user went AFK.
+until : datetime, optional
+    When the AFK status expires (for scheduled AFK).
+enforced : bool
+    Whether AFK is enforced (user can't remove it themselves).
+perm_afk : bool
+    Whether this is a permanent AFK status.
+
+User experience and leveling data.
+
+Tracks user experience points and level progression.
+
+Attributes
+----------
+member_id : int
+    Discord user ID (primary key).
+xp : float
+    Experience points accumulated by the user.
+level : int
+    Current level derived from XP.
+blacklisted : bool
+    Whether user is blacklisted from gaining XP.
+last_message : datetime
+    Timestamp of last message for XP cooldown.
+
+Starboard configuration.
+
+Defines the starboard channel and emoji settings for highlighting
+messages that receive enough reactions.
+
+Attributes
+----------
+id : int
+    Config ID (primary key, single row).
+starboard_channel_id : int
+    Discord channel ID where starred messages are posted.
+starboard_emoji : str
+    Emoji used for starring messages.
+starboard_threshold : int
+    Number of reactions needed to appear on starboard.
+
+Messages that have been starred on the starboard.
+
+Tracks individual messages that have been posted to the starboard
+along with their star counts and original message information.
+
+Attributes
+----------
+id : int
+    Original Discord message ID (primary key).
+message_content : str
+    Content of the original message.
+message_expires_at : datetime
+    When the starboard entry expires.
+message_channel_id : int
+    Original channel ID where message was posted.
+message_user_id : int
+    Discord user ID of the message author.
+star_count : int
+    Current number of star reactions.
+starboard_message_id : int
+    ID of the starboard message in the starboard channel.

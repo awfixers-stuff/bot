@@ -1,0 +1,472 @@
+---
+title: Tracing
+icon: lucide/code-2
+---
+
+# Tracing
+
+Sentry Instrumentation Utilities for Tracing and Performance Monitoring.
+
+This module provides a set of decorators and context managers to simplify the
+instrumentation of code with Sentry transactions and spans. It standardizes the
+creation of performance monitoring traces and ensures that they gracefully handle
+cases where the Sentry SDK is not initialized by providing dummy objects.
+
+The main components are:
+- Decorators (`@transaction`, `@span`): For easily wrapping entire functions or
+  methods in a Sentry transaction or span.
+- Context Managers (`start_transaction`, `start_span`): For instrumenting
+  specific blocks of code within a function.
+- Helper Functions: For adding contextual data to the currently active span.
+
+## Classes
+
+A no-op (dummy) span object for when the Sentry SDK is not initialized.
+
+This class mimics the interface of a Sentry span but performs no actions,
+allowing instrumentation code (`with start_span(...)`) to run without errors
+even if Sentry is disabled.
+
+### Methods
+
+```python
+def __init__(self) -> None
+```
+
+Initialize the dummy span.
+
+```python
+def set_tag(self, *args: Any, **kwargs: Any) -> 'DummySpan'
+```
+
+No-op tag setter.
+
+Returns
+-------
+DummySpan
+    Returns self for method chaining.
+
+```python
+def set_data(self, *args: Any, **kwargs: Any) -> 'DummySpan'
+```
+
+No-op data setter.
+
+Returns
+-------
+DummySpan
+    Returns self for method chaining.
+
+```python
+def set_status(self, *args: Any, **kwargs: Any) -> 'DummySpan'
+```
+
+No-op status setter.
+
+Returns
+-------
+DummySpan
+    Returns self for method chaining.
+
+```python
+def set_name(self, name: str) -> 'DummySpan'
+```
+
+No-op name setter.
+
+Returns
+-------
+DummySpan
+    Returns self for method chaining.
+
+A no-op (dummy) transaction object for when Sentry is not initialized.
+
+This inherits from `DummySpan` and provides a safe fallback for the
+`start_transaction` context manager.
+
+## Functions
+
+```python
+def safe_set_name(obj: Any, name: str) -> None
+```
+
+Safely set the name on a span or transaction object.
+
+This helper is used because the `set_name` method may not always be
+present on all span-like objects from Sentry, so this avoids
+potential `AttributeError` exceptions.
+
+Parameters
+----------
+obj : Any
+    The span or transaction object.
+name : str
+    The name to set.
+
+```python
+def create_instrumentation_wrapper(func: Callable[P, R], context_factory: Callable[[], Any], is_transaction: bool) -> Callable[P, R]
+```
+
+Create an instrumentation wrapper for both sync and async functions.
+
+This is the core helper that eliminates duplication between transaction
+and span decorators by providing a unified wrapper creation mechanism.
+
+Parameters
+----------
+func : Callable[P, R]
+    The function to wrap.
+context_factory : Callable[[], Any]
+    A factory function that creates the Sentry context (span or transaction).
+is_transaction : bool, optional
+    Whether this is a transaction (affects status setting behavior).
+
+Returns
+-------
+Callable[P, R]
+    The wrapped function.
+
+```python
+def transaction(op: str, name: str | None) -> Callable[[Callable[P, R]], Callable[P, R]]
+```
+
+Wrap a function with a Sentry transaction.
+
+This handles both synchronous and asynchronous functions automatically.
+It captures the function's execution time, sets the status to 'ok' on
+success or 'internal_error' on failure, and records exceptions.
+
+Parameters
+----------
+op : str
+    The operation name for the transaction (e.g., 'db.query').
+name : str | None
+    The name for the transaction. Defaults to the function's qualified name.
+
+Returns
+-------
+Callable
+    The decorated function.
+
+```python
+def span(op: str, description: str | None) -> Callable[[Callable[P, R]], Callable[P, R]]
+```
+
+Wrap a function with a Sentry span.
+
+This should be used on functions called within an existing transaction.
+It automatically handles both sync and async functions, captures execution
+time, and records success or failure status.
+
+Parameters
+----------
+op : str
+    The operation name for the span (e.g., 'db.query.fetch').
+description : str | None
+    A description of what the span is doing. Defaults to the function's name.
+
+Returns
+-------
+Callable
+    The decorated function.
+
+*Decorated with: `contextmanager`*
+
+```python
+def start_span(op: str, name: str) -> Generator[DummySpan | Any]
+```
+
+Context manager for creating a Sentry span for a block of code.
+
+Example:
+    with start_span("db.query", "Fetching user data"):
+        ...
+
+Parameters
+----------
+op : str
+    The operation name for the span.
+name : str
+    The name of the span.
+
+Yields
+------
+Union[DummySpan, sentry_sdk.Span]
+    The Sentry span object or a dummy object if Sentry is not initialized.
+
+*Decorated with: `contextmanager`*
+
+```python
+def start_transaction(op: str, name: str) -> Generator[DummyTransaction | Any]
+```
+
+Context manager for creating a Sentry transaction for a block of code.
+
+Example:
+    with start_transaction("task", "process_daily_report"):
+        ...
+
+Parameters
+----------
+op : str
+    The operation name for the transaction.
+name : str
+    The name for the transaction.
+
+Yields
+------
+Union[DummyTransaction, sentry_sdk.Transaction]
+    The Sentry transaction object or a dummy object if Sentry is not initialized.
+
+```python
+def get_current_span() -> Any | None
+```
+
+Get the current active Sentry span.
+
+Returns
+-------
+Any | None
+    The current span if Sentry is initialized, None otherwise.
+
+```python
+def add_breadcrumb(message: str, category: str, level: str, data: dict[str, Any] | None) -> None
+```
+
+Add a breadcrumb to the current Sentry scope.
+
+```python
+def finish_transaction_on_error() -> None
+```
+
+Finish the current transaction with error status.
+
+```python
+def set_span_attributes(attributes: dict[str, Any]) -> None
+```
+
+Set multiple data attributes on the current active Sentry span.
+
+This helper function simplifies attaching context to a span by accepting a
+dictionary of attributes. Uses `set_data()` for span attributes (visible in
+trace explorer), not `set_tag()` (which is for filtering).
+
+Parameters
+----------
+attributes : dict[str, Any]
+    A dictionary where keys are the attribute names and values are the
+    attribute values to set on the span. Values can be string, number,
+    boolean, or arrays of these types.
+
+```python
+def set_setup_phase_tag(span: Any, phase: str, status: str) -> None
+```
+
+Set a setup phase tag on the span.
+
+Parameters
+----------
+span : Any
+    The Sentry span to tag
+phase : str
+    The phase name (e.g., "database", "cogs")
+status : str
+    The status ("starting" or "finished")
+
+```python
+def capture_span_exception(exception: Exception, **extra_data: Any) -> None
+```
+
+Capture an exception in the current span with consistent error handling.
+
+This consolidates the common pattern of setting span status and data
+when an exception occurs.
+
+Parameters
+----------
+exception : Exception
+    The exception to capture.
+**extra_data : Any
+    Additional data to attach to the span.
+
+*Decorated with: `contextmanager`*
+
+```python
+def enhanced_span(op: str, name: str, **initial_data: Any) -> Generator[DummySpan | Any]
+```
+
+Enhanced context manager for creating a Sentry span with initial data.
+
+This extends the basic start_span with the ability to set initial
+tags and data, reducing boilerplate in calling code.
+
+Parameters
+----------
+op : str
+    The operation name for the span.
+name : str
+    The name for the span.
+**initial_data : Any
+    Initial data to set on the span.
+
+Yields
+------
+Union[DummySpan, sentry_sdk.Span]
+    The Sentry span object or a dummy object if Sentry is not initialized.
+
+```python
+def instrument_bot_commands(bot: commands.Bot) -> None
+```
+
+Automatically instruments all bot commands with Sentry transactions.
+
+This function iterates through all registered commands on the bot and
+wraps their callbacks with the `@transaction` decorator. This ensures
+that every command invocation is captured as a Sentry transaction.
+
+Parameters
+----------
+bot : commands.Bot
+    The instance of the bot whose commands should be instrumented.
+
+*Decorated with: `wraps`*
+
+```python
+def sync_wrapper(*args: P.args, **kwargs: P.kwargs) -> R
+```
+
+Sync wrapper for instrumented functions.
+
+This wrapper handles execution of sync functions within a Sentry
+context (span or transaction), capturing timing and error information.
+
+Parameters
+----------
+*args : P.args
+    Positional arguments passed to the wrapped function.
+**kwargs : P.kwargs
+    Keyword arguments passed to the wrapped function.
+
+Returns
+-------
+R
+    The return value from the wrapped function.
+
+```python
+def decorator(func: Callable[P, R]) -> Callable[P, R]
+```
+
+Wrap a function with Sentry transaction instrumentation.
+
+Parameters
+----------
+func : Callable[P, R]
+    The function to wrap.
+
+Returns
+-------
+Callable[P, R]
+    The wrapped function.
+
+```python
+def decorator(func: Callable[P, R]) -> Callable[P, R]
+```
+
+Wrap a function with Sentry span instrumentation.
+
+Parameters
+----------
+func : Callable[P, R]
+    The function to wrap.
+
+Returns
+-------
+Callable[P, R]
+    The wrapped function.
+
+```python
+def create_wrapper(original_callback: Callable[..., Coroutine[Any, Any, None]], txn_name: str) -> Callable[..., Coroutine[Any, Any, None]]
+```
+
+Create a wrapper function for a command callback.
+
+Preserves the original function signature so discord.py can properly
+inspect parameters and converters. Uses functools.wraps to preserve
+metadata, and explicitly preserves __signature__ for discord.py's
+introspection.
+
+Parameters
+----------
+original_callback : Callable[..., Coroutine[Any, Any, None]]
+    The original command callback to wrap.
+
+txn_name : str
+    The transaction name for Sentry.
+
+Returns
+-------
+Callable[..., Coroutine[Any, Any, None]]
+    The wrapped callback function with preserved signature.
+
+*Decorated with: `wraps`*
+
+```python
+async def async_wrapper(*args: P.args, **kwargs: P.kwargs) -> R
+```
+
+Async wrapper for instrumented functions.
+
+This wrapper handles execution of async functions within a Sentry
+context (span or transaction), capturing timing and error information.
+
+Parameters
+----------
+*args : P.args
+    Positional arguments passed to the wrapped function.
+**kwargs : P.kwargs
+    Keyword arguments passed to the wrapped function.
+
+Returns
+-------
+R
+    The return value from the wrapped function.
+
+```python
+def context_factory() -> Any
+```
+
+Create Sentry transaction context.
+
+Returns
+-------
+Any
+    Sentry transaction context manager.
+
+```python
+def context_factory() -> Any
+```
+
+Create Sentry span context.
+
+Returns
+-------
+Any
+    Sentry span context manager.
+
+*Decorated with: `wraps`*
+
+```python
+async def wrapped(*args: Any, **kwargs: Any) -> None
+```
+
+Execute command callback with Sentry transaction instrumentation.
+
+Parameters
+----------
+*args : Any
+
+    Positional arguments passed to the command.
+
+**kwargs : Any
+
+    Keyword arguments passed to the command.

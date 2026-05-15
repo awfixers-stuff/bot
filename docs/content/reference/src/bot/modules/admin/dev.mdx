@@ -1,0 +1,241 @@
+---
+title: Dev
+icon: lucide/code-2
+---
+
+# Dev
+
+Development and administrative commands for the Bot bot.
+
+This module provides various administrative commands for bot management,
+including command synchronization, emoji management, and system information.
+
+## Classes
+
+Discord cog for development and administrative commands.
+
+This cog provides various administrative commands for bot management
+and development tasks, including command synchronization and emoji management.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Dev cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `hybrid_group`, `guild_only`, `requires_command_permission`*
+
+```python
+async def dev(self, ctx: commands.Context[Bot]) -> None
+```
+
+Dev related commands.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def sync_tree(self, ctx: commands.Context[Bot], guild: discord.Guild) -> None
+```
+
+Sync the app command tree.
+
+Parameters
+----------
+ctx : commands.Context
+    The context in which the command is being invoked.
+guild : discord.Guild
+    The guild to sync application commands to.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def clear_tree(self, ctx: commands.Context[Bot]) -> None
+```
+
+Clear the app command tree.
+
+Parameters
+----------
+ctx : commands.Context
+    The context in which the command is being invoked.
+
+*Decorated with: `group`, `guild_only`, `requires_command_permission`*
+
+```python
+async def emoji(self, ctx: commands.Context[Bot]) -> None
+```
+
+Emoji management commands.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def sync_emojis(self, ctx: commands.Context[Bot]) -> None
+```
+
+Synchronize emojis from the local assets directory to the application.
+
+This command:
+1. Scans the emoji assets directory
+2. Uploads any missing emojis to the application
+3. Reports which emojis were created and which were skipped
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def resync_emoji(self, ctx: commands.Context[Bot], emoji_name: str) -> None
+```
+
+Resync a specific emoji from the local assets directory.
+
+This command:
+1. Deletes the existing emoji with the given name (if it exists)
+2. Creates a new emoji using the local file with the same name
+3. Reports the results
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+emoji_name : str
+    The name of the emoji to resync.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def delete_all_emojis(self, ctx: commands.Context[Bot]) -> None
+```
+
+Delete all application emojis that match names from the emoji assets directory.
+
+This command:
+1. Scans the emoji assets directory for valid emoji names
+2. Deletes all application emojis with matching names
+3. Reports which emojis were deleted and which failed
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def list_emojis(self, ctx: commands.Context[Bot]) -> None
+```
+
+List all emojis currently in the emoji manager's cache.
+
+This command:
+1. Shows all emojis in the bot's emoji cache
+2. Displays emoji count and names
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def load_cog(self, ctx: commands.Context[Bot], cog: str) -> None
+```
+
+Load a cog into the bot.
+
+This command supports automatic path resolution. You can use short names
+like "ping" which will be resolved to "bot.modules.utility.ping", or
+provide the full module path directly.
+
+Parameters
+----------
+ctx : commands.Context
+    The context in which the command is being invoked.
+cog : str
+    The name of the cog to load (short name or full module path).
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def unload_cog(self, ctx: commands.Context[Bot], cog: str) -> None
+```
+
+Unload a cog from the bot.
+
+This command supports automatic path resolution. You can use short names
+like "ping" which will be resolved to "bot.modules.utility.ping", or
+provide the full module path directly.
+
+Parameters
+----------
+ctx : commands.Context
+    The context in which the command is being invoked.
+cog : str
+    The name of the cog to unload (short name or full module path).
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def reload_cog(self, ctx: commands.Context[Bot], cog: str) -> None
+```
+
+Reload a cog in the bot.
+
+This command supports automatic path resolution. You can use short names
+like "ping" which will be resolved to "bot.modules.utility.ping", or
+provide the full module path directly.
+
+Parameters
+----------
+ctx : commands.Context
+    The context in which the command is being invoked.
+cog : str
+    The name of the cog to reload (short name or full module path).
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def stop(self, ctx: commands.Context[Bot]) -> None
+```
+
+Stop the bot. If Bot is running with Docker Compose, this will restart the container.
+
+Parameters
+----------
+ctx : commands.Context
+    The context in which the command is being invoked.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Dev cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

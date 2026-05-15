@@ -1,0 +1,243 @@
+---
+title: Mock
+icon: lucide/code-2
+---
+
+# Mock
+
+Mock Plugin for Bot Bot.
+
+This plugin provides error testing and debugging functionality,
+allowing developers to trigger various error conditions and test
+error handling mechanisms in the bot.
+
+## Classes
+
+Mock parameter object for testing purposes.
+
+### Methods
+
+```python
+def __init__(self, name: str)
+```
+
+Initialize a mock parameter.
+
+Parameters
+----------
+name : str
+    The name of the parameter.
+
+Mock flag object for testing purposes.
+
+### Methods
+
+```python
+def __init__(self, name: str)
+```
+
+Initialize a mock flag.
+
+Parameters
+----------
+name : str
+    The name of the flag.
+
+A simple mock object that accepts arbitrary attributes.
+
+### Methods
+
+```python
+def __init__(self, **kwargs: Any) -> None
+```
+
+Initialize the mock object with arbitrary attributes.
+
+Parameters
+----------
+**kwargs : Any
+    Arbitrary keyword arguments to set as attributes.
+
+Defines how to construct and test a specific error type.
+
+### Methods
+
+```python
+def __init__(self, error_class: type[Exception], args: tuple[Any, ...], kwargs: dict[str, Any] | None, description: str, category: str) -> None
+```
+
+Initialize an error test definition.
+
+Parameters
+----------
+error_class : type[Exception]
+    The exception class to test.
+args : tuple[Any, ...], optional
+    Positional arguments for error construction.
+kwargs : dict[str, Any] | None, optional
+    Keyword arguments for error construction.
+description : str, optional
+    Description of the error test.
+category : str, optional
+    Category for organizing error tests.
+
+```python
+def create_error(self) -> Exception
+```
+
+Create an instance of this error for testing.
+
+Returns
+-------
+Exception
+    An instance of the configured error class.
+
+```python
+def get_config(self) -> dict[str, Any] | None
+```
+
+Get the error handler configuration for this error type.
+
+Returns
+-------
+dict[str, Any] | None
+    Error handler configuration dict, or None if not configured.
+
+Dynamic registry of errors that can be tested, based on the actual error handler.
+
+### Methods
+
+```python
+def __init__(self) -> None
+```
+
+Initialize the error test registry.
+
+```python
+def get_test_names(self) -> list[str]
+```
+
+Get all test names.
+
+Returns
+-------
+list[str]
+    List of all registered test names.
+
+```python
+def get_test_names_by_category(self) -> dict[str, list[str]]
+```
+
+Get test names grouped by category.
+
+Returns
+-------
+dict[str, list[str]]
+    Dictionary mapping category names to lists of test names.
+
+```python
+def get_test(self, name: str) -> ErrorTestDefinition | None
+```
+
+Get a specific test by name.
+
+Returns
+-------
+ErrorTestDefinition | None
+    The test definition if found, None otherwise.
+
+Mock plugin for Bot Bot.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Mock cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.
+
+*Decorated with: `hybrid_group`, `requires_command_permission`*
+
+```python
+async def mock(self, ctx: commands.Context[Bot]) -> None
+```
+
+Command group for mocking various bot behaviors.
+
+Requires System Administrator permissions (Level 8).
+
+```python
+async def error_name_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]
+```
+
+Autocomplete function for error names based on the selected category.
+
+Returns
+-------
+list[app_commands.Choice[str]]
+    List of autocomplete choices (max 25).
+
+*Decorated with: `command`, `describe`, `choices`, `autocomplete`, `requires_command_permission`*
+
+```python
+async def mock_error(self, ctx: commands.Context[Bot], category: str, error_name: str | None) -> None
+```
+
+Raise a specified error to test the global error handler.
+
+This command shows detailed information about how the error will be handled,
+then raises the error to demonstrate the actual behavior.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The command invocation context.
+category : str
+    The category of error to test (required for slash commands).
+error_name : str, optional
+    The specific error name to test. If not provided, shows available errors in the category.
+
+Notes
+-----
+This command intentionally raises various exceptions based on the input.
+These exceptions will propagate up to the global ErrorHandler cog.
+Requires System Administrator permissions (Level 8).
+
+```python
+async def error_type_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]
+```
+
+Autocomplete function for error types with category information.
+
+Returns
+-------
+list[app_commands.Choice[str]]
+    List of autocomplete choices with category prefix (max 25).
+
+*Decorated with: `command`, `autocomplete`, `requires_command_permission`*
+
+```python
+async def mock_test(self, ctx: commands.Context[Bot], error_type: str) -> None
+```
+
+Alternative error testing command with autocomplete support.
+
+This provides the old interface for those who prefer typing error names directly.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Cog setup for event handler.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.

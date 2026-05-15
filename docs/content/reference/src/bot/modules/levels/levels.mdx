@@ -1,0 +1,120 @@
+---
+title: Levels
+icon: lucide/code-2
+---
+
+# Levels
+
+Level and XP management commands for administrators.
+
+This module provides administrative commands to manage user levels and XP points,
+including setting levels/XP, resetting progress, and blacklisting users from
+leveling. These commands require appropriate permissions and are intended for
+server moderation and management purposes.
+
+## Classes
+
+Discord cog for administrative level and XP management commands.
+
+Provides commands for server administrators to manage user levels and XP,
+including setting levels/XP values, resetting progress, and toggling XP
+blacklists. All commands require appropriate permissions and automatically
+update user roles based on level changes.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Levels cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `guild_only`, `hybrid_group`, `requires_command_permission`*
+
+```python
+async def levels(self, ctx: commands.Context[Bot]) -> None
+```
+
+Level and XP management related commands.
+
+*Decorated with: `guild_only`, `command`, `requires_command_permission`*
+
+```python
+async def set(self, ctx: commands.Context[Bot], member: discord.Member, new_level: int) -> None
+```
+
+Set the level of a member.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+member : discord.Member
+    The member to set the level for.
+
+*Decorated with: `guild_only`, `command`, `requires_command_permission`*
+
+```python
+async def set_xp(self, ctx: commands.Context[Bot], member: discord.Member, xp_amount: int) -> None
+```
+
+Set the xp of a member.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+member : discord.Member
+    The member to set the XP for.
+
+*Decorated with: `guild_only`, `command`, `requires_command_permission`*
+
+```python
+async def reset(self, ctx: commands.Context[Bot], member: discord.Member) -> None
+```
+
+Reset the xp and level of a member.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+member : discord.Member
+    The member to reset the XP for.
+
+*Decorated with: `guild_only`, `command`, `requires_command_permission`*
+
+```python
+async def blacklist(self, ctx: commands.Context[Bot], member: discord.Member) -> None
+```
+
+Blacklists or unblacklists a member from leveling.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+member : discord.Member
+    The member to XP blacklist.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Levels cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

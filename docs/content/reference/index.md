@@ -17,7 +17,6 @@ Complete command-line interface reference for all Bot commands:
 - **Database Commands** - Migration management, health checks, sequence fixes
 - **Testing Commands** - Test execution, coverage reports
 - **Development Commands** - Code quality checks, formatting, linting
-- **Documentation Commands** - Build, serve, deploy documentation
 - **Configuration Commands** - Generate and validate configuration
 
 ### [Environment Variables](env.md)
@@ -32,11 +31,12 @@ Auto-generated reference for all environment variables and configuration options
 - **XP Configuration** - Leveling system settings
 - **External Services** - Sentry, GitHub, InfluxDB, and more
 
-!!! tip "Auto-Generated"
-    The environment variables reference is automatically generated from the Config model. To update it, run:
-    ```bash
-    uv run config generate --format markdown
-    ```
+<Tip>
+  The environment variables reference is automatically generated from the Config model. To update it, run:
+  ```bash
+  uv run config generate --format markdown
+  ```
+</Tip>
 
 ## Technical References
 
@@ -80,7 +80,7 @@ Directory listings and structure reference.
 
 ## API Reference
 
-### [Source Code Reference](src/bot/index.md)
+### [Source Code Reference](src/bot/)
 
 Auto-generated API documentation from source code.
 

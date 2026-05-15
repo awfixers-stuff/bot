@@ -1,0 +1,28 @@
+---
+title: Commands
+icon: lucide/code-2
+---
+
+# Commands
+
+Command permission management for the config system.
+
+## Classes
+
+Management commands for command permissions.
+
+### Methods
+
+```python
+async def configure_commands(self, ctx: commands.Context[Bot]) -> None
+```
+
+Configure command permissions using the unified config dashboard.
+
+This command launches the unified configuration dashboard in commands mode
+to allow administrators to assign permission ranks to moderation commands.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command invocation.

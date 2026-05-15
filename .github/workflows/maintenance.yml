@@ -3,6 +3,8 @@ name: Maintenance
 on:
   push:
     branches: [main, 'v[0-9]+.[0-9]+.[0-9]+*']
+  pull_request:
+    branches: [main]
   workflow_dispatch:
     inputs:
       cleanup_images:
@@ -44,7 +46,7 @@ jobs:
     name: TODOs
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 45
-    if: github.repository == 'awfixers-stuff/bot' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' &&
+    if: github.repository == 'awfixers-stuff/bot' && (github.event_name == 'pull_request' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' &&
       github.event.inputs.manual_commit_ref))
     permissions:
       contents: read
@@ -54,7 +56,11 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
         with:
           fetch-depth: 0
+      - name: PR check (skip)
+        if: github.event_name == 'pull_request'
+        run: echo "TODO check skipped on pull requests"
       - name: Convert
+        if: github.event_name != 'pull_request'
         uses: alstr/todo-to-issue-action@64aca8fda7023259aada83ba44ad988c4c443657  # v5.1.14
         with:
           CLOSE_ISSUES: true
@@ -73,7 +79,7 @@ jobs:
     name: Cleanup
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 30
-    if: github.repository == 'awfixers-stuff/bot' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch'
+    if: github.repository == 'awfixers-stuff/bot' && (github.event_name == 'pull_request' || github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch'
       && github.event.inputs.cleanup_images == 'true'))
     permissions:
       packages: write
@@ -81,7 +87,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - name: PR check (skip)
+        if: github.event_name == 'pull_request'
+        run: echo "Cleanup check skipped on pull requests"
       - name: Registry Size Check
+        if: github.event_name != 'pull_request'
         id: registry_size
         run: >-
           ./.github/scripts/maintenance.sh registry-size-check
@@ -90,6 +100,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Clean Old Images
+        if: github.event_name != 'pull_request'
         uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55  # v5
         with:
           package-name: tux
@@ -97,6 +108,7 @@ jobs:
           min-versions-to-keep: ${{ github.event.inputs.keep_amount || env.DEFAULT_KEEP_VERSIONS }}
           delete-only-untagged-versions: ${{ github.event.inputs.remove_untagged || 'true' }}
       - name: Clean Build Cache Images
+        if: github.event_name != 'pull_request'
         run: >-
           ./.github/scripts/maintenance.sh clean-build-cache-images
           "${{ env.PACKAGE_NAME }}"
@@ -104,6 +116,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Registry Cleanup Summary
+        if: github.event_name != 'pull_request'
         run: >-
           ./.github/scripts/maintenance.sh registry-cleanup-summary
           "${{ steps.registry_size.outputs.size_gb }}"
@@ -114,27 +127,35 @@ jobs:
     name: Health Check
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 45
-    if: github.repository == 'awfixers-stuff/bot' && github.event_name == 'schedule'
+    if: github.repository == 'awfixers-stuff/bot' && (github.event_name == 'pull_request' || github.event_name == 'schedule')
     permissions:
       contents: read
-      issues: write
       packages: read
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
         with:
           fetch-depth: 0
+      - name: PR check (skip)
+        if: github.event_name == 'pull_request'
+        run: echo "Health check skipped on pull requests"
       - name: Repository Health Summary
+        if: github.event_name != 'pull_request'
         run: ./.github/scripts/maintenance.sh health-repository-summary
       - name: Check Large Files
+        if: github.event_name != 'pull_request'
         run: ./.github/scripts/maintenance.sh check-large-files "${{ env.LARGE_FILE_THRESHOLD_MB }}"
       - name: Check Dependencies
+        if: github.event_name != 'pull_request'
         run: ./.github/scripts/maintenance.sh check-dependencies
       - name: Check Repository Size
+        if: github.event_name != 'pull_request'
         run: ./.github/scripts/maintenance.sh check-repository-size
       - name: Check Stale Branches
+        if: github.event_name != 'pull_request'
         run: ./.github/scripts/maintenance.sh check-stale-branches "${{ env.BRANCH_LIMIT }}"
       - name: Check Registry Health
+        if: github.event_name != 'pull_request'
         run: >-
           ./.github/scripts/maintenance.sh check-registry-health
           "${{ env.PACKAGE_NAME }}"
@@ -142,5 +163,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Check Recent Activity
+        if: github.event_name != 'pull_request'
         run: ./.github/scripts/maintenance.sh check-recent-activity "${{ env.ACTIVITY_SINCE }}"
           "${{ env.ACTIVITY_LIMIT }}"

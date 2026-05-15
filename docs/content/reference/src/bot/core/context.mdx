@@ -1,0 +1,39 @@
+---
+title: Context
+icon: lucide/code-2
+---
+
+# Context
+
+Command and interaction context utilities.
+
+This module provides helper functions to abstract and normalize the process of
+extracting contextual information from different types of command invocations
+in discord.py. Creates a single, consistent dictionary format for context data,
+regardless of whether the command was triggered by a traditional prefix command
+(commands.Context) or a slash command (discord.Interaction). This standardized
+context is used for logging, error reporting, and systems that need to operate
+on command data without worrying about the source type.
+
+## Functions
+
+```python
+def get_interaction_context(source: ContextOrInteraction) -> dict[str, Any]
+```
+
+Build a standardized dictionary of context from a command or interaction.
+
+Main public function of the module. Takes either a commands.Context or a
+discord.Interaction and returns a dictionary with a consistent set of keys,
+abstracting away the differences between the two source types.
+
+Parameters
+----------
+source : ContextOrInteraction
+    The command Context or Interaction object.
+
+Returns
+-------
+dict[str, Any]
+    A dictionary with standardized context keys like user_id, command_name,
+    guild_id, command_type, etc.

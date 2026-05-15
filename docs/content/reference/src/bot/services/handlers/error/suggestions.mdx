@@ -1,0 +1,37 @@
+---
+title: Suggestions
+icon: lucide/code-2
+---
+
+# Suggestions
+
+Command suggestion utilities.
+
+## Classes
+
+Handles command suggestions for CommandNotFound errors.
+
+### Methods
+
+```python
+def __init__(self) -> None
+```
+
+Initialize the command suggester.
+
+```python
+async def suggest_command(self, ctx: commands.Context[Bot]) -> list[str] | None
+```
+
+Find similar command names using Levenshtein distance.
+
+Returns
+-------
+list[str] | None
+    List of suggested command names, or None if no suggestions found.
+
+```python
+async def handle_command_not_found(self, ctx: commands.Context[Bot]) -> None
+```
+
+Handle CommandNotFound with suggestions.

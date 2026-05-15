@@ -1,0 +1,82 @@
+---
+title: Crud
+icon: lucide/code-2
+---
+
+# Crud
+
+Core CRUD operations for database controllers.
+
+## Classes
+
+Handles basic Create, Read, Update, Delete operations.
+
+### Methods
+
+```python
+def __init__(self, model: type[ModelT], db: DatabaseService) -> None
+```
+
+Initialize the CRUD controller.
+
+Parameters
+----------
+model : type[ModelT]
+    The SQLModel to perform CRUD operations on.
+db : DatabaseService
+    The database service instance.
+
+```python
+async def create(self, **kwargs: Any) -> ModelT
+```
+
+Create a new record.
+
+Returns
+-------
+ModelT
+    The newly created record.
+
+```python
+async def get_by_id(self, record_id: Any) -> ModelT | None
+```
+
+Get a record by ID.
+
+Returns
+-------
+ModelT | None
+    The record if found, None otherwise.
+
+```python
+async def update_by_id(self, record_id: Any, **values: Any) -> ModelT | None
+```
+
+Update a record by ID.
+
+Returns
+-------
+ModelT | None
+    The updated record, or None if not found.
+
+```python
+async def delete_by_id(self, record_id: Any) -> bool
+```
+
+Delete a record by ID.
+
+Returns
+-------
+bool
+    True if deleted successfully, False otherwise.
+
+```python
+async def exists(self, filters: Any) -> bool
+```
+
+Check if a record exists.
+
+Returns
+-------
+bool
+    True if record exists, False otherwise.

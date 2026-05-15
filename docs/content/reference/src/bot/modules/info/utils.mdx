@@ -1,0 +1,40 @@
+---
+title: Utils
+icon: lucide/code-2
+---
+
+# Utils
+
+Utility functions for sending responses in info commands.
+
+## Functions
+
+```python
+async def send_view(ctx: commands.Context[Bot], view: discord.ui.LayoutView, ephemeral: bool) -> None
+```
+
+Send a LayoutView response, handling both interaction and prefix commands.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The command context.
+view : discord.ui.LayoutView
+    The view to send.
+ephemeral : bool, optional
+    Whether the response should be ephemeral (slash commands only), by default True.
+
+```python
+async def send_error(ctx: commands.Context[Bot], error_msg: str, ephemeral: bool) -> None
+```
+
+Send an error message response.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The command context.
+error_msg : str
+    The error message to send.
+ephemeral : bool, optional
+    Whether the response should be ephemeral (slash commands only), by default True.

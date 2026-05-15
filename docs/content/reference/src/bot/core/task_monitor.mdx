@@ -1,0 +1,48 @@
+---
+title: Task Monitor
+icon: lucide/code-2
+---
+
+# Task Monitor
+
+Task monitoring and cleanup utilities for Bot.
+
+Encapsulates background task monitoring and shutdown cleanup routines.
+
+## Classes
+
+Manages monitoring and cleanup of asyncio tasks for a bot instance.
+
+Provides periodic task monitoring and graceful shutdown cleanup routines
+to prevent resource leaks and ensure proper task cancellation.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the task monitor.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to monitor tasks for.
+
+```python
+def start(self) -> None
+```
+
+Start the background task monitoring loop.
+
+```python
+def stop(self) -> None
+```
+
+Stop the background task monitoring loop.
+
+```python
+async def cleanup_tasks(self) -> None
+```
+
+Clean up all running tasks across the bot and cogs.

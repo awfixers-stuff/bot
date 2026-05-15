@@ -1,0 +1,223 @@
+---
+title: Functions
+icon: lucide/code-2
+---
+
+# Functions
+
+Shared Utility Functions for Bot Bot.
+
+This module contains common utility functions used throughout the Bot Discord bot,
+including text processing, time conversion, parameter validation, and documentation
+formatting utilities.
+
+## Functions
+
+```python
+def clean_reason(reason: str) -> str
+```
+
+Clean a moderation reason by removing common flag-like prefixes.
+
+Users sometimes accidentally include flag-like prefixes in their reason text
+(e.g., "?r spam", "-reason breaking rules", "--reason harassment", "!reason spam").
+This function strips these prefixes to ensure clean reason text.
+
+Parameters
+----------
+reason : str
+    The reason string to clean.
+
+Returns
+-------
+str
+    The cleaned reason string with flag-like prefixes removed.
+
+Examples
+--------
+>>> clean_reason("?r spam")
+"spam"
+>>> clean_reason("-reason breaking rules")
+"breaking rules"
+>>> clean_reason("--reason harassment")
+"harassment"
+>>> clean_reason("--r spam")
+"spam"
+>>> clean_reason("!reason harassment")
+"harassment"
+>>> clean_reason("normal reason text")
+"normal reason text"
+
+```python
+def truncate(text: str, length: int) -> str
+```
+
+Truncate a string to a specified length.
+
+If the string is longer than the specified length, it will be truncated
+and an ellipsis will be appended. Otherwise, the original string is returned.
+
+Parameters
+----------
+text : str
+    The string to truncate.
+length : int
+    The maximum length of the string.
+
+Returns
+-------
+str
+    The truncated string.
+
+```python
+def strip_formatting(content: str) -> str
+```
+
+Strip formatting from a string.
+
+Parameters
+----------
+content : str
+    The string to strip formatting from.
+
+Returns
+-------
+str
+    The string with formatting stripped.
+
+```python
+def parse_time_string(time_str: str) -> timedelta
+```
+
+Convert a string representation of time into a datetime.timedelta object.
+
+Parameters
+----------
+time_str : str
+    The string representation of time to convert. (e.g., '60s', '1m', '2h', '10d')
+
+Returns
+-------
+timedelta
+    The timedelta object representing the time string.
+
+Raises
+------
+ValueError
+    If the time format is invalid.
+
+```python
+def convert_to_seconds(time_str: str) -> int
+```
+
+Convert a formatted time string with the formats Mwdhms.
+
+Supports multi-character units (e.g. 1wks, 2hrs, 5min) and compounds (e.g. 1h30m).
+
+Parameters
+----------
+time_str : str
+    The formatted time string to convert to total seconds.
+
+Returns
+-------
+int
+    The total seconds from the formatted time string. Returns 0 if the format is invalid.
+
+```python
+def seconds_to_human_readable(seconds: int) -> str
+```
+
+Convert a number of seconds into a human readable string.
+
+Parameters
+----------
+seconds : int
+    The number of seconds to convert
+
+Returns
+-------
+str
+    A string that breaks the time down by months, weeks, days, hours, minutes, and seconds.
+
+```python
+def is_optional_param(param: commands.Parameter) -> bool
+```
+
+Check if a parameter is optional.
+
+Parameters
+----------
+param : commands.Parameter
+    The parameter to check.
+
+Returns
+-------
+bool
+    True if the parameter is optional, False otherwise.
+
+```python
+def get_matching_string(arg: str) -> str
+```
+
+Match the given argument to a specific string based on common usage.
+
+Parameters
+----------
+arg : str
+    The argument to match.
+
+Returns
+-------
+str
+    The matching string, or None if no match is found.
+
+```python
+def generate_usage(command: commands.Command[Any, Any, Any], flag_converter: type[commands.FlagConverter] | None) -> str
+```
+
+Generate the usage string for a command.
+
+Parameters
+----------
+command : commands.Command[Any, Any, Any]
+    The command to generate the usage string for.
+flag_converter : type[commands.FlagConverter] | None
+    The flag converter to use.
+
+Returns
+-------
+str
+    The usage string for the command.
+
+```python
+def docstring_parameter(*sub: Any) -> Any
+```
+
+Parameterize docstrings with format-style substitution.
+
+Parameters
+----------
+*sub : Any
+    Substitution values to use in the docstring formatting.
+
+Returns
+-------
+Any
+    The decorator function.
+
+```python
+def dec(obj: Any) -> Any
+```
+
+Apply parameter substitution to the object's docstring.
+
+Parameters
+----------
+obj : Any
+    The object whose docstring should be parameterized.
+
+Returns
+-------
+Any
+    The object with modified docstring.

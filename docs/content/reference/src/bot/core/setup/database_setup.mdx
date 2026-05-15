@@ -1,0 +1,36 @@
+---
+title: Database Setup
+icon: lucide/code-2
+---
+
+# Database Setup
+
+Database setup service for bot initialization.
+
+## Classes
+
+Handles complete database initialization during bot setup.
+
+### Methods
+
+```python
+def __init__(self, db_service: DatabaseService) -> None
+```
+
+Initialize the database setup service.
+
+Parameters
+----------
+db_service : DatabaseService
+    The database service instance to use for connections.
+
+```python
+async def setup(self) -> None
+```
+
+Set up and validate the database connection and run migrations.
+
+Raises
+------
+BotDatabaseConnectionError
+    If database connection or validation fails.

@@ -1,0 +1,34 @@
+---
+title: Ranks
+icon: lucide/code-2
+---
+
+# Ranks
+
+Rank management utilities for the config dashboard.
+
+Provides utilities for creating and managing permission ranks
+in the unified configuration dashboard.
+
+## Functions
+
+```python
+async def initialize_default_ranks(db: DatabaseCoordinator, guild_id: int) -> None
+```
+
+Initialize default permission ranks (0-7) for a guild.
+
+This creates the standard permission hierarchy that guilds can customize.
+If ranks already exist, this function does nothing (idempotent).
+
+Parameters
+----------
+db : DatabaseCoordinator
+    Database coordinator instance
+guild_id : int
+    Discord guild ID to initialize ranks for
+
+Notes
+-----
+Uses the authoritative default ranks from the permission system to ensure
+consistency across all initialization methods.

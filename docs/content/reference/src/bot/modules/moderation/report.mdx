@@ -1,0 +1,54 @@
+---
+title: Report
+icon: lucide/code-2
+---
+
+# Report
+
+User reporting system for Discord servers.
+
+This module provides an anonymous reporting system that allows users to report
+issues, users, or content to server moderators through a modal interface.
+
+## Classes
+
+Discord cog for user reporting functionality.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Report cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def report(self, interaction: discord.Interaction) -> None
+```
+
+Report a user or issue anonymously.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction that triggered the command.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Report cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

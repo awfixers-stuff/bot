@@ -1,0 +1,115 @@
+---
+title: Handlers
+icon: lucide/code-2
+---
+
+# Handlers
+
+Event filtering and processing handlers for Sentry.
+
+## Functions
+
+```python
+def before_send(event: Event, hint: dict[str, Any]) -> Event | None
+```
+
+Filter and modify events before sending to Sentry.
+
+This function:
+1. Filters out noisy loggers (discord, httpx, etc.)
+2. Sanitizes sensitive data (passwords, API keys, tokens)
+
+Parameters
+----------
+event : Event
+    The Sentry event to potentially filter or modify.
+hint : dict[str, Any]
+    Additional context about the event.
+
+Returns
+-------
+Event | None
+    The event if it should be sent, None if it should be filtered out.
+
+Notes
+-----
+Security: This function sanitizes sensitive data like database passwords,
+API keys, and tokens from error messages to prevent leaking secrets.
+
+```python
+def before_send_transaction(event: Event, hint: dict[str, Any]) -> Event | None
+```
+
+Filter and group spans before sending transaction events.
+
+Parameters
+----------
+event : Event
+    The transaction event to process.
+hint : dict[str, Any]
+    Additional context about the transaction.
+
+Returns
+-------
+Event | None
+    The modified transaction event.
+
+```python
+def traces_sampler(sampling_context: dict[str, Any]) -> float
+```
+
+Determine sampling rate for traces based on context.
+
+This sampler respects parent sampling decisions to maintain distributed trace
+integrity. If a transaction has a parent (from distributed tracing), it will
+inherit the parent's sampling decision.
+
+Parameters
+----------
+sampling_context : dict[str, Any]
+    Context containing transaction information and parent sampling decision.
+
+Returns
+-------
+float
+    Sampling rate between 0.0 and 1.0, or boolean (True/False) for absolute decisions.
+
+```python
+def get_span_operation_mapping(op: str) -> str
+```
+
+Map span operations to standardized Sentry operation names.
+
+This function normalizes custom operation names to Sentry's well-known operation
+conventions for better consistency and analysis in Sentry's UI.
+
+Parameters
+----------
+op : str
+    The original operation name to map.
+
+Returns
+-------
+str
+    Standardized operation name following Sentry conventions.
+
+Notes
+-----
+Sentry's well-known operations include:
+- `db.query` or `db` for database operations
+- `http.client` for HTTP client requests (not `http.request`)
+- `file.read`, `file.write` for file I/O
+- `task` for background tasks
+
+This mapping aligns with the operations checked in `traces_sampler`.
+
+```python
+def get_transaction_operation_mapping(transaction_name: str) -> str
+```
+
+Map transaction names to standardized operations.
+
+Returns
+-------
+str
+    Standardized operation name.

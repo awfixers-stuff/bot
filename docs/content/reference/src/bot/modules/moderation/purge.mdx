@@ -1,0 +1,75 @@
+---
+title: Purge
+icon: lucide/code-2
+---
+
+# Purge
+
+Message purging commands for bulk message deletion.
+
+This module provides commands to delete multiple messages from Discord channels
+in bulk, supporting various filtering options and safety measures.
+
+## Classes
+
+Discord cog for bulk message deletion commands.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Purge cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def slash_purge(self, interaction: discord.Interaction, limit: int, channel: discord.TextChannel | discord.Thread | discord.VoiceChannel | None) -> None
+```
+
+Delete a set number of messages in a channel.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction object for the command.
+limit : int
+    The number of messages to delete.
+channel : discord.TextChannel | discord.Thread | discord.VoiceChannel | None
+    The channel to delete messages from.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def prefix_purge(self, ctx: commands.Context[Bot], limit: int, channel: discord.TextChannel | discord.Thread | discord.VoiceChannel | None) -> None
+```
+
+Delete a set number of messages in a channel.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context in which the command is being invoked.
+limit : int
+    The number of messages to delete.
+channel : discord.TextChannel | discord.Thread | discord.VoiceChannel | None
+    The channel to delete messages from.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Purge cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

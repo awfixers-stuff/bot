@@ -1,0 +1,107 @@
+---
+title: Service
+icon: lucide/code-2
+---
+
+# Service
+
+Main hot reload service implementation.
+
+## Classes
+
+Enhanced hot reload system with dependency tracking and performance monitoring.
+
+### Methods
+
+```python
+def __init__(self, bot: 'Bot', config: HotReloadConfig | None) -> None
+```
+
+Initialize the hot reload service.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.
+config : HotReloadConfig | None, optional
+    Hot reload configuration, by default None.
+
+```python
+async def cog_load(self) -> None
+```
+
+Initialize the hot reload system when cog is loaded.
+
+```python
+async def cog_unload(self) -> None
+```
+
+Clean up when cog is unloaded.
+
+```python
+async def start_watching(self) -> None
+```
+
+Start file system watching.
+
+```python
+async def stop_watching(self) -> None
+```
+
+Stop file system watching.
+
+*Decorated with: `group`, `is_owner`*
+
+```python
+async def hotreload_group(self, ctx: commands.Context[Any]) -> None
+```
+
+Hot reload management commands.
+
+*Decorated with: `command`*
+
+```python
+async def status(self, ctx: commands.Context[Any]) -> None
+```
+
+Show hot reload system status.
+
+*Decorated with: `command`*
+
+```python
+async def enable(self, ctx: commands.Context[Any]) -> None
+```
+
+Enable hot reload system.
+
+*Decorated with: `command`*
+
+```python
+async def disable(self, ctx: commands.Context[Any]) -> None
+```
+
+Disable hot reload system.
+
+*Decorated with: `command`*
+
+```python
+async def manual_reload(self, ctx: commands.Context[Any], extension: str) -> None
+```
+
+Manually reload an extension.
+
+*Decorated with: `property`*
+
+```python
+def is_enabled(self) -> bool
+```
+
+Check if hot reload is enabled.
+
+*Decorated with: `property`*
+
+```python
+def reload_stats(self) -> dict[str, Any]
+```
+
+Get reload statistics.

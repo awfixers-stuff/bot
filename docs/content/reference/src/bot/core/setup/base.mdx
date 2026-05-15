@@ -1,0 +1,64 @@
+---
+title: Base
+icon: lucide/code-2
+---
+
+# Base
+
+Base setup service providing standardized patterns for bot initialization.
+
+## Classes
+
+Base class for all setup services with standardized patterns.
+
+### Methods
+
+```python
+def __init__(self, name: str) -> None
+```
+
+Initialize the base setup service.
+
+Parameters
+----------
+name : str
+    The name of the setup service for logging and tracing.
+
+*Decorated with: `abstractmethod`*
+
+```python
+async def setup(self) -> None
+```
+
+Execute the setup process. Must be implemented by subclasses.
+
+```python
+async def safe_setup(self) -> bool
+```
+
+Execute setup with standardized error handling and tracing.
+
+Wraps the setup process with Sentry tracing and error handling.
+Logs setup progress and captures exceptions for monitoring.
+
+Returns
+-------
+bool
+    True if setup succeeded, False if it failed.
+
+Base class for setup services that need bot access.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot, name: str) -> None
+```
+
+Initialize the bot setup service.
+
+Parameters
+----------
+bot : Bot
+    The Discord bot instance to set up.
+name : str
+    The name of the setup service for logging and tracing.

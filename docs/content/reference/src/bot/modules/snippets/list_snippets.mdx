@@ -1,0 +1,73 @@
+---
+title: List Snippets
+icon: lucide/code-2
+---
+
+# List Snippets
+
+List snippets commands.
+
+This module provides functionality for listing and browsing
+all available code snippets in Discord guilds.
+
+## Classes
+
+Discord cog for listing snippets.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the list snippets cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def list_snippets(self, ctx: commands.Context[Bot], search_query: str | None = None) -> None
+```
+
+List snippets, optionally filtering by a search query.
+
+Displays snippets in a paginated embed, sorted by usage count (descending).
+The search query filters by snippet name or content (case-insensitive).
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+search_query : str | None, optional
+    The query to filter snippets by name or content.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def list_snippets_from(self, ctx: commands.Context[Bot], member: discord.User | None, search_query: str | None = None) -> None
+```
+
+List snippets from a specific member, with an optional search query.
+
+Displays snippets in a paginated embed, sorted by usage count (descending).
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+member : discord.User | None
+    The member whose snippets to list.
+search_query : str | None, optional
+    The query to further filter snippets by name or content.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Load the ListSnippets cog.

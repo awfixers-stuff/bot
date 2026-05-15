@@ -1,0 +1,183 @@
+---
+title: Afk
+icon: lucide/code-2
+---
+
+# Afk
+
+AFK (Away From Keyboard) status management controller.
+
+This controller manages AFK status for Discord members, including
+temporary and permanent AFK states with customizable messages and time limits.
+
+## Classes
+
+Clean AFK controller using the new BaseController pattern.
+
+### Methods
+
+```python
+def __init__(self, db: DatabaseService | None) -> None
+```
+
+Initialize the AFK controller.
+
+Parameters
+----------
+db : DatabaseService | None, optional
+    The database service instance. If None, uses the default service.
+
+```python
+async def get_afk_by_member(self, member_id: int) -> AFK | None
+```
+
+Get AFK status for a specific member.
+
+Returns
+-------
+AFK | None
+    The AFK record if found, None otherwise.
+
+```python
+async def set_member_afk(self, member_id: int, nickname: str, reason: str, is_perm: bool, until: datetime | None, enforced: bool) -> AFK
+```
+
+Set a member as AFK.
+
+Returns
+-------
+AFK
+    The AFK record (created or updated).
+
+```python
+async def remove_member_afk(self, member_id: int) -> bool
+```
+
+Remove AFK status for a member.
+
+Returns
+-------
+bool
+    True if removed successfully, False otherwise.
+
+```python
+async def get_all_afk_members(self) -> list[AFK]
+```
+
+Get all members currently AFK.
+
+Returns
+-------
+list[AFK]
+    List of all AFK records.
+
+```python
+async def is_member_afk(self, member_id: int) -> bool
+```
+
+Check if a member is AFK.
+
+Returns
+-------
+bool
+    True if member is AFK, False otherwise.
+
+```python
+async def is_member_perm_afk(self, member_id: int) -> bool
+```
+
+Check if a member is permanently AFK.
+
+Returns
+-------
+bool
+    True if member is permanently AFK, False otherwise.
+
+```python
+async def is_afk(self, member_id: int) -> bool
+```
+
+Check if a member is currently AFK - alias for is_member_afk.
+
+Returns
+-------
+bool
+    True if member is AFK, False otherwise.
+
+```python
+async def get_afk_member(self, member_id: int) -> AFK | None
+```
+
+Get AFK record for a member - alias for get_afk_by_member.
+
+Returns
+-------
+AFK | None
+    The AFK record if found, None otherwise.
+
+```python
+async def remove_afk(self, member_id: int) -> bool
+```
+
+Remove AFK status for a member - alias for remove_member_afk.
+
+Returns
+-------
+bool
+    True if removed successfully, False otherwise.
+
+```python
+async def set_afk(self, member_id: int, nickname: str, reason: str, is_perm: bool, until: datetime | None, enforced: bool) -> AFK
+```
+
+Set a member as AFK - alias for set_member_afk.
+
+Returns
+-------
+AFK
+    The AFK record (created or updated).
+
+```python
+async def find_many(self, where: dict[str, Any] | None, **filters: Any) -> list[AFK]
+```
+
+Find many AFK records with optional filters - alias for find_all.
+
+Parameters
+----------
+where : dict[str, Any] | None, optional
+    Filter criteria as a dictionary.
+**filters : Any
+    Additional filter criteria as keyword arguments.
+
+Returns
+-------
+list[AFK]
+    List of AFK records matching the filters.
+
+```python
+async def is_perm_afk(self, member_id: int) -> bool
+```
+
+Check if a member is permanently AFK - alias for is_member_perm_afk.
+
+Returns
+-------
+bool
+    True if member is permanently AFK, False otherwise.
+
+```python
+async def get_expired_afk_members(self) -> list[AFK]
+```
+
+Get all expired AFK members.
+
+Returns expired AFK entries where:
+- until is not NULL
+- until is in the past
+- perm_afk is False (temporary AFK only)
+
+Returns
+-------
+list[AFK]
+    List of expired AFK records.

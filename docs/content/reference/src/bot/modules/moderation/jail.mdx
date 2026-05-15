@@ -1,0 +1,86 @@
+---
+title: Jail
+icon: lucide/code-2
+---
+
+# Jail
+
+Jail moderation commands.
+
+This module provides functionality to jail Discord members by assigning them
+a jail role and removing their other roles. Jailed members are typically restricted
+to a designated jail channel and lose access to other server channels.
+
+If a jailed member leaves the server and rejoins before being unjailed, they are
+automatically re-jailed on rejoin (on_member_join). A delayed cleanup run strips
+roles added by other on-join handlers (e.g. TTY roles, which add after 5s).
+
+## Classes
+
+Discord cog for jail moderation commands.
+
+Provides functionality to jail Discord members by assigning them a jail role
+and removing their other manageable roles. Jailed members are restricted to
+a designated jail channel and lose access to other server channels.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Jail cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+```python
+async def get_jail_channel(self, guild: discord.Guild) -> discord.TextChannel | None
+```
+
+Get the jail channel for the guild.
+
+Returns
+-------
+discord.TextChannel | None
+    The jail channel if found, None otherwise.
+
+*Decorated with: `listener`*
+
+```python
+async def on_member_join(self, member: discord.Member) -> None
+```
+
+Re-apply jail if the member was jailed and left the server before being unjailed.
+
+*Decorated with: `hybrid_command`, `guild_only`, `cooldown`, `requires_command_permission`*
+
+```python
+async def jail(self, ctx: commands.Context[Bot], member: discord.Member, flags: JailFlags) -> None
+```
+
+Jail a member in the server.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context in which the command is being invoked.
+member : discord.Member
+    The member to jail.
+flags : JailFlags
+    The flags for the command. (reason: str, silent: bool)
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Jail cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

@@ -1,0 +1,87 @@
+---
+title: Decorators
+icon: lucide/code-2
+---
+
+# Decorators
+
+Dynamic permission decorators with database-driven access control.
+
+This module provides database-driven permission decorators that read required
+permission ranks from the database per-guild. All commands use
+@requires_command_permission() with no arguments. The required permission rank
+is stored in the database per-guild. Guilds must configure permissions before
+commands work (safe default). Without configuration, commands are denied by
+default.
+
+## Functions
+
+```python
+def requires_command_permission(allow_unconfigured: bool = False, allow_self_use_for_param: str | None = None) -> Callable[[F], F]
+```
+
+Provide dynamic, database-driven command permissions.
+
+This decorator provides fully dynamic permission checking that reads
+required permission ranks from the database per guild. Commands are
+denied by default if not configured (safe mode).
+
+For group commands with subcommands, if a subcommand is not configured,
+the system will fall back to checking parent commands. For example:
+- "config ranks init" checks: "config ranks init" -> "config ranks" -> "config"
+- "cases search" checks: "cases search" -> "cases"
+
+This allows configuring a parent group command (e.g., "config") to protect
+all subcommands, while still allowing per-subcommand overrides.
+
+Parameters
+----------
+allow_unconfigured : bool, optional
+    If True, allow commands without database configuration.
+    If False (default), deny unconfigured commands.
+allow_self_use_for_param : str | None, optional
+    If set, skip the permission check when the argument with this name
+    (e.g. ``"member"``) refers to the invoker (invoker id == target id).
+
+Returns
+-------
+Callable[[F], F]
+    The decorated function with permission checking.
+
+```python
+async def command_permission_check(ctx: commands.Context[Any]) -> bool
+```
+
+Run permission check in the command check phase (before argument conversion).
+
+Used for commands that do not use allow_self_use_for_param so users get
+"permission denied" before "missing required argument". Reads allow_unconfigured
+from ctx.command.callback.__bot_perm_allow_unconfigured__.
+
+```python
+def decorator(func: F) -> F
+```
+
+Apply permission checking wrapper to the decorated function.
+
+Parameters
+----------
+func : F
+    The function to be decorated with permission checking.
+
+Returns
+-------
+F
+    The wrapped function with permission checking.
+
+*Decorated with: `wraps`*
+
+```python
+async def wrapper(*args: Any, **kwargs: Any) -> Any
+```
+
+Check permissions and execute the decorated function if allowed.
+
+When the command uses check-phase permission (no allow_self_use_for_param),
+permission was already enforced before argument conversion; this wrapper
+then just invokes the callback.

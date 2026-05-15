@@ -1,0 +1,135 @@
+---
+title: Metrics
+icon: lucide/code-2
+---
+
+# Metrics
+
+Sentry metrics utilities for tracking performance and usage metrics.
+
+This module provides helper functions for emitting Sentry metrics (counters,
+distributions, and gauges) throughout the Bot bot codebase.
+
+## Functions
+
+```python
+def record_command_metric(command_name: str, execution_time_ms: float, success: bool = True, error_type: str | None = None, command_type: str = 'unknown') -> None
+```
+
+Record command execution metrics.
+
+Parameters
+----------
+command_name : str
+    The name of the command executed.
+execution_time_ms : float
+    Command execution time in milliseconds.
+success : bool, optional
+    Whether the command executed successfully, by default True.
+error_type : str | None, optional
+    The type of error if the command failed, by default None.
+command_type : str, optional
+    The type of command (prefix, slash, hybrid), by default "unknown".
+
+```python
+def record_database_metric(operation: str, duration_ms: float, table: str | None = None, retry_count: int = 0, success: bool = True, error_type: str | None = None) -> None
+```
+
+Record database operation metrics.
+
+Parameters
+----------
+operation : str
+    The database operation (query, insert, update, delete, etc.).
+duration_ms : float
+    Operation duration in milliseconds.
+table : str | None, optional
+    The table name if applicable, by default None.
+retry_count : int, optional
+    Number of retries if operation was retried, by default 0.
+success : bool, optional
+    Whether the operation succeeded, by default True.
+error_type : str | None, optional
+    The type of error if operation failed, by default None.
+
+```python
+def record_api_metric(service: str, endpoint: str, duration_ms: float, status_code: int | None = None, method: str = 'GET', rate_limited: bool = False, success: bool = True) -> None
+```
+
+Record external API call metrics.
+
+Parameters
+----------
+service : str
+    The API service name (e.g., "discord", "tldr", "wolfram").
+endpoint : str
+    The API endpoint or operation name.
+duration_ms : float
+    API call duration in milliseconds.
+status_code : int | None, optional
+    HTTP status code if applicable, by default None.
+method : str, optional
+    HTTP method if applicable, by default "GET".
+rate_limited : bool, optional
+    Whether the request was rate limited, by default False.
+success : bool, optional
+    Whether the API call succeeded, by default True.
+
+```python
+def record_cog_metric(cog_name: str, operation: str, duration_ms: float | None, success: bool = True, error_type: str | None = None) -> None
+```
+
+Record cog operation metrics.
+
+Parameters
+----------
+cog_name : str
+    The name of the cog.
+operation : str
+    The operation (load, unload, reload, etc.).
+duration_ms : float | None, optional
+    Operation duration in milliseconds, by default None.
+success : bool, optional
+    Whether the operation succeeded, by default True.
+error_type : str | None, optional
+    The type of error if operation failed, by default None.
+
+```python
+def record_cache_metric(cache_name: str, operation: str, hit: bool = False, miss: bool = False, duration_ms: float | None = None, size: int | None = None) -> None
+```
+
+Record cache operation metrics.
+
+Parameters
+----------
+cache_name : str
+    The name of the cache (e.g., "tldr", "prefix", "emoji").
+operation : str
+    The cache operation (get, set, delete, update, etc.).
+hit : bool, optional
+    Whether it was a cache hit, by default False.
+miss : bool, optional
+    Whether it was a cache miss, by default False.
+duration_ms : float | None, optional
+    Operation duration in milliseconds, by default None.
+size : int | None, optional
+    Cache size if applicable, by default None.
+
+```python
+def record_task_metric(task_name: str, duration_ms: float, success: bool = True, error_type: str | None = None, task_type: str = 'background') -> None
+```
+
+Record background task execution metrics.
+
+Parameters
+----------
+task_name : str
+    The name of the task.
+duration_ms : float
+    Task execution duration in milliseconds.
+success : bool, optional
+    Whether the task executed successfully, by default True.
+error_type : str | None, optional
+    The type of error if task failed, by default None.
+task_type : str, optional
+    The type of task (background, scheduled, periodic), by default "background".

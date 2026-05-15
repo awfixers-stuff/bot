@@ -1,0 +1,84 @@
+---
+title: Gif Limiter
+icon: lucide/code-2
+---
+
+# Gif Limiter
+
+GIF rate limiting service for Discord channels.
+
+This module provides automatic rate limiting for GIF attachments and links
+in Discord channels to prevent spam and maintain conversation quality.
+
+## Classes
+
+Handler for GIF ratelimiting.
+
+This class keeps a list of GIF send times and routinely removes old times.
+It will prevent people from posting GIFs if the quotas are exceeded.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the GIF limiter service.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this service to.
+
+*Decorated with: `listener`*
+
+```python
+async def on_message(self, message: discord.Message) -> None
+```
+
+Check for GIFs in every sent message.
+
+Parameters
+----------
+message : discord.Message
+    The message to check.
+
+*Decorated with: `loop`*
+
+```python
+async def old_gif_remover(self) -> None
+```
+
+Regularly clean old GIF timestamps.
+
+Parameters
+----------
+self : GifLimiter
+    The GifLimiter instance.
+
+*Decorated with: `before_loop`*
+
+```python
+async def before_old_gif_remover(self) -> None
+```
+
+Wait until the bot is ready.
+
+```python
+async def cog_unload(self) -> None
+```
+
+Cancel the background task when the cog is unloaded.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the GifLimiter cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

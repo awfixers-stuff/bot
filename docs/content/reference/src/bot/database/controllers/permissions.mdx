@@ -1,0 +1,269 @@
+---
+title: Permissions
+icon: lucide/code-2
+---
+
+# Permissions
+
+Dynamic permission system controllers.
+
+Provides database operations for the flexible permission system that allows
+servers to customize their permission levels and role assignments.
+
+## Classes
+
+Controller for managing permission ranks.
+
+### Methods
+
+```python
+def __init__(self, db: DatabaseService | None, cache_backend: AsyncCacheBackendProtocol | None) -> None
+```
+
+Initialize the permission rank controller.
+
+Parameters
+----------
+db : DatabaseService | None, optional
+    The database service instance. If None, uses the default service.
+cache_backend : AsyncCacheBackendProtocol | None, optional
+    Optional cache backend (Valkey/in-memory) for permission ranks.
+
+```python
+async def create_permission_rank(self, rank: int, name: str, description: str | None) -> PermissionRank
+```
+
+Create a new permission rank.
+
+Returns
+-------
+PermissionRank
+    The newly created permission rank.
+
+```python
+async def get_all_permission_ranks(self) -> list[PermissionRank]
+```
+
+Get all permission ranks.
+
+Returns
+-------
+list[PermissionRank]
+    List of permission ranks ordered by rank value.
+
+```python
+async def get_permission_rank(self, rank: int) -> PermissionRank | None
+```
+
+Get a specific permission rank by its numeric level.
+
+Returns
+-------
+PermissionRank | None
+    The permission rank if found, None otherwise.
+
+```python
+async def update_permission_rank(self, rank: int, name: str | None, description: str | None) -> PermissionRank | None
+```
+
+Update a permission rank.
+
+Pass ``description=None`` to clear the description; omit the argument
+to leave it unchanged.
+
+Returns
+-------
+PermissionRank | None
+    The updated permission rank, or None if not found.
+
+```python
+async def bulk_create_permission_ranks(self, ranks_data: list[dict[str, Any]]) -> list[PermissionRank]
+```
+
+Bulk create multiple permission ranks in a single transaction.
+
+Parameters
+----------
+ranks_data : list[dict[str, Any]]
+    List of rank data dictionaries, each containing rank, name, description
+
+Returns
+-------
+list[PermissionRank]
+    List of created permission rank instances
+
+```python
+async def delete_permission_rank(self, rank: int) -> bool
+```
+
+Delete a permission rank.
+
+Returns
+-------
+bool
+    True if deleted successfully, False otherwise.
+
+Controller for managing permission assignments.
+
+### Methods
+
+```python
+def __init__(self, db: DatabaseService | None, cache_backend: AsyncCacheBackendProtocol | None) -> None
+```
+
+Initialize the permission assignment controller.
+
+Parameters
+----------
+db : DatabaseService | None, optional
+    The database service instance. If None, uses the default service.
+cache_backend : AsyncCacheBackendProtocol | None, optional
+    Optional cache backend (Valkey/in-memory) for assignments and user rank.
+
+```python
+async def assign_permission_rank(self, permission_rank_id: int, role_id: int) -> PermissionAssignment
+```
+
+Assign a permission level to a role.
+
+Returns
+-------
+PermissionAssignment
+    The newly created permission assignment.
+
+```python
+async def get_all_assignments(self) -> list[PermissionAssignment]
+```
+
+Get all permission assignments.
+
+Returns
+-------
+list[PermissionAssignment]
+    List of all permission assignments.
+
+```python
+async def remove_role_assignment(self, role_id: int) -> bool
+```
+
+Remove a permission level assignment from a role.
+
+Returns
+-------
+bool
+    True if removed successfully, False otherwise.
+
+```python
+async def remove_role_assignments_from_rank(self, permission_rank_id: int, role_ids: list[int]) -> int
+```
+
+Remove permission level assignments for multiple roles from a single rank.
+
+Only deletes assignments for the given permission_rank_id, so roles are
+removed from that rank only, not from every rank.
+
+Invalidates the permission assignments cache once after all deletions.
+
+Returns
+-------
+int
+    Number of role assignments removed.
+
+```python
+async def get_user_permission_rank(self, user_id: int, user_roles: list[int]) -> int
+```
+
+Get the highest permission rank a user has based on their roles.
+
+Parameters
+----------
+user_id : int
+    The user ID.
+user_roles : list[int]
+    List of role IDs the user has.
+
+Returns
+-------
+int
+    The highest permission rank (0 if user has no assigned roles).
+
+Controller for managing command permission requirements.
+
+### Methods
+
+```python
+def __init__(self, db: DatabaseService | None, cache_backend: AsyncCacheBackendProtocol | None) -> None
+```
+
+Initialize the command permission controller.
+
+Parameters
+----------
+db : DatabaseService | None, optional
+    The database service instance. If None, uses the default service.
+cache_backend : AsyncCacheBackendProtocol | None, optional
+    Optional cache backend (Valkey/in-memory) for command permissions.
+
+```python
+async def set_command_permission(self, command_name: str, required_rank: int, description: str | None) -> PermissionCommand
+```
+
+Set the permission rank required for a command.
+
+Returns
+-------
+PermissionCommand
+    The command permission record (created or updated).
+
+```python
+async def invalidate_command_permission(self, command_name: str) -> None
+```
+
+Invalidate the command permission cache for a command and its parents.
+
+Call after removing a command permission (e.g. delete_where) so the next
+get_command_permission sees fresh data.
+
+Notes
+-----
+This invalidates only the controller cache (PERM_KEY_PREFIX). Callers that
+use PermissionSystem.get_command_permission must also call
+PermissionSystem.invalidate_command_permission_cache so the fallback cache
+(PERM_FALLBACK_KEY_PREFIX) is cleared; both layers must be invalidated
+together after a database change.
+
+```python
+async def get_command_permission(self, command_name: str) -> PermissionCommand | None
+```
+
+Get the permission requirement for a specific command.
+
+Returns
+-------
+PermissionCommand | None
+    The command permission record if found, None otherwise.
+
+```python
+async def get_all_command_permissions(self) -> list[PermissionCommand]
+```
+
+Get all command permissions.
+
+Returns
+-------
+list[PermissionCommand]
+    List of all command permissions ordered by name.
+
+## Functions
+
+```python
+def wrap_optional_perm(value: PermissionCommand | None) -> dict[str, Any]
+```
+
+Wrap optional PermissionCommand for backend (distinguish cached None from miss).
+
+```python
+def unwrap_optional_perm(raw: Any) -> PermissionCommand | None
+```
+
+Unwrap optional PermissionCommand from backend.

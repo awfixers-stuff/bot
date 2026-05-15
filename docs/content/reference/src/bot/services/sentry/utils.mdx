@@ -1,0 +1,72 @@
+---
+title: Utils
+icon: lucide/code-2
+---
+
+# Utils
+
+Sentry utility functions for specialized error reporting.
+
+## Functions
+
+```python
+def capture_exception_safe(error: Exception, extra_context: dict[str, Any] | None = None, capture_locals: bool = False) -> None
+```
+
+Safely capture an exception with optional context and locals.
+
+```python
+def capture_bot_exception(error: BotError, command_name: str | None = None, user_id: str | None = None, guild_id: str | None = None) -> None
+```
+
+Capture a BotError with specialized context.
+
+```python
+def capture_database_error(error: Exception, query: str | None = None, table: str | None = None, operation: str | None = None) -> None
+```
+
+Capture a database-related error with context.
+
+```python
+def capture_cog_error(error: Exception, cog_name: str, command_name: str | None = None, event_name: str | None = None) -> None
+```
+
+Capture a cog-related error with context.
+
+```python
+def capture_api_error(error: Exception, endpoint: str | None = None, status_code: int | None = None, response_data: dict[str, Any] | None = None) -> None
+```
+
+Capture an API-related error with context.
+
+```python
+def convert_httpx_error(error: Exception, service_name: str, endpoint: str, not_found_resource: str | None = None) -> None
+```
+
+Convert HTTPX error to BotAPI exception and report to Sentry.
+
+This function eliminates the duplicated error handling logic that's
+currently repeated 20+ times across API wrappers (github.py, wandbox.py, etc.).
+
+Parameters
+----------
+error : Exception
+    The HTTPX error to convert.
+service_name : str
+    Name of the API service (e.g., "GitHub", "Wikipedia", "Wandbox").
+endpoint : str
+    API endpoint identifier (e.g., "repos.get", "issues.create").
+not_found_resource : str | None, optional
+    Resource identifier for 404 errors (e.g., "Issue #123", "repo/name").
+    If not provided, defaults to "resource".
+
+Raises
+------
+BotAPIResourceNotFoundError
+    For 404 errors (resource not found).
+BotAPIPermissionError
+    For 403 errors (permission denied).
+BotAPIRequestError
+    For other HTTP status errors (4xx, 5xx).
+BotAPIConnectionError
+    For connection/request errors (network issues, timeouts).

@@ -1,0 +1,155 @@
+---
+title: Navigation
+icon: lucide/code-2
+---
+
+# Navigation
+
+Help system navigation and UI management.
+
+## Classes
+
+Navigation states for the help command.
+
+Manages help system navigation and UI interactions.
+
+### Methods
+
+```python
+def __init__(self, ctx: commands.Context[Any], data: HelpData, renderer: HelpRenderer) -> None
+```
+
+Initialize the help navigation manager.
+
+Parameters
+----------
+ctx : commands.Context[Any]
+    The Discord context for the help command.
+data : HelpData
+    The help data manager instance.
+renderer : HelpRenderer
+    The help renderer instance.
+
+*Decorated with: `property`*
+
+```python
+def context(self) -> commands.Context[Any]
+```
+
+Context property required by HelpCommandProtocol.
+
+```python
+async def on_category_select(self, interaction: discord.Interaction, category: str) -> None
+```
+
+Handle category selection - protocol method.
+
+```python
+async def on_command_select(self, interaction: discord.Interaction, command_name: str) -> None
+```
+
+Handle command selection - protocol method.
+
+```python
+async def on_subcommand_select(self, interaction: discord.Interaction, subcommand_name: str) -> None
+```
+
+Handle subcommand selection - protocol method.
+
+```python
+async def on_back_button(self, interaction: discord.Interaction) -> None
+```
+
+Handle back button - protocol method.
+
+```python
+async def on_next_button(self, interaction: discord.Interaction) -> None
+```
+
+Handle next button - protocol method.
+
+```python
+async def on_prev_button(self, interaction: discord.Interaction) -> None
+```
+
+Handle prev button - protocol method.
+
+```python
+async def create_main_view(self) -> HelpView
+```
+
+Create main help view.
+
+Returns
+-------
+HelpView
+    The main help view with category selection.
+
+```python
+async def create_category_view(self, category: str) -> HelpView
+```
+
+Create category view.
+
+Returns
+-------
+HelpView
+    The category view with command selection.
+
+```python
+async def create_command_view(self) -> HelpView
+```
+
+Create command view.
+
+Returns
+-------
+HelpView
+    The command view with command details and navigation.
+
+```python
+async def create_subcommand_view(self) -> HelpView
+```
+
+Create subcommand view.
+
+Returns
+-------
+HelpView
+    The subcommand view with subcommand details.
+
+```python
+async def handle_category_select(self, interaction: discord.Interaction, category: str) -> None
+```
+
+Handle category selection.
+
+```python
+async def handle_command_select(self, interaction: discord.Interaction, command_name: str) -> None
+```
+
+Handle command selection.
+
+```python
+async def handle_subcommand_select(self, interaction: discord.Interaction, subcommand_name: str) -> None
+```
+
+Handle subcommand selection.
+
+```python
+async def handle_back_button(self, interaction: discord.Interaction) -> None
+```
+
+Handle back button navigation.
+
+```python
+async def handle_next_button(self, interaction: discord.Interaction) -> None
+```
+
+Handle next page navigation.
+
+```python
+async def handle_prev_button(self, interaction: discord.Interaction) -> None
+```
+
+Handle previous page navigation.

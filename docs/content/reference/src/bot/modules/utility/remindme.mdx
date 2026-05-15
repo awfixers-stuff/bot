@@ -1,0 +1,78 @@
+---
+title: Remindme
+icon: lucide/code-2
+---
+
+# Remindme
+
+Reminder cog for Bot Bot.
+
+## Classes
+
+Reminder cog for Bot Bot.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the RemindMe cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.
+
+```python
+async def send_reminder(self, reminder: Reminder) -> None
+```
+
+Send a reminder to a user.
+
+Marks the reminder as sent before sending so a restart between send and
+delete does not cause a duplicate. If the row is already gone (e.g.
+another timer or process sent and deleted it), skips to avoid duplicate.
+
+Parameters
+----------
+reminder : Reminder
+    The reminder to send.
+
+*Decorated with: `listener`*
+
+```python
+async def on_ready(self) -> None
+```
+
+On ready event handler.
+
+*Decorated with: `hybrid_command`*
+
+```python
+async def remindme(self, ctx: commands.Context[Bot], time: str, reminder: str) -> None
+```
+
+Set a reminder for yourself.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+time : str
+    The time to set the reminder for (e.g. 2d, 1h30m).
+reminder : str
+    The reminder message.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Cog setup for remindme cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.

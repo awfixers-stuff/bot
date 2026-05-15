@@ -1,0 +1,123 @@
+---
+title: File Utils
+icon: lucide/code-2
+---
+
+# File Utils
+
+File utilities for hot reload system.
+
+## Classes
+
+Tracks file hashes to detect changes.
+
+### Methods
+
+```python
+def __init__(self) -> None
+```
+
+Initialize the file hash tracker.
+
+```python
+def get_file_hash(self, file_path: Path) -> str
+```
+
+Get SHA-256 hash of file contents.
+
+Returns
+-------
+str
+    The SHA-256 hash of the file, or empty string if error.
+
+```python
+def has_changed(self, file_path: Path) -> bool
+```
+
+Check if file has changed since last check.
+
+Returns
+-------
+bool
+    True if file has changed, False otherwise.
+
+```python
+def update_hash(self, file_path: Path) -> None
+```
+
+Update stored hash for a file.
+
+```python
+def clear(self) -> None
+```
+
+Clear all stored hashes.
+
+```python
+def remove_file(self, file_path: Path) -> None
+```
+
+Remove file from tracking.
+
+## Functions
+
+```python
+def path_from_extension(extension: str, base_dir: Path | None = None) -> Path
+```
+
+Convert extension name to file path.
+
+Returns
+-------
+Path
+    The file path for the extension.
+
+```python
+def get_extension_from_path(file_path: Path, base_dir: Path) -> str | None
+```
+
+Convert file path to extension name.
+
+Handles both flat and nested plugin structures:
+- src/bot/modules/admin/ban.py → bot.modules.admin.ban
+- src/bot/plugins/atl/deepfry.py → bot.plugins.atl.deepfry
+
+Returns
+-------
+str | None
+    The extension name if found, None otherwise.
+
+```python
+def validate_python_syntax(file_path: Path) -> bool
+```
+
+Validate Python syntax of a file.
+
+Returns
+-------
+bool
+    True if syntax is valid, False otherwise.
+
+*Decorated with: `contextmanager`*
+
+```python
+def module_reload_context(module_name: str)
+```
+
+Context manager for safe module reloading.
+
+```python
+def reload_module_by_name(module_name: str) -> bool
+```
+
+Reload a module by name.
+
+Returns
+-------
+bool
+    True if reload was successful.
+
+Raises
+------
+ModuleReloadError
+    If the module fails to reload.

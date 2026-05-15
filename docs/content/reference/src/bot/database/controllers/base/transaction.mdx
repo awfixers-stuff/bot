@@ -1,0 +1,73 @@
+---
+title: Transaction
+icon: lucide/code-2
+---
+
+# Transaction
+
+Transaction management for database controllers.
+
+## Classes
+
+Handles transaction and session management.
+
+### Methods
+
+```python
+def __init__(self, model: type[ModelT], db: DatabaseService) -> None
+```
+
+Initialize the transaction controller.
+
+Parameters
+----------
+model : type[ModelT]
+    The SQLModel to manage transactions for.
+db : DatabaseService
+    The database service instance.
+
+```python
+async def with_session(self, operation: Callable[[AsyncSession], Awaitable[R]]) -> R
+```
+
+Execute operation within a session context.
+
+Returns
+-------
+R
+    The result of the operation.
+
+```python
+async def with_transaction(self, operation: Callable[[AsyncSession], Awaitable[R]]) -> R
+```
+
+Execute operation within a transaction context.
+
+Returns
+-------
+R
+    The result of the operation.
+
+```python
+async def execute_transaction(self, callback: Callable[[], Awaitable[R]]) -> R
+```
+
+Execute a callback within a transaction.
+
+Returns
+-------
+R
+    The result of the callback.
+
+*Decorated with: `staticmethod`*
+
+```python
+def safe_get_attr(obj: Any, attr: str, default: Any) -> Any
+```
+
+Safely get attribute from object.
+
+Returns
+-------
+Any
+    The attribute value, or default if not found.

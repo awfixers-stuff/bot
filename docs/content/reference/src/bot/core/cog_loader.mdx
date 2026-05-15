@@ -1,0 +1,118 @@
+---
+title: Cog Loader
+icon: lucide/code-2
+---
+
+# Cog Loader
+
+Dynamic cog loading system with priority-based ordering and telemetry.
+
+This module provides the CogLoader class for discovery, validation, and loading
+of bot cogs (extensions) from the filesystem. Supports priority-based loading
+order for dependency management, concurrent loading within priority groups,
+configuration error handling with graceful skipping, and performance monitoring
+via Sentry. Follows discord.py's extension loading patterns.
+
+## Classes
+
+Dynamic cog loader with priority-based ordering and performance tracking.
+
+Manages the discovery, validation, and loading of bot cogs from the
+filesystem. Ensures proper load order based on priorities, handles
+configuration errors gracefully, and provides detailed telemetry.
+
+Attributes
+----------
+bot : commands.Bot
+    The bot instance cogs are loaded into.
+cog_ignore_list : set[str]
+    Set of cog names to skip during loading (from configuration).
+load_times : defaultdict[str, float]
+    Dictionary tracking load time for each cog (for performance monitoring).
+load_priorities : dict[str, int]
+    Priority mapping for cog categories (higher = loads first).
+
+### Methods
+
+```python
+def __init__(self, bot: commands.Bot) -> None
+```
+
+Initialize the cog loader with bot instance and configuration.
+
+Parameters
+----------
+bot : commands.Bot
+    The bot instance to load cogs into.
+
+```python
+async def is_cog_eligible(self, filepath: Path) -> bool
+```
+
+Check if a file is eligible for loading as a cog.
+
+Validates that the file is not in the ignore list, is a Python file,
+doesn't start with underscore, and contains a valid extension setup function.
+
+Parameters
+----------
+filepath : Path
+    The path to the file to check.
+
+Returns
+-------
+bool
+    True if the file passes basic eligibility checks, False otherwise.
+
+*Decorated with: `span`*
+
+```python
+async def load_cogs(self, path: Path) -> None
+```
+
+Load cogs from a file or directory path with priority-based ordering.
+
+Parameters
+----------
+path : Path
+    The path to a cog file or directory containing cogs.
+
+Raises
+------
+BotCogLoadError
+    If an error occurs during cog discovery or loading.
+
+```python
+async def load_cogs_from_folder(self, folder_name: str) -> None
+```
+
+Load cogs from a named folder relative to the bot package.
+
+Parameters
+----------
+folder_name : str
+    The folder name relative to the bot package (e.g., "modules" or
+    "services/handlers").
+
+Raises
+------
+BotCogLoadError
+    If an error occurs during folder loading.
+
+*Decorated with: `classmethod`*
+
+```python
+async def setup(cls, bot: commands.Bot) -> None
+```
+
+Initialize the cog loader and load all bot cogs in priority order.
+
+Parameters
+----------
+bot : commands.Bot
+    The bot instance to load cogs into.
+
+Raises
+------
+BotCogLoadError
+    If critical errors occur during cog loading.

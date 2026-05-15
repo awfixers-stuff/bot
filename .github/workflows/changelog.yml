@@ -1,0 +1,83 @@
+---
+name: Changelog
+on:
+  push:
+    tags: [v*]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to add to changelog (e.g., v1.2.3)
+        required: true
+        type: string
+      notes:
+        description: Custom release notes (optional - leave blank to auto-generate from commits)
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    name: Update Changelog
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    if: github.repository == 'awfixers-stuff/bot'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Determine Version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            version="${{ inputs.version }}"
+          else
+            version="${GITHUB_REF#refs/tags/}"
+          fi
+          # Strip leading 'v' for cleaner display if present
+          display_version="$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "display_version=$display_version" >> "$GITHUB_OUTPUT"
+          echo "Release version: $version"
+
+      - name: Generate Changelog Entry
+        id: entry
+        run: |
+          if [ -n "${{ inputs.notes }}" ]; then
+            # Use custom notes from workflow_dispatch
+            cat << UPDATE > /tmp/changelog_entry
+          <Update label="${{ steps.version.outputs.display_version }}" description="$(date +'%B %d, %Y')">
+          ${{ inputs.notes }}
+          </Update>
+          UPDATE
+          else
+            # Auto-generate from git log
+            .github/scripts/changelog.sh generate-entry "${{ steps.version.outputs.version }}" > /tmp/changelog_entry
+          fi
+          echo "Generated entry:"
+          cat /tmp/changelog_entry
+
+      - name: Prepend Entry to Changelog
+        run: |
+          .github/scripts/changelog.sh prepend-entry docs/content/changelog.mdx < /tmp/changelog_entry
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e  # v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs(changelog): update for ${{ steps.version.outputs.version }}"
+          title: "docs(changelog): update for ${{ steps.version.outputs.version }}"
+          body: |
+            ## Changelog Update
+
+            Auto-generated changelog entry for **${{ steps.version.outputs.version }}**.
+
+            This PR was automatically created by the Changelog workflow.
+            Review the entry in `docs/content/changelog.mdx` and merge if it looks correct.
+          branch: docs/changelog-${{ steps.version.outputs.version }}
+          base: main
+          labels: docs
+          delete-branch: true

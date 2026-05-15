@@ -1,0 +1,54 @@
+---
+title: Flagremover
+icon: lucide/code-2
+---
+
+# Flagremover
+
+Flag Remover Plugin for Bot Bot.
+
+This plugin automatically removes flag reactions from messages in a specific channel,
+preventing the posting of country flags and other banned emoji reactions.
+
+## Classes
+
+Plugin for automatically removing flag reactions from monitored channels.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the FlagRemover plugin.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to initialize the plugin with.
+
+*Decorated with: `listener`*
+
+```python
+async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent) -> None
+```
+
+Handle reaction add events to remove banned flag emojis.
+
+Parameters
+----------
+payload : discord.RawReactionActionEvent
+    The raw reaction action event payload.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the flagremover plugin.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

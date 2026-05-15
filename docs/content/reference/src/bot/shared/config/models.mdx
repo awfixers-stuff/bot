@@ -1,0 +1,95 @@
+---
+title: Models
+icon: lucide/code-2
+---
+
+# Models
+
+Pydantic configuration models for Bot.
+
+This module contains all the Pydantic models for configuration,
+extracted from the existing config.py file for better organization.
+
+## Classes
+
+Bot information configuration.
+
+### Methods
+
+*Decorated with: `field_validator`, `classmethod`*
+
+```python
+def validate_activities(cls, v: Any) -> list[dict[str, Any]]
+```
+
+Normalize ACTIVITIES to a list of activity dicts.
+
+Accepts: JSON string (from env or legacy config), list, or dict (wrapped as
+single-item list). Env vars and string config are parsed as JSON.
+
+Returns
+-------
+list[dict[str, Any]]
+    List of {type, name, url?} activity objects.
+
+Raises
+------
+ValueError
+    If a string value is not valid JSON or does not decode to a list.
+
+User ID configuration.
+
+Status roles configuration.
+
+Temporary voice channel configuration.
+
+IDs accept integer or string in JSON (and string from env); both are coerced to int.
+
+GIF limiter configuration.
+
+XP system configuration.
+
+Snippets configuration.
+
+IRC bridge configuration.
+
+Log channel and jail configuration (formerly per-guild GuildConfig fields).
+
+External services configuration.
+
+Discord bot gateway intents configuration.
+
+All three privileged intents are required for full bot functionality:
+- members: Required for on_member_join, on_member_remove, member tracking
+- presences: Required for on_presence_update, status_roles feature
+- message_content: Required for message.content access, prefix commands
+
+Note: Having both members + presences reduces startup chunking time significantly.
+
+### Methods
+
+```python
+def to_discord_intents(self) -> discord.Intents
+```
+
+Convert config to discord.Intents object.
+
+Returns
+-------
+discord.Intents
+    Configured Discord intents object.
+
+Database configuration with automatic URL construction.
+
+### Methods
+
+```python
+def get_database_url(self) -> str
+```
+
+Get database URL, either custom or constructed from individual parts.
+
+Returns
+-------
+str
+    Complete PostgreSQL database URL.

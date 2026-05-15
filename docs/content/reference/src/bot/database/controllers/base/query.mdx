@@ -1,0 +1,104 @@
+---
+title: Query
+icon: lucide/code-2
+---
+
+# Query
+
+Query operations for database controllers.
+
+## Classes
+
+Handles query building, filtering, and advanced searches.
+
+### Methods
+
+```python
+def __init__(self, model: type[ModelT], db: DatabaseService) -> None
+```
+
+Initialize the query controller.
+
+Parameters
+----------
+model : type[ModelT]
+    The SQLModel to query.
+db : DatabaseService
+    The database service instance.
+
+```python
+def build_filters(self, filters: Any) -> Any
+```
+
+Build filter expressions from various input types.
+
+Returns
+-------
+Any
+    Combined filter expression, or None if no filters.
+
+```python
+async def find_one(self, filters: Any | None, order_by: OrderByType | None) -> ModelT | None
+```
+
+Find one record.
+
+Returns
+-------
+ModelT | None
+    The found record, or None if not found.
+
+```python
+async def find_all(self, filters: Any | None, order_by: OrderByType | None, limit: int | None, offset: int | None) -> list[ModelT]
+```
+
+Find all records with performance optimizations.
+
+Returns
+-------
+list[ModelT]
+    List of found records.
+
+```python
+async def find_all_with_options(self, filters: Any | None, order_by: OrderByType | None, limit: int | None, offset: int | None, load_relationships: list[str] | None) -> list[ModelT]
+```
+
+Find all records with relationship loading options.
+
+Returns
+-------
+list[ModelT]
+    List of found records with loaded relationships.
+
+```python
+async def count(self, filters: Any | None) -> int
+```
+
+Count records.
+
+Returns
+-------
+int
+    The count of matching records.
+
+```python
+async def get_all(self, filters: Any | None, order_by: Any | None) -> list[ModelT]
+```
+
+Get all records (alias for find_all without pagination).
+
+Returns
+-------
+list[ModelT]
+    List of all matching records.
+
+```python
+async def execute_query(self, query: Executable) -> Result[Any]
+```
+
+Execute a custom query.
+
+Returns
+-------
+Result[Any]
+    The query result.

@@ -1,0 +1,150 @@
+---
+title: Backend
+icon: lucide/code-2
+---
+
+# Backend
+
+Cache backend abstraction: in-memory and Valkey implementations.
+
+## Classes
+
+Protocol for async cache backends (in-memory or Valkey).
+
+### Methods
+
+```python
+async def get(self, key: str) -> Any | None
+```
+
+Get a value by key. Return None if missing or expired.
+
+```python
+async def set(self, key: str, value: Any, ttl_sec: float | None) -> None
+```
+
+Set a value with optional TTL.
+
+```python
+async def delete(self, key: str) -> None
+```
+
+Delete a key.
+
+```python
+async def exists(self, key: str) -> bool
+```
+
+Return True if key exists and is not expired.
+
+In-memory cache backend using TTLCache.
+
+Used when Valkey is not configured or unavailable. Values are stored
+as-is (no JSON serialization) for compatibility with existing TTLCache usage.
+
+### Methods
+
+```python
+def __init__(self, default_ttl: float, max_size: int | None) -> None
+```
+
+Initialize the in-memory backend.
+
+Parameters
+----------
+default_ttl : float, optional
+    Default TTL in seconds when set() is called without ttl_sec.
+max_size : int | None, optional
+    Max entries (FIFO eviction). None for no limit.
+
+```python
+async def get(self, key: str) -> Any | None
+```
+
+Get a value by key.
+
+```python
+async def set(self, key: str, value: Any, ttl_sec: float | None) -> None
+```
+
+Set a value with optional TTL.
+
+Matches :class:`ValkeyBackend`: positive ``ttl_sec`` sets that lifetime;
+``None`` or non-positive ``ttl_sec`` stores without expiry (in-process
+only), like Redis ``SET`` without ``EX``.
+
+```python
+async def delete(self, key: str) -> None
+```
+
+Delete a key.
+
+```python
+async def exists(self, key: str) -> bool
+```
+
+Return True if key exists and is not expired.
+
+Valkey (Redis-compatible) cache backend.
+
+Keys are prefixed with `bot:`. Values are JSON-serialized.
+TTL is set via SETEX when ttl_sec is provided.
+
+### Methods
+
+```python
+def __init__(self, client: Any) -> None
+```
+
+Initialize the Valkey backend.
+
+Parameters
+----------
+client : Any
+    Async Valkey client (valkey.asyncio.Valkey) with decode_responses=True.
+
+```python
+async def get(self, key: str) -> Any | None
+```
+
+Get a value by key. Deserializes JSON.
+
+```python
+async def set(self, key: str, value: Any, ttl_sec: float | None) -> None
+```
+
+Set a value with optional TTL. Serializes to JSON.
+
+```python
+async def delete(self, key: str) -> None
+```
+
+Delete a key.
+
+```python
+async def exists(self, key: str) -> bool
+```
+
+Return True if key exists.
+
+## Functions
+
+```python
+def get_cache_backend(bot: Bot) -> AsyncCacheBackend
+```
+
+Return the cache backend for the bot (Valkey if connected, else in-memory).
+
+When Valkey is not configured or disconnected, a single shared InMemoryBackend
+is cached on the bot so all consumers (cache managers, prefix, permissions)
+use the same in-memory store.
+
+Parameters
+----------
+bot : Bot
+    The bot instance (must have cache_service set by setup).
+
+Returns
+-------
+AsyncCacheBackend
+    ValkeyBackend if bot.cache_service is connected, else a shared InMemoryBackend.

@@ -1,0 +1,145 @@
+---
+title: Afk
+icon: lucide/code-2
+---
+
+# Afk
+
+Away From Keyboard (AFK) status management.
+
+This module provides comprehensive AFK functionality including automatic
+status setting, message notifications, and nickname management for Discord users.
+
+## Classes
+
+Discord cog for managing AFK status functionality.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the AFK cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+```python
+async def cog_unload(self) -> None
+```
+
+Cancel the background task when the cog is unloaded.
+
+*Decorated with: `listener`*
+
+```python
+async def on_timeout_expire(self, before: discord.Member, after: discord.Member) -> None
+```
+
+Handle timeout expiration for enforced AFK (self-timeout).
+
+When a member's timeout expires, immediately restore their nickname
+and remove their AFK status if it was an enforced self-timeout.
+
+Parameters
+----------
+before : discord.Member
+    The member state before the update.
+after : discord.Member
+    The member state after the update.
+
+*Decorated with: `hybrid_command`, `guild_only`*
+
+```python
+async def afk(self, ctx: commands.Context[Bot], reason: str = 'No reason.') -> None
+```
+
+Set yourself as AFK.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+reason : str, optional
+    The reason you are AFK.
+
+*Decorated with: `hybrid_command`, `guild_only`*
+
+```python
+async def permafk(self, ctx: commands.Context[Bot], reason: str = 'No reason.') -> None
+```
+
+Set yourself permanently AFK until you rerun the command.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+reason : str, optional
+    The reason you are AFK.
+
+*Decorated with: `listener`*
+
+```python
+async def remove_afk(self, message: discord.Message) -> None
+```
+
+Remove the AFK status of a member when they send a message.
+
+Parameters
+----------
+message : discord.Message
+    The message to check.
+
+*Decorated with: `listener`*
+
+```python
+async def check_afk(self, message: discord.Message) -> None
+```
+
+Check if a message mentions an AFK member.
+
+Parameters
+----------
+message : discord.Message
+    The message to check.
+
+*Decorated with: `loop`*
+
+```python
+async def handle_afk_expiration(self) -> None
+```
+
+Check AFK database at a regular interval, remove AFK from users with an entry that has expired.
+
+*Decorated with: `before_loop`*
+
+```python
+async def before_handle_afk_expiration(self) -> None
+```
+
+Wait until the bot is ready.
+
+*Decorated with: `error`*
+
+```python
+async def on_handle_afk_expiration_error(self, error: BaseException) -> None
+```
+
+Handle errors in the AFK expiration handler loop.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Afk cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

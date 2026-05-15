@@ -1,0 +1,58 @@
+---
+title: Banner
+icon: lucide/code-2
+---
+
+# Banner
+
+Banner creation and formatting utilities for Bot.
+
+## Classes
+
+Color scheme for banner elements.
+
+```python
+@dataclass
+class BannerConfig:
+```
+
+Configuration for banner content and styling.
+
+Builder class for creating rich text banners.
+
+### Methods
+
+```python
+def __init__(self, config: BannerConfig) -> None
+```
+
+Initialize the banner builder.
+
+Parameters
+----------
+config : BannerConfig
+    Configuration object containing banner settings and content.
+
+```python
+def build(self) -> Panel
+```
+
+Build the complete banner panel.
+
+Returns
+-------
+Panel
+    Rich Panel containing the complete banner.
+
+## Functions
+
+```python
+def create_banner(bot_name: str, version: str, bot_id: str | None, owner_id: str | None, guild_count: int, user_count: int, prefix: str) -> Panel
+```
+
+Create a banner panel with bot information.
+
+Returns
+-------
+Panel
+    Rich Panel with the bot banner.

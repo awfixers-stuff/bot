@@ -74,10 +74,6 @@ jobs:
       # Allows the action to authenticate with Codecov using OpenID Connect
       # instead of requiring a CODECOV_TOKEN secret
       id-token: write
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.13.11]
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
@@ -86,7 +82,7 @@ jobs:
       - name: Setup Python
         uses: ./.github/actions/setup-python
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.PYTHON_VERSION }}
           enable-cache: true
       - name: Create Test Environment
         uses: ./.github/actions/create-test-env

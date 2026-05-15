@@ -1,0 +1,87 @@
+---
+title: Upsert
+icon: lucide/code-2
+---
+
+# Upsert
+
+Upsert operations for database controllers.
+
+## Classes
+
+Handles upsert and get-or-create operations.
+
+### Methods
+
+```python
+def __init__(self, model: type[ModelT], db: DatabaseService) -> None
+```
+
+Initialize the upsert controller.
+
+Parameters
+----------
+model : type[ModelT]
+    The SQLModel to perform upsert operations on.
+db : DatabaseService
+    The database service instance.
+
+```python
+async def upsert_by_field(self, field_name: str, field_value: Any, defaults: dict[str, Any] | None, **kwargs: Any) -> tuple[ModelT, bool]
+```
+
+Upsert a record by a specific field.
+
+Returns
+-------
+tuple[ModelT, bool]
+    Tuple of (record, created) where created is True if new record was created.
+
+```python
+async def upsert_by_id(self, record_id: Any, defaults: dict[str, Any] | None, **kwargs: Any) -> tuple[ModelT, bool]
+```
+
+Upsert a record by ID.
+
+Returns
+-------
+tuple[ModelT, bool]
+    Tuple of (record, created) where created is True if new record was created.
+
+Raises
+------
+RuntimeError
+    If updating an existing record fails.
+
+```python
+async def get_or_create_by_field(self, field_name: str, field_value: Any, defaults: dict[str, Any] | None, **kwargs: Any) -> tuple[ModelT, bool]
+```
+
+Get existing record or create new one by field.
+
+Returns
+-------
+tuple[ModelT, bool]
+    Tuple of (record, created) where created is True if new record was created.
+
+```python
+async def get_or_create(self, defaults: dict[str, Any] | None, **filters: Any) -> tuple[ModelT, bool]
+```
+
+Get existing record or create new one.
+
+Returns
+-------
+tuple[ModelT, bool]
+    Tuple of (record, created) where created is True if new record was created.
+
+```python
+async def upsert(self, filters: dict[str, Any], defaults: dict[str, Any] | None, **kwargs: Any) -> tuple[ModelT, bool]
+```
+
+Upsert a record.
+
+Returns
+-------
+tuple[ModelT, bool]
+    Tuple of (record, created) where created is True if new record was created.

@@ -1,0 +1,61 @@
+---
+title: Level
+icon: lucide/code-2
+---
+
+# Level
+
+Level and XP display commands.
+
+This module provides commands to view user levels and XP points earned through
+message activity. Users can check their own level or view other members' levels.
+
+## Classes
+
+Discord cog for level and XP display commands.
+
+Provides functionality to display user levels and XP points earned through
+message activity. Supports viewing both personal and other members' levels
+with optional progress bars and XP caps.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Level cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `guild_only`, `hybrid_command`*
+
+```python
+async def level(self, ctx: commands.Context[Bot], member: discord.User | discord.Member | None) -> None
+```
+
+Fetch the XP and level for a member (or the person who runs the command if no member is provided).
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+member : discord.User
+    The member to fetch XP and level for.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Level cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

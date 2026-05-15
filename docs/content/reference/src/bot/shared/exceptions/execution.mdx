@@ -1,0 +1,44 @@
+---
+title: Execution
+icon: lucide/code-2
+---
+
+# Execution
+
+Code execution (e.g. run/eval wrappers) exceptions.
+
+## Classes
+
+Base exception for code execution errors.
+
+Raised when no code is provided for execution.
+
+### Methods
+
+```python
+def __init__(self) -> None
+```
+
+Raised when code format is invalid.
+
+### Methods
+
+```python
+def __init__(self) -> None
+```
+
+Raised when the specified language is not supported.
+
+### Methods
+
+```python
+def __init__(self, language: str, supported_languages: list[str]) -> None
+```
+
+Raised when code compilation fails.
+
+### Methods
+
+```python
+def __init__(self) -> None
+```

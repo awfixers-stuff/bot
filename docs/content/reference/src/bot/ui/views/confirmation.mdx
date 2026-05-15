@@ -1,0 +1,95 @@
+---
+title: Confirmation
+icon: lucide/code-2
+---
+
+# Confirmation
+
+Discord Confirmation Views for Bot Bot.
+
+This module provides confirmation dialog views for Discord interactions,
+allowing users to confirm or cancel potentially destructive actions.
+Views should ideally be sent as DMs to ensure only the requesting user can interact.
+
+## Classes
+
+Base confirmation view with confirm and cancel buttons.
+
+### Methods
+
+```python
+def __init__(self, user: int) -> None
+```
+
+Initialize the base confirmation view.
+
+Parameters
+----------
+user : int
+    The user ID that can interact with this view.
+
+*Decorated with: `button`*
+
+```python
+async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button[discord.ui.View]) -> None
+```
+
+Handle the confirm button press.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction that triggered this action.
+button : discord.ui.Button[discord.ui.View]
+    The button that was pressed.
+
+*Decorated with: `button`*
+
+```python
+async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button[discord.ui.View]) -> None
+```
+
+Handle the cancel button press.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction that triggered this action.
+button : discord.ui.Button[discord.ui.View]
+    The button that was pressed.
+
+```python
+def update_button_styles(self) -> None
+```
+
+Update button styles for the confirmation view.
+
+Confirmation view with a danger button.
+
+### Methods
+
+```python
+def __init__(self, user: int) -> None
+```
+
+Initialize the danger confirmation view.
+
+Parameters
+----------
+user : int
+    The user ID that can interact with this view.
+
+Confirmation view with a normal button.
+
+### Methods
+
+```python
+def __init__(self, user: int) -> None
+```
+
+Initialize the normal confirmation view.
+
+Parameters
+----------
+user : int
+    The user ID that can interact with this view.

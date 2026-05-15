@@ -1,0 +1,66 @@
+---
+title: Poll
+icon: lucide/code-2
+---
+
+# Poll
+
+Interactive polling system for Discord.
+
+This module provides functionality for creating and managing polls with
+reaction-based voting, poll banning checks, and result tracking.
+
+## Classes
+
+Discord cog for interactive polling functionality.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Poll cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `listener`*
+
+```python
+async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent) -> None
+```
+
+On raw reaction add event handler.
+
+*Decorated with: `command`, `describe`*
+
+```python
+async def poll(self, interaction: discord.Interaction, title: str, options: str) -> None
+```
+
+Create a poll with a title and options.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The discord interaction object.
+title : str
+    The title of the poll.
+options : str
+    The options for the poll, separated by commas.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Cog setup for poll cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.

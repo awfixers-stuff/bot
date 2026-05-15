@@ -1,0 +1,70 @@
+---
+title: Activity
+icon: lucide/code-2
+---
+
+# Activity
+
+Bot activity status management and rotation.
+
+This module handles automatic cycling through different bot activities
+to display various status messages, version information, and statistics.
+
+## Classes
+
+Discord cog for managing bot activity status rotation.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot, delay: int) -> None
+```
+
+Initialize the activity handler.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+delay : int, optional
+    Seconds between activity changes, by default 30.
+
+*Decorated with: `staticmethod`*
+
+```python
+def build_activity_list() -> list[discord.Activity | discord.Streaming | discord.Game]
+```
+
+Build activity list from config or return default.
+
+Returns
+-------
+list[discord.Activity | discord.Streaming | discord.Game]
+    List of activities for bot status rotation.
+
+*Decorated with: `listener`*
+
+```python
+async def on_ready(self) -> None
+```
+
+Start activity rotation when bot is ready.
+
+```python
+async def cog_unload(self) -> None
+```
+
+Cancel activity task when cog is unloaded.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Cog setup for activity handler.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.

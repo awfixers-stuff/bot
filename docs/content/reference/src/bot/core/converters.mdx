@@ -1,0 +1,183 @@
+---
+title: Converters
+icon: lucide/code-2
+---
+
+# Converters
+
+Discord.py command converters for Bot bot.
+
+This module provides custom converters for parsing command arguments,
+including time durations, case types, and utility functions for channel
+resolution and boolean conversion.
+
+## Classes
+
+Convert string representations of time durations to seconds.
+
+Supports time units: s (seconds), m (minutes), h (hours), d (days).
+Examples: "1h30m", "2d", "45s", "1.5h".
+
+### Methods
+
+```python
+async def convert(self, ctx: commands.Context[Any], argument: str) -> float
+```
+
+Convert a string representation of time (e.g., "1h30m", "2d") into seconds.
+
+Parameters
+----------
+ctx : commands.Context[Any]
+    The invocation context.
+argument : str
+    The time string to convert.
+
+Returns
+-------
+float
+    The total time in seconds.
+
+Raises
+------
+commands.BadArgument
+    If the time string format is invalid or uses invalid units.
+
+Convert string representations to CaseType enum values.
+
+Accepts case type names (case-insensitive) and converts them to
+the corresponding CaseType enum value for moderation commands.
+
+### Methods
+
+```python
+async def convert(self, ctx: commands.Context[Any], argument: str) -> CaseType
+```
+
+Convert a string to a CaseType enum.
+
+Parameters
+----------
+ctx : commands.Context[Any]
+    The invocation context.
+argument : str
+    The string to convert.
+
+Returns
+-------
+CaseType
+    The CaseType enum value.
+
+Raises
+------
+commands.BadArgument
+    If the argument is not a valid CaseType.
+
+Convert various user representations to discord.User.
+
+Accepts user mentions, user IDs (snowflakes), and usernames.
+Uses discord.py's UserConverter which already supports ID lookup, but provides
+better error messages and fallback handling.
+
+### Methods
+
+```python
+async def convert(self, ctx: commands.Context[Any], argument: str) -> discord.User
+```
+
+Convert a string to a discord.User.
+
+Parameters
+----------
+ctx : commands.Context[Any]
+    The invocation context.
+argument : str
+    The user identifier (mention, ID, or username).
+
+Returns
+-------
+discord.User
+    The user object.
+
+Raises
+------
+commands.BadArgument
+    If the user cannot be found or the argument is invalid.
+
+## Functions
+
+```python
+async def get_user_safe(bot: Bot, user_id: int) -> discord.User | None
+```
+
+Get user from cache first, only fetch if needed.
+
+This utility function optimizes user resolution by checking the bot's
+internal cache before making a REST API call. This reduces unnecessary
+REST calls in high-latency environments.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to use for user resolution.
+user_id : int
+    The ID of the user to resolve.
+
+Returns
+-------
+discord.User | None
+    The user if found, None if not found or if an error occurred.
+
+```python
+async def get_channel_safe(bot: Bot, channel_id: int) -> discord.TextChannel | discord.Thread | None
+```
+
+Get a TextChannel or Thread by ID, returning None if not found.
+
+This narrows the return type so callers can safely use fetch_message and message.reactions.
+
+Returns
+-------
+discord.TextChannel | discord.Thread | None
+    The channel if found and is a text channel or thread, None otherwise.
+
+```python
+def convert_bool(x: str | None) -> bool | None
+```
+
+Convert a string to a boolean value.
+
+Parameters
+----------
+x : str | None
+    The string to convert.
+
+Returns
+-------
+bool | None
+    The converted boolean value, or None if x is None.
+
+Raises
+------
+commands.BadArgument
+    If the string cannot be converted to a boolean.
+
+```python
+def convert_reason(x: str | None) -> str | None
+```
+
+Clean a moderation reason by removing common flag-like prefixes.
+
+Users sometimes accidentally include flag-like prefixes in their reason text
+(e.g., "?r spam", "-reason breaking rules", "!reason harassment"). This function
+strips these prefixes to ensure clean reason text.
+
+Parameters
+----------
+x : str | None
+    The reason string to clean.
+
+Returns
+-------
+str | None
+    The cleaned reason string with flag-like prefixes removed, or None if x is None.

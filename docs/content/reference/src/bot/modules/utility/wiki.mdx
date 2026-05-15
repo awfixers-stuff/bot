@@ -1,0 +1,122 @@
+---
+title: Wiki
+icon: lucide/code-2
+---
+
+# Wiki
+
+Wikipedia and wiki search functionality.
+
+This module provides commands to search and retrieve information from
+Arch Linux Wiki and ATL Wiki, with formatted Discord embeds for results.
+
+## Classes
+
+Discord cog for wiki search functionality.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Wiki cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+```python
+def create_embed(self, title: tuple[str, str], ctx: commands.Context[Bot]) -> discord.Embed
+```
+
+Create a Discord embed message based on the search result.
+
+Parameters
+----------
+title : tuple[str, str]
+    A tuple containing the title and description of the search result.
+    If the first element is "error", it indicates no search results were found.
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+Returns
+-------
+discord.Embed
+    The created embed message.
+
+```python
+async def query_wiki(self, base_url: str, search_term: str) -> tuple[str, str]
+```
+
+Query a wiki API for a search term and return the title and URL of the first English result.
+
+Parameters
+----------
+base_url : str
+    The base URL of the wiki API.
+search_term : str
+    The search term to query the wiki API with.
+
+Returns
+-------
+tuple[str, str]
+    The title and URL of the first English search result.
+    Returns ("error", "error") if no English results are found.
+
+*Decorated with: `hybrid_group`*
+
+```python
+async def wiki(self, ctx: commands.Context[Bot]) -> None
+```
+
+Wiki related commands.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+
+*Decorated with: `command`*
+
+```python
+async def arch_wiki(self, ctx: commands.Context[Bot], query: str) -> None
+```
+
+Search the Arch Linux Wiki.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+query : str
+    The search query.
+
+*Decorated with: `command`*
+
+```python
+async def atl_wiki(self, ctx: commands.Context[Bot], query: str) -> None
+```
+
+Search the AWFixer Enterprising Inc Wiki.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object for the command.
+query : str
+    The search query.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Wiki cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

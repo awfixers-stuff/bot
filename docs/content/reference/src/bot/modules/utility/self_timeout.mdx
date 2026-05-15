@@ -1,0 +1,58 @@
+---
+title: Self Timeout
+icon: lucide/code-2
+---
+
+# Self Timeout
+
+Self-timeout functionality for Discord users.
+
+This module allows users to voluntarily timeout themselves for specified
+durations with confirmation dialogs and automatic AFK status management.
+
+## Classes
+
+Discord cog for self-timeout functionality.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the SelfTimeout cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `hybrid_command`, `guild_only`*
+
+```python
+async def self_timeout(self, ctx: commands.Context[Bot], duration: str, reason: str = 'No Reason.') -> None
+```
+
+Time yourself out for a set duration.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command
+duration : str
+    How long the timeout should last for
+reason : str [optional]
+    The reason why you are timing yourself out
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the SelfTimeout cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.
