@@ -1,0 +1,50 @@
+---
+title: Deepfry
+icon: lucide/code-2
+---
+
+# Deepfry
+
+Deepfry Plugin for Bot Bot.
+
+This plugin provides image deepfrying effects using PIL to apply various
+image processing transformations that create a "deepfried" visual effect,
+including saturation, contrast, and color adjustments.
+
+## Classes
+
+Image deepfrying effects for Discord.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Deepfry plugin.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to initialize the plugin with.
+
+*Decorated with: `hybrid_command`*
+
+```python
+async def deepfry(self, ctx: commands.Context[Any], image: discord.Attachment) -> None
+```
+
+Deepfry an image using various image processing effects.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the deepfry plugin.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

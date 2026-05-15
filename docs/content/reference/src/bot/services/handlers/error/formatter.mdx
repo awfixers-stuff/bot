@@ -1,0 +1,47 @@
+---
+title: Formatter
+icon: lucide/code-2
+---
+
+# Formatter
+
+Error message formatting utilities.
+
+## Classes
+
+Formats errors into user-friendly Discord embeds.
+
+### Methods
+
+```python
+def format_error_embed(self, error: Exception, source: commands.Context[Bot] | discord.Interaction, config: ErrorHandlerConfig, event_id: str | None = None) -> discord.Embed
+```
+
+Create user-friendly error embed.
+
+Parameters
+----------
+error : Exception
+    The error to format.
+source : commands.Context[Bot] | discord.Interaction
+    Command context or interaction.
+config : ErrorHandlerConfig
+    Error handler configuration.
+event_id : str | None, optional
+    Sentry event ID when the error was reported to Sentry.
+
+Returns
+-------
+discord.Embed
+    Formatted error embed for display.
+
+```python
+def get_error_config(self, error: Exception) -> ErrorHandlerConfig
+```
+
+Get configuration for error type.
+
+Returns
+-------
+ErrorHandlerConfig
+    Configuration for the error type.

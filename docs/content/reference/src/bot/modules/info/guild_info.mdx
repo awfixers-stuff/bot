@@ -1,0 +1,106 @@
+---
+title: Guild Info
+icon: lucide/code-2
+---
+
+# Guild Info
+
+Guild and invite embed section builders for info commands.
+
+## Functions
+
+```python
+def count_guild_members(guild: discord.Guild) -> tuple[int, int]
+```
+
+Count humans and bots in guild.
+
+```python
+async def count_guild_bans(guild: discord.Guild) -> int
+```
+
+Count bans in guild.
+
+```python
+def build_guild_channel_counts(guild: discord.Guild) -> str
+```
+
+Build channel counts text for guild.
+
+```python
+def build_guild_member_stats(guild: discord.Guild, humans: int, bots: int, ban_count: int) -> str
+```
+
+Build member statistics text for guild.
+
+```python
+def build_guild_special_channels(guild: discord.Guild) -> str
+```
+
+Build special channels text for guild.
+
+```python
+def add_guild_title_section(container: discord.ui.Container[discord.ui.LayoutView], guild: discord.Guild) -> None
+```
+
+Add title and description section to guild container.
+
+```python
+def add_guild_basic_info_section(container: discord.ui.Container[discord.ui.LayoutView], guild: discord.Guild, tier_text: str) -> None
+```
+
+Add basic information section to guild container.
+
+```python
+def add_guild_security_section(container: discord.ui.Container[discord.ui.LayoutView], verification_text: str, mfa_text: str, nsfw_text: str, content_filter_text: str, notification_text: str) -> None
+```
+
+Add security and settings section to guild container.
+
+```python
+def add_guild_channels_section(container: discord.ui.Container[discord.ui.LayoutView], channel_counts: str, special_channels_text: str) -> None
+```
+
+Add channels section to guild container.
+
+```python
+def add_guild_resources_section(container: discord.ui.Container[discord.ui.LayoutView], guild: discord.Guild) -> None
+```
+
+Add resources section to guild container.
+
+```python
+def add_guild_members_section(container: discord.ui.Container[discord.ui.LayoutView], member_stats: str) -> None
+```
+
+Add members section to guild container.
+
+```python
+def add_guild_footer_section(container: discord.ui.Container[discord.ui.LayoutView], guild: discord.Guild) -> None
+```
+
+Add footer section to guild container.
+
+```python
+def add_guild_media(container: discord.ui.Container[discord.ui.LayoutView], guild: discord.Guild) -> None
+```
+
+Add icon and banner media to guild container.
+
+```python
+def add_invite_statistics(container: discord.ui.Container[discord.ui.LayoutView], invite: discord.Invite) -> None
+```
+
+Add invite statistics section to container.
+
+```python
+def add_invite_target_info(container: discord.ui.Container[discord.ui.LayoutView], invite: discord.Invite) -> None
+```
+
+Add invite target information section to container.
+
+```python
+def add_invite_scheduled_event(container: discord.ui.Container[discord.ui.LayoutView], invite: discord.Invite) -> None
+```
+
+Add invite scheduled event section to container.

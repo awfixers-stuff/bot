@@ -1,0 +1,42 @@
+---
+title: Cache Setup
+icon: lucide/code-2
+---
+
+# Cache Setup
+
+Cache (Valkey) setup service for bot initialization.
+
+## Classes
+
+Handles optional Valkey cache connection during bot setup.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the cache setup service.
+
+Parameters
+----------
+bot : Bot
+    The Discord bot instance to set up.
+
+```python
+async def setup(self) -> None
+```
+
+Set up the cache backend for the bot.
+
+Returns
+-------
+None
+    Initializes `cache_service` and never raises.
+
+Notes
+-----
+If VALKEY_URL (or VALKEY_HOST) is empty, the bot uses in-memory caches.
+If connection or ping fails, the bot logs a warning and continues with
+in-memory caches.

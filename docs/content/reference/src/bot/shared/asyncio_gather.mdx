@@ -1,0 +1,35 @@
+---
+title: Asyncio Gather
+icon: lucide/code-2
+---
+
+# Asyncio Gather
+
+Helpers for interpreting ``asyncio.gather(..., return_exceptions=True)`` results.
+
+## Functions
+
+```python
+def handle_gather_result(result: T | BaseException, expected_type: type[T]) -> T
+```
+
+Handle a result from asyncio.gather with return_exceptions=True.
+
+Parameters
+----------
+result : T | BaseException
+    The result from asyncio.gather
+expected_type : type[T]
+    The expected type of the result
+
+Returns
+-------
+T
+    The result if it matches the expected type
+
+Raises
+------
+BaseException
+    Re-raises if result is an exception instance.
+TypeError
+    If the result is not of the expected type

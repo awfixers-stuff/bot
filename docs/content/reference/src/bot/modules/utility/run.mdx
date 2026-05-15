@@ -1,0 +1,126 @@
+---
+title: Run
+icon: lucide/code-2
+---
+
+# Run
+
+Code execution cog for running code snippets in various programming languages.
+
+This module provides functionality to execute code using external services
+like Godbolt and Wandbox, with support for multiple programming languages
+and proper error handling through custom exceptions.
+
+## Classes
+
+Abstract base class for code execution services.
+
+### Methods
+
+```python
+def __init__(self, compiler_map: dict[str, str]) -> None
+```
+
+Initialize the code dispatch service.
+
+Parameters
+----------
+compiler_map : dict[str, str]
+    Mapping of language names to compiler identifiers.
+
+```python
+async def run(self, language: str, code: str, options: str | None) -> str | None
+```
+
+Execute code using the appropriate compiler.
+
+Parameters
+----------
+language : str
+    The programming language identifier.
+code : str
+    The source code to execute.
+options : str | None, optional
+    Additional compiler options. Defaults to None.
+
+Returns
+-------
+str | None
+    The execution output or None if execution failed.
+
+Code execution service using Godbolt compiler explorer.
+
+Code execution service using Wandbox online compiler.
+
+Cog for executing code in various programming languages.
+
+Supports multiple programming languages through Godbolt and Wandbox services.
+Provides code execution with proper error handling and user-friendly output.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Run cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `command`*
+
+```python
+async def run(self, ctx: commands.Context[Bot], code: str | None = None) -> None
+```
+
+Execute code in various programming languages.
+
+Code should be enclosed in triple backticks with language specification.
+You can also reply to a message containing code to execute it.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The command context.
+code : str | None, optional
+    The code to execute, or None to use referenced message. Defaults to None.
+
+Raises
+------
+BotMissingCodeError
+    When no code is provided and no replied message contains code.
+BotInvalidCodeFormatError
+    When the code format is invalid or missing language specification.
+BotUnsupportedLanguageError
+    When the specified language is not supported.
+BotCompilationError
+    When code compilation or execution fails.
+
+*Decorated with: `command`*
+
+```python
+async def languages(self, ctx: commands.Context[Bot]) -> None
+```
+
+Display all supported programming languages to use with the `run` command.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The command context.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Run cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

@@ -1,0 +1,28 @@
+---
+title: Logs
+icon: lucide/code-2
+---
+
+# Logs
+
+Log channel configuration management using unified dashboard.
+
+## Classes
+
+Management commands for log channel configuration using unified dashboard.
+
+### Methods
+
+```python
+async def configure_logs(self, ctx: commands.Context[Bot]) -> None
+```
+
+Configure log channel assignments using the unified config dashboard.
+
+This command launches the unified configuration dashboard in logs mode
+to allow administrators to assign text channels for various bot logging purposes.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command invocation.

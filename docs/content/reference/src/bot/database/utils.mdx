@@ -1,0 +1,74 @@
+---
+title: Utils
+icon: lucide/code-2
+---
+
+# Utils
+
+Database Utilities for Bot Bot.
+
+This module provides utility functions for accessing database services,
+controllers, and coordinators from various Discord context sources like
+commands.Context, discord.Interaction, or Bot bot instances.
+
+## Functions
+
+```python
+def get_db_service_from(source: commands.Context[Bot] | discord.Interaction | Bot) -> DatabaseService | None
+```
+
+Get the database service from various source types.
+
+Parameters
+----------
+source : commands.Context[Bot] | discord.Interaction | Bot
+    The source object to get the database service from.
+
+Returns
+-------
+DatabaseService | None
+    The database service instance, or None if not available.
+
+```python
+def get_db_controller_from(source: commands.Context[Bot] | discord.Interaction | Bot, fallback_to_direct: bool = True) -> DatabaseCoordinator | None
+```
+
+Get the database coordinator from various source types.
+
+Parameters
+----------
+source : commands.Context[Bot] | discord.Interaction | Bot
+    The source object to get the database coordinator from.
+fallback_to_direct : bool, optional
+    Whether to fallback to creating a direct DatabaseCoordinator instance
+    if the service-based approach fails, by default True.
+
+Returns
+-------
+DatabaseCoordinator | None
+    The database coordinator instance, or None if not available and
+    fallback_to_direct is False.
+
+```python
+def create_enhanced_controller_from(source: commands.Context[Bot] | discord.Interaction | Bot, model: type[ModelT]) -> BaseController[ModelT] | None
+```
+
+Create an enhanced BaseController instance from various source types.
+
+This provides access to the new enhanced controller pattern with:
+- Sentry integration
+- Transaction management
+- Better error handling
+- Query performance monitoring
+
+Parameters
+----------
+source : commands.Context[Bot] | discord.Interaction | Bot
+    The source object to get the database service from.
+model : type[ModelT]
+    The SQLModel class to create a controller for.
+
+Returns
+-------
+BaseController[ModelT] | None
+    The enhanced controller instance, or None if not available.

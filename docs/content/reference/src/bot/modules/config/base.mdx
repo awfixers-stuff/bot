@@ -1,0 +1,130 @@
+---
+title: Base
+icon: lucide/code-2
+---
+
+# Base
+
+Base manager class for config modules.
+
+Provides common patterns and utilities for all configuration managers
+to reduce duplication and ensure consistency.
+
+## Classes
+
+Base class for configuration managers with common patterns.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the manager with a bot instance.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to use for database operations.
+
+```python
+async def configure_dashboard(self, ctx: commands.Context[Bot], mode: str, description: str | None) -> None
+```
+
+Open the unified config dashboard in a specific mode.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command invocation.
+mode : str
+    The dashboard mode to open (e.g., "ranks", "roles", "commands", "logs").
+description : str | None, optional
+    Optional description for the dashboard mode.
+
+```python
+def create_error_embed(self, title: str, description: str) -> discord.Embed
+```
+
+Create a standardized error embed.
+
+Parameters
+----------
+title : str
+    Error title.
+description : str
+    Error description.
+
+Returns
+-------
+discord.Embed
+    Formatted error embed.
+
+```python
+def create_success_embed(self, title: str, description: str) -> discord.Embed
+```
+
+Create a standardized success embed.
+
+Parameters
+----------
+title : str
+    Success title.
+description : str
+    Success description.
+
+Returns
+-------
+discord.Embed
+    Formatted success embed.
+
+```python
+def create_warning_embed(self, title: str, description: str) -> discord.Embed
+```
+
+Create a standardized warning embed.
+
+Parameters
+----------
+title : str
+    Warning title.
+description : str
+    Warning description.
+
+Returns
+-------
+discord.Embed
+    Formatted warning embed.
+
+```python
+def create_info_embed(self, title: str, description: str) -> discord.Embed
+```
+
+Create a standardized info embed.
+
+Parameters
+----------
+title : str
+    Info title.
+description : str
+    Info description.
+
+Returns
+-------
+discord.Embed
+    Formatted info embed.
+
+```python
+async def handle_error(self, ctx: commands.Context[Bot], error: Exception, operation: str) -> None
+```
+
+Handle errors consistently across managers.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command invocation.
+error : Exception
+    The error that occurred.
+operation : str
+    Description of the operation that failed.

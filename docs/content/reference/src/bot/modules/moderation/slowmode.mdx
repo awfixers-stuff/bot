@@ -1,0 +1,68 @@
+---
+title: Slowmode
+icon: lucide/code-2
+---
+
+# Slowmode
+
+Channel slowmode management commands.
+
+This module provides functionality to set, modify, and remove slowmode
+from Discord text channels, threads, and voice channels to control message rates.
+
+## Classes
+
+Discord cog for managing channel slowmode settings.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the slowmode cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `hybrid_command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def slowmode(self, ctx: commands.Context[Bot], channel_or_delay: str | None, delay: str | None) -> None
+```
+
+Set or get the slowmode for a channel.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+channel_or_delay : str | None
+    Either a channel mention/ID or a delay value.
+delay : str | None
+    A delay value if channel_or_delay was a channel.
+
+Examples
+--------
+$slowmode - Get slowmode for current channel
+$slowmode 10 - Set 10 second slowmode in current channel
+$slowmode 5s - Set 5 second slowmode in current channel
+$slowmode 2m - Set 2 minute slowmode in current channel
+$slowmode 0 - Turn off slowmode in current channel
+$slowmode #general - Get slowmode for #general
+$slowmode #general 10 - Set 10 second slowmode in #general
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Slowmode cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

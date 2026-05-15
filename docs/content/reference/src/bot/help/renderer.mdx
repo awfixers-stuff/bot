@@ -1,0 +1,147 @@
+---
+title: Renderer
+icon: lucide/code-2
+---
+
+# Renderer
+
+Help system embed rendering.
+
+## Classes
+
+Handles help embed creation and formatting.
+
+### Methods
+
+```python
+def __init__(self, prefix: str) -> None
+```
+
+Initialize the help renderer.
+
+Parameters
+----------
+prefix : str
+    The command prefix to use in help text formatting.
+
+```python
+def create_base_embed(self, title: str, description: str | None) -> discord.Embed
+```
+
+Create base embed with consistent styling.
+
+Returns
+-------
+discord.Embed
+    The base embed with title, description, and default color.
+
+```python
+def format_flag_details(self, command: commands.Command[Any, Any, Any]) -> str
+```
+
+Format flag details for a command.
+
+Returns
+-------
+str
+    Formatted flag details, or empty string if no flags.
+
+```python
+def generate_default_usage(self, command: commands.Command[Any, Any, Any]) -> str
+```
+
+Generate default usage string for a command.
+
+Returns
+-------
+str
+    The usage string for the command.
+
+```python
+async def add_command_help_fields(self, embed: discord.Embed, command: commands.Command[Any, Any, Any]) -> None
+```
+
+Add help fields for a command to embed.
+
+```python
+def add_command_field(self, embed: discord.Embed, command: commands.Command[Any, Any, Any]) -> None
+```
+
+Add a single command field to embed.
+
+```python
+async def create_main_embed(self, categories: dict[str, dict[str, str]]) -> discord.Embed
+```
+
+Create main help embed.
+
+Returns
+-------
+discord.Embed
+    The main help embed with bot information and usage instructions.
+
+```python
+async def create_category_embed(self, category: str, commands_dict: dict[str, str]) -> discord.Embed
+```
+
+Create category-specific embed.
+
+Returns
+-------
+discord.Embed
+    The category embed with command list.
+
+```python
+async def create_command_embed(self, command: commands.Command[Any, Any, Any]) -> discord.Embed
+```
+
+Create command-specific embed.
+
+Returns
+-------
+discord.Embed
+    The command embed with details and usage.
+
+```python
+async def create_subcommand_embed(self, parent_name: str, subcommand: commands.Command[Any, Any, Any]) -> discord.Embed
+```
+
+Create subcommand-specific embed.
+
+Returns
+-------
+discord.Embed
+    The subcommand embed with details and usage.
+
+```python
+def create_category_options(self, categories: dict[str, dict[str, str]]) -> list[discord.SelectOption]
+```
+
+Create select options for categories.
+
+Returns
+-------
+list[discord.SelectOption]
+    List of select options for each category.
+
+```python
+def create_command_options(self, commands_dict: dict[str, str], command_mapping: dict[str, commands.Command[Any, Any, Any]]) -> list[discord.SelectOption]
+```
+
+Create select options for commands.
+
+Returns
+-------
+list[discord.SelectOption]
+    List of select options for each command, sorted by label.
+
+```python
+def create_subcommand_options(self, subcommands: list[commands.Command[Any, Any, Any]]) -> list[SelectOption]
+```
+
+Create select options for subcommands.
+
+Returns
+-------
+list[SelectOption]
+    List of select options for each subcommand.

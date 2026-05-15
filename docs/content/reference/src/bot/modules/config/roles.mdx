@@ -1,0 +1,40 @@
+---
+title: Roles
+icon: lucide/code-2
+---
+
+# Roles
+
+Role management commands for the config system.
+
+## Classes
+
+Management commands for role-to-rank assignments.
+
+### Methods
+
+```python
+async def configure_roles(self, ctx: commands.Context[Bot]) -> None
+```
+
+Configure role permissions using the unified config dashboard.
+
+This command launches the unified configuration dashboard in roles mode
+to allow administrators to assign Discord roles to permission ranks.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command invocation.
+
+```python
+async def assign_role(self, ctx: commands.Context[Bot], rank: int, role: discord.Role) -> None
+```
+
+Assign permission rank to Discord role.
+
+```python
+async def unassign_role(self, ctx: commands.Context[Bot], role: discord.Role) -> None
+```
+
+Remove permission rank from role.

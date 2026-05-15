@@ -1,0 +1,124 @@
+---
+title: Base
+icon: lucide/code-2
+---
+
+# Base
+
+Base Database Models for Bot Bot.
+
+This module provides the foundational database models and utilities used
+throughout the Bot bot's database layer, including base classes with
+automatic timestamp management and serialization utilities.
+
+## Classes
+
+Mixin providing automatic created_at and updated_at timestamp fields.
+
+This mixin adds database-managed timestamp fields that automatically
+set created_at on insert and update updated_at on every update.
+
+Usage:
+    class MyModel(SQLModel, TimestampMixin, table=True):
+        id: int | None = Field(default=None, primary_key=True)
+        name: str
+
+Base SQLModel class with automatic timestamp management.
+
+This class provides automatic created_at and updated_at timestamp fields
+that are managed by the database, along with serialization utilities for
+JSON responses.
+
+Attributes
+----------
+created_at : datetime, optional
+    Timestamp when the record was created (database-managed).
+updated_at : datetime, optional
+    Timestamp when the record was last updated (database-managed).
+
+### Methods
+
+*Decorated with: `field_serializer`*
+
+```python
+def serialize_datetimes(self, value: datetime | None) -> str | None
+```
+
+Serialize datetime objects to ISO format strings.
+
+Parameters
+----------
+value : datetime, optional
+    The datetime value to serialize.
+
+Returns
+-------
+str, optional
+    ISO format string representation of the datetime, or None if value is None.
+
+```python
+def model_post_init(self, __context: Any) -> None
+```
+
+Ensure timestamp fields are always present in __dict__ for compatibility.
+
+Even though timestamps are database-managed, some SQLAlchemy operations
+expect these fields to be accessible in the model's __dict__. This ensures
+compatibility without interfering with database defaults.
+
+```python
+def to_dict(self, include_relationships: bool, relationships: list[str] | None) -> dict[str, Any]
+```
+
+Convert model instance to dictionary with relationship support.
+
+Parameters
+----------
+include_relationships : bool, optional
+    Whether to include relationship fields, by default False.
+relationships : list[str] | None, optional
+    Specific relationships to include (if None, includes all), by default None.
+
+Returns
+-------
+dict[str, Any]
+    Dictionary representation of the model.
+
+Mixin for models that need UUID primary keys.
+
+Provides:
+- id: UUID primary key with auto-generation
+- Proper indexing for performance
+
+Mixin for soft delete functionality.
+
+Provides:
+- deleted_at: Timestamp when record was soft-deleted
+- is_deleted: Boolean flag for soft delete status
+
+### Methods
+
+*Decorated with: `field_serializer`*
+
+```python
+def serialize_deleted_at(self, value: datetime | None) -> str | None
+```
+
+Serialize deleted_at field to ISO format string.
+
+Returns
+-------
+str | None
+    ISO format datetime string, or None if value is None.
+
+```python
+def soft_delete(self) -> None
+```
+
+Mark record as soft-deleted.
+
+```python
+def restore(self) -> None
+```
+
+Restore a soft-deleted record.

@@ -1,0 +1,414 @@
+---
+title: Permission System
+icon: lucide/code-2
+---
+
+# Permission System
+
+Dynamic permission system for guild-specific permission hierarchies.
+
+This module provides a database-driven permission system allowing guilds to customize
+their permission ranks and role assignments. Supports dynamic permission ranks (0-10
+hierarchy), role-based access control, command-specific permission overrides, performance
+caching, and configuration file support for self-hosters. Note: "Rank" refers to
+permission hierarchy (0-10), "Level" refers to XP/progression.
+
+## Classes
+
+Type definition for permission rank configuration.
+
+Main permission system service orchestrating guild-specific permission checking.
+
+Manages the entire permission lifecycle including rank creation, role assignments,
+and command permissions. Permission ranks use numeric values (0-10) where higher
+numbers indicate greater permissions. This is separate from XP-based levels.
+
+Attributes
+----------
+bot : Bot
+    The bot instance for accessing guild/user data.
+db : DatabaseCoordinator
+    Database coordinator for permission storage and retrieval.
+_default_ranks : dict[int, RankDefinition]
+    Default permission rank hierarchy (0-7).
+
+### Methods
+
+```python
+def __init__(self, bot: Bot, db: DatabaseCoordinator) -> None
+```
+
+Initialize the permission system with bot and database connections.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.
+db : DatabaseCoordinator
+    The database coordinator.
+
+```python
+async def initialize_guild(self, guild_id: int) -> None
+```
+
+Initialize default permission ranks for a guild.
+
+Creates the standard 8-rank hierarchy (0-7) for guilds that don't have them yet.
+This method is idempotent - it only creates ranks that are completely missing
+and never overwrites user customizations. Respects user customizations by
+creating missing default ranks, never updating existing ranks, and allowing
+guilds to fully customize their permission hierarchy after initial setup.
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID to initialize.
+
+```python
+async def get_user_permission_rank(self, ctx: commands.Context[Bot]) -> int
+```
+
+Get the highest permission rank a user has in the current guild.
+
+Checks all of the user's roles and returns the highest permission rank
+assigned to any of them. Returns 0 if the user has no permission ranks.
+Used internally by permission decorators to check if a user has sufficient
+permissions to run a command.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The command context containing guild and user information.
+
+Returns
+-------
+int
+    The highest permission rank (0-10) the user has, or 0 if none.
+
+```python
+async def get_user_permission_rank_from_interaction(self, guild_id: int, user_id: int, user_roles: list[int]) -> int
+```
+
+Get the highest permission rank a user has directly from interaction data.
+
+This is an optimized version that avoids creating a Context object,
+which can be slow for interactions. Use this when you already have
+the guild_id, user_id, and role IDs from an interaction.
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID.
+user_id : int
+    The Discord user ID.
+user_roles : list[int]
+    List of role IDs the user has in the guild.
+
+Returns
+-------
+int
+    The highest permission rank (0-10) the user has, or 0 if none.
+
+```python
+async def assign_permission_rank(self, guild_id: int, rank: int, role_id: int) -> PermissionAssignment
+```
+
+Assign a permission rank to a Discord role.
+
+Links a Discord role to a permission rank, granting all members with that
+role the specified permission level. Invalidates cache after assignment.
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID.
+rank : int
+    The permission rank to assign (0-10).
+role_id : int
+    The Discord role ID to assign the rank to.
+
+Returns
+-------
+PermissionAssignment
+    The created assignment record.
+
+Raises
+------
+ValueError
+    If the specified rank doesn't exist for the guild.
+
+```python
+async def remove_role_assignment(self, guild_id: int, role_id: int) -> bool
+```
+
+Remove permission rank assignment from a Discord role.
+
+Unlinks a role from its permission rank. Members with this role will no
+longer have the associated permissions.
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID.
+role_id : int
+    The Discord role ID to remove the assignment from.
+
+Returns
+-------
+bool
+    True if an assignment was removed, False if no assignment existed.
+
+```python
+async def create_custom_permission_rank(self, guild_id: int, rank: int, name: str, description: str | None) -> PermissionRank
+```
+
+Create a custom permission rank for a guild.
+
+Guilds can create custom ranks or override default ranks with their own
+names and descriptions. Rank numbers must be between 0-10.
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID.
+rank : int
+    The permission rank number (0-10).
+name : str
+    Display name for the rank (e.g., "Super Moderator").
+description : str | None, optional
+    Optional description of the rank's permissions.
+
+Returns
+-------
+PermissionRank
+    The created permission rank record.
+
+Raises
+------
+ValueError
+    If rank is not between 0 and 10.
+
+```python
+async def set_command_permission(self, guild_id: int, command_name: str, required_rank: int) -> PermissionCommand
+```
+
+Set the permission rank required for a specific command.
+
+Overrides the default permission requirements for a command in a specific
+guild. This allows guilds to customize which ranks can use which commands.
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID.
+command_name : str
+    The command name (without prefix).
+required_rank : int
+    The minimum permission rank required (0-10).
+
+Returns
+-------
+PermissionCommand
+    The created or updated command permission record.
+
+Raises
+------
+ValueError
+    If required_rank is not between 0 and 10, or if command_name is restricted.
+
+```python
+async def invalidate_command_permission_cache(self, guild_id: int, command_name: str) -> None
+```
+
+Invalidate the command permission fallback cache for a command and its parents.
+
+Call after removing or changing a command permission outside set_command_permission
+(e.g. delete_where) so the next get_command_permission sees fresh data.
+
+```python
+async def get_command_permission(self, guild_id: int, command_name: str) -> PermissionCommand | None
+```
+
+Get command-specific permission requirements for a guild.
+
+Checks the command itself first, then falls back to parent commands
+if the subcommand is not configured. For example, if "config ranks init"
+is not configured, it will check "config ranks", then "config".
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID.
+command_name : str
+    The command name to look up (e.g., "config ranks init").
+
+Returns
+-------
+PermissionCommand | None
+    The command permission record, or None if no override exists.
+
+```python
+async def batch_get_command_permissions(self, guild_id: int, command_names: list[str]) -> dict[str, PermissionCommand | None]
+```
+
+Batch get command permissions for multiple commands at once.
+
+This is much more efficient than calling get_command_permission multiple
+times, as it batches all database queries. Used by the help system to
+check permissions for multiple subcommands simultaneously.
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID.
+command_names : list[str]
+    List of command names to check (e.g., ["cases view", "cases search", "cases modify"]).
+
+Returns
+-------
+dict[str, PermissionCommand | None]
+    Dictionary mapping command names to their permission records.
+    Commands without permissions will have None values.
+
+```python
+async def get_guild_permission_ranks(self, guild_id: int) -> list[PermissionRank]
+```
+
+Get all permission ranks defined for a guild.
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID.
+
+Returns
+-------
+list[PermissionRank]
+    List of all permission ranks for the guild.
+
+```python
+async def get_guild_assignments(self, guild_id: int) -> list[PermissionAssignment]
+```
+
+Get all role-to-rank assignments for a guild.
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID.
+
+Returns
+-------
+list[PermissionAssignment]
+    List of all role assignments for the guild.
+
+```python
+async def get_guild_command_permissions(self, guild_id: int) -> list[PermissionCommand]
+```
+
+Get all command permission overrides for a guild.
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID.
+
+Returns
+-------
+list[PermissionCommand]
+    List of all command permission overrides for the guild.
+
+```python
+async def prewarm_cache_for_guild(self, guild_id: int) -> None
+```
+
+Pre-warm permission caches for a guild to avoid cold-start delays.
+
+Loads all permission ranks, assignments, and command permissions into cache
+so the first command doesn't need to hit the database.
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID to pre-warm caches for.
+
+```python
+async def prewarm_cache_for_all_guilds(self) -> None
+```
+
+Pre-warm permission caches for all guilds the bot is in.
+
+This should be called after bot is ready and guilds are registered
+to avoid cold-start delays on the first command.
+
+```python
+async def load_from_config(self, guild_id: int, config: dict[str, Any]) -> None
+```
+
+Load permission configuration from a configuration file.
+
+Allows self-hosters to define their permission structure via configuration
+files instead of using commands. The config can include custom ranks, role
+assignments, and command permissions.
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID to configure.
+config : dict[str, Any]
+    Configuration dictionary with optional keys:
+    - permission_ranks: List of rank definitions
+    - role_assignments: List of role-to-rank assignments
+    - command_permissions: List of command permission overrides
+
+Examples
+--------
+>>> config = {
+...     "permission_ranks": [
+...         {"rank": 10, "name": "Elite Mod", "description": "Elite moderators"}
+...     ],
+...     "role_assignments": [{"rank": 10, "role_id": 123456789}],
+...     "command_permissions": [{"command": "ban", "rank": 3}],
+... }
+>>> await system.load_from_config(guild_id, config)
+
+## Functions
+
+```python
+def get_permission_system() -> PermissionSystem
+```
+
+Get the global permission system instance.
+
+Call init_permission_system() during bot startup before using this.
+
+Returns
+-------
+PermissionSystem
+    The global permission system instance.
+
+Raises
+------
+RuntimeError
+    If the permission system hasn't been initialized yet.
+
+```python
+def init_permission_system(bot: Bot, db: DatabaseCoordinator) -> PermissionSystem
+```
+
+Initialize the global permission system instance.
+
+Should be called once during bot startup, after database initialization.
+Uses module-level attribute assignment to avoid global statement warning.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.
+db : DatabaseCoordinator
+    The database coordinator.
+
+Returns
+-------
+PermissionSystem
+    The initialized permission system instance.

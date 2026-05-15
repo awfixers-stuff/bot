@@ -1,0 +1,45 @@
+---
+title: Buttons
+icon: lucide/code-2
+---
+
+# Buttons
+
+Discord UI Button Components for Bot Bot.
+
+This module provides reusable Discord UI button components for various bot features,
+including xkcd comic links and GitHub repository links.
+
+## Classes
+
+Button view for xkcd comic links.
+
+### Methods
+
+```python
+def __init__(self, explain_url: str, webpage_url: str) -> None
+```
+
+Initialize xkcd buttons with explain and webpage links.
+
+Parameters
+----------
+explain_url : str
+    URL to the explainxkcd page for the comic.
+webpage_url : str
+    URL to the original xkcd webpage.
+
+Button view for GitHub repository links.
+
+### Methods
+
+```python
+def __init__(self, url: str) -> None
+```
+
+Initialize GitHub button with repository URL.
+
+Parameters
+----------
+url : str
+    URL to the GitHub repository or issue.

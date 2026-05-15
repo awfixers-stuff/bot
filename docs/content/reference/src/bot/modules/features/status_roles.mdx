@@ -1,0 +1,85 @@
+---
+title: Status Roles
+icon: lucide/code-2
+---
+
+# Status Roles
+
+Automatic role assignment based on user status.
+
+This module automatically assigns roles to users based on their Discord
+custom status messages, supporting regex pattern matching and role management.
+
+## Classes
+
+Assign roles to users based on their status.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the status roles service.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this service to.
+
+*Decorated with: `listener`*
+
+```python
+async def on_ready(self) -> None
+```
+
+Check all users' statuses when the bot starts up.
+
+*Decorated with: `listener`*
+
+```python
+async def on_presence_update(self, before: discord.Member, after: discord.Member)
+```
+
+Event triggered when a user's presence changes.
+
+```python
+def has_activity_changed(self, before: discord.Member, after: discord.Member) -> bool
+```
+
+Check if there was a relevant change in activities.
+
+Returns
+-------
+bool
+    True if custom activity status changed, False otherwise.
+
+```python
+def get_custom_status(self, member: discord.Member) -> str | None
+```
+
+Extract the custom status text from a member's activities.
+
+Returns
+-------
+str | None
+    The custom status text, or None if not found.
+
+```python
+async def check_and_update_roles(self, member: discord.Member)
+```
+
+Check a member's status against configured patterns and update roles accordingly.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the StatusRoles cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

@@ -1,0 +1,32 @@
+---
+title: Filters
+icon: lucide/code-2
+---
+
+# Filters
+
+Shared filter utilities for database controllers.
+
+## Functions
+
+```python
+def build_filters_for_model(filters: dict[str, Any] | Any, model: type[Any]) -> BinaryExpression[bool] | Any | None
+```
+
+Build filter expressions from various input types for a specific model.
+
+Returns
+-------
+BinaryExpression[bool] | Any | None
+    Combined filter expression, or None if no filters.
+
+```python
+def build_filters(filters: Any) -> Any
+```
+
+Build filter expressions from various input types (legacy function).
+
+Returns
+-------
+Any
+    Combined filter expression, or None if no filters.

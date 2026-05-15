@@ -1,0 +1,93 @@
+---
+title: Bookmarks
+icon: lucide/code-2
+---
+
+# Bookmarks
+
+Bookmark service for saving and managing Discord messages.
+
+This module provides functionality to bookmark Discord messages through reactions,
+allowing users to save important messages for later reference. Messages can be
+bookmarked by reacting with specific emojis, and bookmarks are stored in user DMs.
+
+## Classes
+
+Discord cog for bookmarking messages.
+
+This cog allows users to bookmark messages by reacting with specific emojis,
+and manages the storage and retrieval of bookmarked messages.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Bookmarks cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+```python
+async def cog_unload(self) -> None
+```
+
+Clean up the cog, closing the aiohttp session.
+
+*Decorated with: `listener`*
+
+```python
+async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent) -> None
+```
+
+Handle bookmarking messages via reactions.
+
+This listener checks for specific reaction emojis on messages and triggers
+the bookmarking or unbookmarking process accordingly.
+
+Parameters
+----------
+payload : discord.RawReactionActionEvent
+    The event payload containing information about the reaction.
+
+```python
+async def add_bookmark(self, user: discord.User, message: discord.Message) -> None
+```
+
+Send a bookmarked message to the user's DMs.
+
+Parameters
+----------
+user : discord.User
+    The user who bookmarked the message.
+message : discord.Message
+    The message to be bookmarked.
+
+*Decorated with: `staticmethod`*
+
+```python
+async def remove_bookmark(message: discord.Message) -> None
+```
+
+Delete a bookmark DM when the user reacts with the remove emoji.
+
+Parameters
+----------
+message : discord.Message
+    The bookmark message in the user's DMs to be deleted.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Bookmarks cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

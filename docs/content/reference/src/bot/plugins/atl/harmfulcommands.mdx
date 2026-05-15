@@ -1,0 +1,85 @@
+---
+title: Harmfulcommands
+icon: lucide/code-2
+---
+
+# Harmfulcommands
+
+Detection and warning system for potentially harmful commands.
+
+This plugin monitors Discord messages for dangerous shell commands like
+recursive file deletion, fork bombs, and destructive disk operations,
+providing warnings to prevent accidental system damage.
+
+## Classes
+
+Discord cog for detecting and warning about harmful shell commands.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the harmful commands detector.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+```python
+def is_harmful(self, command: str) -> str | None
+```
+
+Check if a command is potentially harmful to the system.
+
+Parameters
+----------
+command : str
+    The command to check.
+
+Returns
+-------
+bool
+    True if the command is harmful, False otherwise.
+
+```python
+async def handle_harmful_message(self, message: discord.Message) -> None
+```
+
+Detect harmful linux commands and replies to the user with a warning if they are detected.
+
+Parameters
+----------
+message : discord.Message
+    The message to check.
+
+*Decorated with: `listener`*
+
+```python
+async def on_message_edit(self, before: discord.Message, after: discord.Message) -> None
+```
+
+Handle message edits to check for newly harmful content.
+
+*Decorated with: `listener`*
+
+```python
+async def on_message(self, message: discord.Message) -> None
+```
+
+Handle new messages to check for harmful content.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Cog setup for harmful command plugin.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.

@@ -1,0 +1,163 @@
+---
+title: Settings
+icon: lucide/code-2
+---
+
+# Settings
+
+Main Bot configuration using Pydantic Settings.
+
+This module provides the main configuration class and global instance,
+using the extracted models and proper pydantic-settings for environment variable binding.
+
+Use .env for BOT_TOKEN, Postgres (POSTGRES_*), DATABASE_URL, Valkey (VALKEY_*), EXTERNAL_SERVICES, DEBUG, LOG_LEVEL, MAINTENANCE_MODE.
+Put all other settings in config.json.
+
+Configuration loading priority (highest to lowest):
+1. Init (programmatic overrides)
+2. Environment variables
+3. .env file
+4. config/config.json or config.json file
+5. File secrets (e.g. /run/secrets)
+6. Default values (implicit, applied when no source provides a value)
+
+## Classes
+
+Main Bot configuration using Pydantic Settings (JSON-only file support).
+
+Use .env for BOT_TOKEN, Postgres (POSTGRES_*), DATABASE_URL, Valkey (VALKEY_*), EXTERNAL_SERVICES, DEBUG, LOG_LEVEL, MAINTENANCE_MODE;
+put other settings in config.json.
+
+Configuration is loaded from multiple sources in priority order:
+1. Init (programmatic overrides)
+2. Environment variables
+3. .env file
+4. config/config.json or config.json file
+5. File secrets (e.g. /run/secrets)
+6. Default values (when no source provides a value)
+
+### Methods
+
+*Decorated with: `classmethod`*
+
+```python
+def settings_customise_sources(cls, settings_cls: type[BaseSettings], init_settings: PydanticBaseSettingsSource, env_settings: PydanticBaseSettingsSource, dotenv_settings: PydanticBaseSettingsSource, file_secret_settings: PydanticBaseSettingsSource) -> tuple[PydanticBaseSettingsSource, ...]
+```
+
+Customize settings sources to load from JSON config file.
+
+Priority order (highest to lowest):
+1. Init settings (programmatic overrides)
+2. Environment variables
+3. .env file
+4. JSON config file (config/config.json or config.json)
+5. File secret settings (Docker secrets, etc.)
+Default values are applied by pydantic-settings when no source provides a value.
+
+*Decorated with: `computed_field`, `property`*
+
+```python
+def database_url(self) -> str
+```
+
+Get database URL with proper host resolution.
+
+NOTE: This is used for:
+- Production application (DatabaseService)
+- Integration tests (real PostgreSQL)
+- Alembic migrations
+
+py-pglite unit tests do NOT use this URL - they create their own.
+
+*Decorated with: `computed_field`, `property`*
+
+```python
+def valkey_url(self) -> str
+```
+
+Get Valkey URL, building from components if not explicitly set.
+
+Do not log or expose the return value; it may contain credentials.
+Password is URL-encoded so special characters (@, :, /) do not break the URL.
+
+```python
+def get_prefix(self) -> str
+```
+
+Get command prefix for current environment.
+
+Returns
+-------
+str
+    The configured command prefix.
+
+```python
+def is_prefix_override_enabled(self) -> bool
+```
+
+Check if prefix override is enabled by environment variable.
+
+Returns True if BOT_INFO__PREFIX was explicitly set in environment variables,
+indicating the user wants to override all database prefix settings.
+
+Returns
+-------
+bool
+    True if prefix override is enabled, False otherwise.
+
+```python
+def is_debug_enabled(self) -> bool
+```
+
+Check if debug mode is enabled.
+
+Returns
+-------
+bool
+    True if debug mode is enabled, False otherwise.
+
+```python
+def get_cog_ignore_list(self) -> set[str]
+```
+
+Get cog ignore list for current environment.
+
+Returns
+-------
+set[str]
+    Set of cog names to ignore.
+
+```python
+def get_database_url(self) -> str
+```
+
+Legacy method - use database_url property instead.
+
+Returns
+-------
+str
+    The database connection URL.
+
+```python
+def get_github_private_key(self) -> str
+```
+
+Get the GitHub private key, handling base64 encoding if needed.
+
+Returns
+-------
+str
+    The decoded GitHub private key.
+
+## Functions
+
+```python
+def validate_environment() -> None
+```
+
+Validate critical environment variables for security and correctness.
+
+Raises
+------
+ValueError
+    If an insecure default password is used.

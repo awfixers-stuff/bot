@@ -1,0 +1,96 @@
+---
+title: Tldr
+icon: lucide/code-2
+---
+
+# Tldr
+
+TLDR Paginator View.
+
+A Discord UI view for paginating through long TLDR command documentation pages.
+
+## Classes
+
+Paginator view for navigating through long TLDR pages.
+
+### Methods
+
+```python
+def __init__(self, pages: list[str], title: str, user: discord.abc.User, bot: Bot)
+```
+
+Initialize the TLDR paginator view.
+
+Parameters
+----------
+pages : list[str]
+    List of page content strings to paginate through.
+title : str
+    Title for the paginated content.
+user : discord.abc.User
+    User who can interact with this view.
+bot : Bot
+    Bot instance for embed creation.
+
+```python
+async def interaction_check(self, interaction: discord.Interaction) -> bool
+```
+
+Check if the interaction user is allowed to interact with this view.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction to check.
+
+Returns
+-------
+bool
+    True if the user is allowed to interact.
+
+```python
+async def on_timeout(self) -> None
+```
+
+Handle view timeout by removing the view from the message.
+
+*Decorated with: `button`*
+
+```python
+async def prev(self, interaction: discord.Interaction, button: Button[View])
+```
+
+Navigate to the previous page.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction that triggered this action.
+button : Button[View]
+    The button that was pressed.
+
+*Decorated with: `button`*
+
+```python
+async def next(self, interaction: discord.Interaction, button: Button[View])
+```
+
+Navigate to the next page.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction that triggered this action.
+button : Button[View]
+    The button that was pressed.
+
+```python
+async def update_message(self, interaction: discord.Interaction) -> None
+```
+
+Update the message with the current page content.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction to update the message for.

@@ -1,0 +1,125 @@
+---
+title: Pagination
+icon: lucide/code-2
+---
+
+# Pagination
+
+Pagination helpers for config dashboard modes.
+
+Provides reusable pagination navigation builders, handlers, and setup utilities
+to eliminate duplication across different dashboard modes.
+
+## Classes
+
+Helper class for building pagination navigation and handling page changes.
+
+### Methods
+
+*Decorated with: `staticmethod`*
+
+```python
+def initialize_page_attr(dashboard: ConfigDashboard, attr_name: str) -> None
+```
+
+Initialize a page attribute if it doesn't exist.
+
+Parameters
+----------
+dashboard : ConfigDashboard
+    The dashboard instance
+attr_name : str
+    The attribute name (e.g., "ranks_current_page")
+
+*Decorated with: `staticmethod`*
+
+```python
+def calculate_pagination(total_items: int, items_per_page: int, current_page: int) -> tuple[int, int, int, int]
+```
+
+Calculate pagination indices and total pages.
+
+Parameters
+----------
+total_items : int
+    Total number of items to paginate
+items_per_page : int
+    Number of items per page
+current_page : int
+    Current page index (0-based)
+
+Returns
+-------
+tuple[int, int, int, int]
+    Tuple of (start_idx, end_idx, total_pages, validated_current_page)
+
+*Decorated with: `staticmethod`*
+
+```python
+def setup_pagination(dashboard: ConfigDashboard, current_page_attr: str, total_items: int, items_per_page: int) -> tuple[int, int, int, int]
+```
+
+Initialize pagination attributes and calculate pagination state.
+
+Parameters
+----------
+dashboard : ConfigDashboard
+    The dashboard instance
+current_page_attr : str
+    Attribute name for current page (e.g., "ranks_current_page")
+total_items : int
+    Total number of items to paginate
+items_per_page : int
+    Number of items per page
+
+Returns
+-------
+tuple[int, int, int, int]
+    Tuple of (start_idx, end_idx, total_pages, validated_current_page)
+
+*Decorated with: `staticmethod`*
+
+```python
+def build_navigation(mode_prefix: str, current_page: int, total_pages: int, page_change_handler: Callable[[discord.Interaction], Coroutine[Any, Any, None]]) -> discord.ui.ActionRow[discord.ui.LayoutView]
+```
+
+Build pagination navigation buttons for a mode.
+
+Parameters
+----------
+mode_prefix : str
+    Prefix for custom IDs (e.g., "ranks", "roles", "commands")
+current_page : int
+    Current page index (0-based)
+total_pages : int
+    Total number of pages
+page_change_handler : Callable
+    Handler function for page change interactions
+
+Returns
+-------
+discord.ui.ActionRow[discord.ui.LayoutView]
+    ActionRow containing navigation buttons
+
+*Decorated with: `staticmethod`*
+
+```python
+async def handle_page_change(interaction: discord.Interaction, dashboard: ConfigDashboard, mode_prefix: str, current_page_attr: str, total_pages_attr: str, rebuild_method: Callable[[], Awaitable[None]]) -> None
+```
+
+Handle pagination button clicks.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction event
+dashboard : ConfigDashboard
+    The dashboard instance
+mode_prefix : str
+    Prefix for custom IDs
+current_page_attr : str
+    Attribute name for current page (e.g., "ranks_current_page")
+total_pages_attr : str
+    Attribute name for total pages (e.g., "ranks_total_pages")
+rebuild_method : Callable
+    Async method to rebuild the mode after page change

@@ -1,0 +1,128 @@
+---
+title: Utils
+icon: lucide/code-2
+---
+
+# Utils
+
+Utility functions for database migration.
+
+Provides helper functions for name conversion, type transformation,
+and data validation during migration.
+
+## Functions
+
+```python
+def convert_prisma_to_sqlmodel_name(prisma_name: str) -> str
+```
+
+Convert Prisma camelCase/PascalCase names to SQLModel snake_case.
+
+Parameters
+----------
+prisma_name : str
+    Prisma-style field or model name (e.g., "guildId", "Guild").
+
+Returns
+-------
+str
+    SQLModel-style snake_case name (e.g., "guild_id", "guild").
+
+Examples
+--------
+>>> convert_prisma_to_sqlmodel_name("guildId")
+'guild_id'
+>>> convert_prisma_to_sqlmodel_name("caseType")
+'case_type'
+>>> convert_prisma_to_sqlmodel_name("Guild")
+'guild'
+
+```python
+def transform_enum_value(old_value: str | None, enum_mapping: dict[str, str], default: str | None) -> str | None
+```
+
+Transform enum value from old format to new format.
+
+Parameters
+----------
+old_value : str | None
+    Old enum value to transform.
+enum_mapping : dict[str, str]
+    Mapping from old enum values to new enum values.
+default : str | None, optional
+    Default value if mapping not found (default: None).
+
+Returns
+-------
+str | None
+    Transformed enum value, or default if not found.
+
+Examples
+--------
+>>> mapping = {"BAN": "ban", "KICK": "kick"}
+>>> transform_enum_value("BAN", mapping)
+'ban'
+>>> transform_enum_value("UNKNOWN", mapping, "ban")
+'ban'
+
+```python
+def normalize_datetime(dt: datetime | str | None) -> datetime | None
+```
+
+Normalize datetime to UTC timezone-aware datetime.
+
+Parameters
+----------
+dt : datetime | str | None
+    Datetime to normalize. Can be datetime object, ISO string, or None.
+
+Returns
+-------
+datetime | None
+    UTC timezone-aware datetime, or None if input is None.
+
+Notes
+-----
+SQLModel models expect timezone-aware datetimes in UTC.
+This function ensures all datetimes are properly normalized.
+
+```python
+def safe_json_parse(value: Any) -> dict[str, Any] | list[Any] | None
+```
+
+Safely parse JSON value with error handling.
+
+Parameters
+----------
+value : Any
+    Value to parse. Can be dict, list, str, or None.
+
+Returns
+-------
+dict[str, Any] | list[Any] | None
+    Parsed JSON value, or None if parsing fails.
+
+Examples
+--------
+>>> safe_json_parse('{"key": "value"}')
+{'key': 'value'}
+>>> safe_json_parse([1, 2, 3])
+[1, 2, 3]
+>>> safe_json_parse(None)
+None
+
+```python
+def sanitize_database_url(url: str) -> str
+```
+
+Sanitize database URL for logging (remove password).
+
+Parameters
+----------
+url : str
+    Database connection URL.
+
+Returns
+-------
+str
+    Sanitized URL with password replaced with ***.

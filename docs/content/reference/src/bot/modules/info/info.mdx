@@ -1,0 +1,145 @@
+---
+title: Info
+icon: lucide/code-2
+---
+
+# Info
+
+Information display commands for Discord objects.
+
+This module provides comprehensive information display commands for various Discord
+entities including users, members, channels, guilds, roles, emojis, and stickers.
+Each command shows detailed information using Components V2.
+
+## Classes
+
+Information commands for Discord objects.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Info cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `hybrid_group`, `guild_only`*
+
+```python
+async def info(self, ctx: commands.Context[Bot]) -> None
+```
+
+Get information about Discord objects.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context object associated with the command.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def info_server(self, ctx: commands.Context[Bot], guild_input: str | None) -> None
+```
+
+Get information about a server/guild.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The command context.
+guild_input : str | None, optional
+    The guild ID or invite URL to get information about. If None, uses current guild.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def info_user(self, ctx: commands.Context[Bot], entity: str) -> None
+```
+
+Get information about a user or member.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The command context.
+entity : str
+    The user or member to get information about (mention or ID).
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def info_emoji(self, ctx: commands.Context[Bot], emoji: discord.Emoji) -> None
+```
+
+Get information about an emoji.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The command context.
+emoji : discord.Emoji
+    The emoji to get information about (mention or ID).
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def info_role(self, ctx: commands.Context[Bot], role: discord.Role) -> None
+```
+
+Get information about a role.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The command context.
+role : discord.Role
+    The role to get information about (mention or ID).
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def info_channel(self, ctx: commands.Context[Bot], channel: discord.abc.GuildChannel | discord.Thread) -> None
+```
+
+Get information about a channel or thread.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The command context.
+channel : discord.abc.GuildChannel | discord.Thread
+    The channel or thread to get information about (mention or ID).
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def info_invite(self, ctx: commands.Context[Bot], invite_code: str) -> None
+```
+
+Get information about an invite.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The command context.
+invite_code : str
+    The invite code or URL to get information about.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Info cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

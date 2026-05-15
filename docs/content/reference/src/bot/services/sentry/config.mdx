@@ -1,0 +1,45 @@
+---
+title: Config
+icon: lucide/code-2
+---
+
+# Config
+
+Sentry configuration and setup.
+
+## Functions
+
+```python
+def setup() -> None
+```
+
+Initialize Sentry SDK with configuration.
+
+```python
+def report_signal(signum: int, _frame: FrameType | None) -> None
+```
+
+Report signal reception to Sentry.
+
+```python
+def flush() -> None
+```
+
+Flush pending Sentry events.
+
+```python
+async def flush_async(flush_timeout: float) -> None
+```
+
+Flush pending Sentry events asynchronously.
+
+```python
+def is_initialized() -> bool
+```
+
+Check if Sentry is initialized.
+
+Returns
+-------
+bool
+    True if Sentry is initialized, False otherwise.

@@ -1,0 +1,60 @@
+---
+title: Helpers
+icon: lucide/code-2
+---
+
+# Helpers
+
+Helper utilities for config dashboard.
+
+Provides common UI building patterns, error handling, and utility functions
+to reduce duplication across dashboard modes.
+
+## Functions
+
+```python
+def create_back_button(dashboard: ConfigDashboard) -> discord.ui.Button[discord.ui.LayoutView]
+```
+
+Create a standardized "Back to Dashboard" button.
+
+Parameters
+----------
+dashboard : ConfigDashboard
+    The dashboard instance to attach the callback to
+
+Returns
+-------
+discord.ui.Button[discord.ui.LayoutView]
+    Configured back button
+
+```python
+def create_error_container(error_message: str, dashboard: ConfigDashboard) -> discord.ui.Container[discord.ui.LayoutView]
+```
+
+Create a standardized error container with back button.
+
+Parameters
+----------
+error_message : str
+    Error message to display
+dashboard : ConfigDashboard
+    Dashboard instance for callback
+
+Returns
+-------
+discord.ui.Container[discord.ui.LayoutView]
+    Error container with message and back button
+
+```python
+def add_back_button_to_container(container: discord.ui.Container[discord.ui.LayoutView], dashboard: ConfigDashboard) -> None
+```
+
+Add a back button to a container.
+
+Parameters
+----------
+container : discord.ui.Container[discord.ui.LayoutView]
+    Container to add button to
+dashboard : ConfigDashboard
+    Dashboard instance for callback

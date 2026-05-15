@@ -1,0 +1,53 @@
+---
+title: Wolfram
+icon: lucide/code-2
+---
+
+# Wolfram
+
+Wolfram cog for Bot Bot.
+
+## Classes
+
+Wolfram cog for Bot Bot.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Wolfram cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.
+
+*Decorated with: `hybrid_command`, `describe`*
+
+```python
+async def wolfram(self, ctx: commands.Context[Bot], query: str) -> None
+```
+
+Send a query to Wolfram|Alpha Simple API and return the visual result.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    Invocation context for the command.
+query : str
+    Input string for the Wolfram|Alpha query, e.g. 'integrate x^2'.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Cog setup for wolfram cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.

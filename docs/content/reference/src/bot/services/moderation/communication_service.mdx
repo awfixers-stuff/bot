@@ -1,0 +1,157 @@
+---
+title: Communication Service
+icon: lucide/code-2
+---
+
+# Communication Service
+
+Communication service for moderation operations.
+
+Handles DM sending, embed creation, and user communication without
+the complexity of mixin inheritance.
+
+## Classes
+
+Service for handling moderation-related communication.
+
+Manages DM sending, embed creation, and user notifications
+with proper error handling and timeouts.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot)
+```
+
+Initialize the communication service.
+
+Parameters
+----------
+bot : Bot
+    The Discord bot instance.
+
+```python
+async def send_dm(self, ctx: commands.Context[Bot], silent: bool, user: discord.Member | discord.User, reason: str, dm_action: str) -> bool
+```
+
+Send a DM to a user about a moderation action.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    Command context.
+silent : bool
+    Whether to send DM (if False, returns False immediately).
+user : discord.Member | discord.User
+    Target user.
+reason : str
+    Reason for the action.
+dm_action : str
+    Action description for DM.
+
+Returns
+-------
+bool
+    True if DM was sent successfully, False otherwise.
+
+```python
+async def send_error_response(self, ctx: commands.Context[Bot] | discord.Interaction, message: str, ephemeral: bool) -> None
+```
+
+Send an error response to the user.
+
+Parameters
+----------
+ctx : commands.Context[Bot] | discord.Interaction
+    Command context.
+message : str
+    Error message to send.
+ephemeral : bool, optional
+    Whether the response should be ephemeral, by default True.
+
+```python
+def create_embed(self, ctx: commands.Context[Bot], title: str, fields: list[tuple[str, str, bool]], color: int, icon_url: str, timestamp: datetime | None, thumbnail_url: str | None) -> discord.Embed
+```
+
+Create a moderation embed.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    Command context.
+title : str
+    Embed title.
+fields : list[tuple[str, str, bool]]
+    List of (name, value, inline) tuples.
+color : int
+    Embed color.
+icon_url : str
+    Icon URL for the embed.
+timestamp : datetime | None, optional
+    Optional timestamp, by default None.
+thumbnail_url : str | None, optional
+    Optional thumbnail URL, by default None.
+
+Returns
+-------
+discord.Embed
+    The created embed.
+
+```python
+async def send_embed(self, ctx: commands.Context[Bot], embed: discord.Embed, log_type: str) -> discord.Message | None
+```
+
+Send an embed and optionally log it.
+
+For slash commands (after defer), uses interaction.followup.send().
+For prefix commands, uses ctx.send().
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    Command context.
+embed : discord.Embed
+    The embed to send.
+log_type : str, optional
+    Type of log entry, by default "mod".
+
+Returns
+-------
+discord.Message | None
+    The sent message if successful.
+
+```python
+async def send_audit_log_embed(self, ctx: commands.Context[Bot], embed: discord.Embed) -> discord.Message | None
+```
+
+Send an embed to the audit log channel.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    Command context.
+embed : discord.Embed
+    The embed to send to audit log.
+
+Returns
+-------
+discord.Message | None
+    The sent audit log message if successful, None otherwise.
+
+```python
+async def send_mod_log_embed(self, ctx: commands.Context[Bot], embed: discord.Embed) -> discord.Message | None
+```
+
+Send an embed to the mod log channel.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    Command context.
+embed : discord.Embed
+    The embed to send to mod log.
+
+Returns
+-------
+discord.Message | None
+    The sent mod log message if successful, None otherwise.

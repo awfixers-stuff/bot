@@ -1,0 +1,106 @@
+---
+title: Encode Decode
+icon: lucide/code-2
+---
+
+# Encode Decode
+
+Text encoding and decoding utilities.
+
+This module provides commands for encoding and decoding text using various
+algorithms including Base16, Base32, Base64, and Base85 with Discord integration.
+
+## Classes
+
+Discord cog for text encoding and decoding operations.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the EncodeDecode cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance.
+
+```python
+async def send_message(self, ctx: commands.Context[Bot], data: str)
+```
+
+Reply to the context with the encoded or decoded data.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+data : str
+    The data to send.
+
+*Decorated with: `hybrid_command`, `describe`, `describe`, `choices`*
+
+```python
+async def encode(self, ctx: commands.Context[Bot], encoding: str, text: str) -> None
+```
+
+Encode text in a coding system.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+encoding: str
+    The encoding method (can be base16, base32, base64, or base85).
+text : str
+    The text you want to encode.
+
+*Decorated with: `hybrid_command`, `describe`, `describe`, `choices`*
+
+```python
+async def decode(self, ctx: commands.Context[Bot], encoding: str, text: str) -> None
+```
+
+Decode text in a coding system.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+encoding : str
+    The encoding method (can be base16, base32, base64, or base85).
+text : str
+    The text you want to decode.
+
+## Functions
+
+```python
+def wrap_strings(wrapper: str, contents: list[str]) -> list[str]
+```
+
+Wrap each string in the list with the specified wrapper string.
+
+Parameters
+----------
+wrapper : str
+    The string to wrap around each content item.
+contents : list[str]
+    List of strings to wrap.
+
+Returns
+-------
+list[str]
+    List of wrapped strings.
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the EncodeDecode cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

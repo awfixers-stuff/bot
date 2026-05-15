@@ -1,0 +1,62 @@
+---
+title: Temp Vc
+icon: lucide/code-2
+---
+
+# Temp Vc
+
+Temporary voice channel management service.
+
+This module provides automatic creation and management of temporary voice channels
+for Discord servers, allowing users to have their own private voice channels that
+are automatically created when joining a designated channel and deleted when empty.
+
+## Classes
+
+Discord cog for managing temporary voice channels.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the temporary voice channel service.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this service to.
+
+*Decorated with: `listener`*
+
+```python
+async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState) -> None
+```
+
+Handle voice state updates for temporary voice channels.
+
+If the user joins the temporary voice channel, a new channel will be created for them.
+If the user leaves the temporary voice channel and the channel is empty, it will be deleted.
+
+Parameters
+----------
+member : discord.Member
+    The member that triggered the event.
+before : discord.VoiceState
+    The voice state before the event.
+after : discord.VoiceState
+    The voice state after the event.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the TempVc cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

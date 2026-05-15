@@ -1,0 +1,140 @@
+---
+title: Builders
+icon: lucide/code-2
+---
+
+# Builders
+
+View builders for info command displays.
+
+## Functions
+
+```python
+async def build_guild_view(guild: discord.Guild) -> discord.ui.LayoutView
+```
+
+Build a Components V2 view for guild information.
+
+Parameters
+----------
+guild : discord.Guild
+    The guild to display information about.
+
+Returns
+-------
+discord.ui.LayoutView
+    The built view.
+
+```python
+async def build_member_view(member: discord.Member, bot: Bot) -> discord.ui.LayoutView
+```
+
+Build a Components V2 view for member information.
+
+Parameters
+----------
+member : discord.Member
+    The member to display information about.
+bot : Bot
+    The bot instance for fetching user data.
+
+Returns
+-------
+discord.ui.LayoutView
+    The built view.
+
+```python
+def build_user_view(user: discord.User) -> discord.ui.LayoutView
+```
+
+Build a Components V2 view for user information.
+
+Parameters
+----------
+user : discord.User
+    The user to display information about.
+
+Returns
+-------
+discord.ui.LayoutView
+    The built view.
+
+```python
+def build_channel_view(channel: discord.abc.GuildChannel) -> discord.ui.LayoutView
+```
+
+Build a Components V2 view for channel information.
+
+Parameters
+----------
+channel : discord.abc.GuildChannel
+    The channel to display information about.
+
+Returns
+-------
+discord.ui.LayoutView
+    The built view.
+
+```python
+def build_role_view(role: discord.Role) -> discord.ui.LayoutView
+```
+
+Build a Components V2 view for role information.
+
+Parameters
+----------
+role : discord.Role
+    The role to display information about.
+
+Returns
+-------
+discord.ui.LayoutView
+    The built view.
+
+```python
+def build_emoji_view(emoji: discord.Emoji) -> discord.ui.LayoutView
+```
+
+Build a Components V2 view for emoji information.
+
+Parameters
+----------
+emoji : discord.Emoji
+    The emoji to display information about.
+
+Returns
+-------
+discord.ui.LayoutView
+    The built view.
+
+```python
+def build_invite_view(invite: discord.Invite) -> discord.ui.LayoutView
+```
+
+Build a Components V2 view for invite information.
+
+Parameters
+----------
+invite : discord.Invite
+    The invite to display information about.
+
+Returns
+-------
+discord.ui.LayoutView
+    The built view.
+
+```python
+def build_thread_view(thread: discord.Thread) -> discord.ui.LayoutView
+```
+
+Build a Components V2 view for thread information.
+
+Parameters
+----------
+thread : discord.Thread
+    The thread to display information about.
+
+Returns
+-------
+discord.ui.LayoutView
+    The built view.

@@ -1,0 +1,59 @@
+---
+title: Http Config
+icon: lucide/code-2
+---
+
+# Http Config
+
+HTTP client configuration for discord.py's internal aiohttp client.
+
+This module provides functionality to configure discord.py's HTTP client
+for optimal performance in high-latency, high-jitter environments (e.g., Hetzner Ashburn).
+
+**Scope:**
+This configuration applies to BOTH HTTP REST API calls AND WebSocket connections,
+as both use the same underlying aiohttp ClientSession and TCPConnector.
+The gateway (discord/gateway.py) uses `client.http.ws_connect()` which calls
+the same session's `ws_connect()` method (discord/http.py:566).
+
+**What we attempt to configure:**
+- DNS cache TTL (ttl_dns_cache): Attempt to increase from 10s to 5 minutes
+- Keepalive timeout: Attempt to increase from 15s to 30s
+
+**What cannot be configured (constructor parameters, read-only after creation):**
+- Connection pool limit (limit): Constructor parameter, cannot be changed after creation
+- Per-host connection limit (limit_per_host): Constructor parameter, cannot be changed after creation
+- DNS cache TTL (ttl_dns_cache): Constructor parameter, likely cannot be changed after creation
+
+Note: All TCPConnector parameters shown in aiohttp documentation are constructor parameters.
+Since discord.py creates the connector before we can configure it, we attempt to set them
+but expect failures for read-only properties. Failures are logged as debug messages.
+
+## Functions
+
+```python
+def configure_discord_http_client(bot: Bot) -> None
+```
+
+Configure discord.py's HTTP client for high-latency environments.
+
+Optimizes connection pooling and DNS caching for better performance
+under network jitter (e.g., Hetzner Ashburn -> Discord).
+
+This function accesses discord.py's internal aiohttp ClientSession
+and configures its TCPConnector with optimized settings. Configuration
+applies to both HTTP REST API calls and WebSocket connections.
+
+Parameters
+----------
+bot : Bot
+    The bot instance whose HTTP client should be configured.
+
+Notes
+-----
+This function must be called after the bot is created but before
+connecting to Discord (e.g., in setup_hook() or __init__()).
+
+Most TCPConnector parameters are constructor-only and cannot be changed
+after creation. This function attempts to set them but expects failures
+for read-only properties (logged at debug level).

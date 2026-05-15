@@ -1,0 +1,40 @@
+---
+title: Config
+icon: lucide/code-2
+---
+
+# Config
+
+Configuration and exceptions for hot reload system.
+
+## Classes
+
+```python
+@dataclass
+class HotReloadConfig:
+```
+
+Configuration for the hot reload system.
+
+Base exception for hot reload system errors.
+
+Raised when dependency resolution fails.
+
+Raised when file watching encounters an error.
+
+Raised when module reloading fails.
+
+Raised when configuration is invalid.
+
+## Functions
+
+```python
+def validate_config(config: HotReloadConfig) -> None
+```
+
+Validate hot reload configuration.
+
+Raises
+------
+ConfigurationError
+    If the configuration is invalid.

@@ -1,0 +1,129 @@
+---
+title: Managers
+icon: lucide/code-2
+---
+
+# Managers
+
+Cache managers for jail status (in-memory or backend).
+
+## Classes
+
+Cache manager for jail status checks.
+
+Provides a singleton instance that caches jail status per (guild_id, user_id)
+tuple. Supports optional AsyncCacheBackend (e.g. Valkey).
+
+### Methods
+
+```python
+def set_backend(self, backend: AsyncCacheBackend) -> None
+```
+
+Set the cache backend.
+
+Parameters
+----------
+backend : AsyncCacheBackend
+    Backend instance to use for cache operations.
+
+```python
+async def get(self, guild_id: int, user_id: int) -> bool | None
+```
+
+Get cached jail status for a user.
+
+Returns
+-------
+bool | None
+    True if jailed, False if not jailed, None if not cached.
+
+```python
+async def set(self, guild_id: int, user_id: int, is_jailed: bool) -> None
+```
+
+Cache jail status for a user.
+
+Parameters
+----------
+guild_id : int
+    The guild ID.
+user_id : int
+    The user ID.
+is_jailed : bool
+    Whether the user is jailed.
+
+```python
+async def get_or_fetch(self, guild_id: int, user_id: int, fetch_func: Callable[[], Coroutine[Any, Any, bool]]) -> bool
+```
+
+Get cached value or fetch and cache with async locking (stampede protection).
+
+Parameters
+----------
+guild_id : int
+    The guild ID.
+user_id : int
+    The user ID.
+fetch_func : Callable[[], Coroutine[Any, Any, bool]]
+    Async callable that returns the jail status when cache misses.
+
+Returns
+-------
+bool
+    Cached or freshly fetched jail status.
+
+```python
+async def async_set(self, guild_id: int, user_id: int, is_jailed: bool) -> None
+```
+
+Cache jail status with async locking; overwrites any existing value.
+
+Parameters
+----------
+guild_id : int
+    The guild ID.
+user_id : int
+    The user ID.
+is_jailed : bool
+    Whether the user is jailed.
+
+```python
+async def invalidate(self, guild_id: int, user_id: int) -> None
+```
+
+Invalidate cached jail status for a user.
+
+Parameters
+----------
+guild_id : int
+    The guild ID.
+user_id : int
+    The user ID.
+
+```python
+async def invalidate_guild(self, guild_id: int) -> None
+```
+
+Invalidate in-memory jail status entries for a guild.
+
+Parameters
+----------
+guild_id : int
+    The guild ID to invalidate.
+
+Notes
+-----
+Only the in-memory cache is cleared for this guild; when a backend
+(e.g. Valkey) is configured, backend keys for this guild are not
+deleted. For full clear use :meth:`clear_all` (in-memory only).
+
+```python
+async def clear_all(self) -> None
+```
+
+Clear all cached jail status entries (in-memory only).
+
+Notes
+-----
+When a backend is configured, backend keys are not deleted.

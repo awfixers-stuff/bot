@@ -1,0 +1,31 @@
+---
+title: Cog Setup
+icon: lucide/code-2
+---
+
+# Cog Setup
+
+Cog setup service for bot initialization.
+
+## Classes
+
+Handles cog loading and plugin setup during bot initialization.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the cog setup service.
+
+Parameters
+----------
+bot : Bot
+    The Discord bot instance to load cogs for.
+
+```python
+async def setup(self) -> None
+```
+
+Load all cogs and plugins.

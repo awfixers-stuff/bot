@@ -1,0 +1,135 @@
+---
+title: Prefix Manager
+icon: lucide/code-2
+---
+
+# Prefix Manager
+
+Prefix management with in-memory caching for optimal performance.
+
+This module provides efficient prefix resolution for Discord commands by maintaining
+an in-memory cache of guild prefixes, eliminating repeated lookups on every message.
+
+The PrefixManager uses a cache-first approach:
+
+1. Check environment variable override (BOT_INFO__PREFIX)
+2. Check in-memory cache (O(1) lookup)
+3. Load from Valkey backend on cache miss
+4. Persist changes asynchronously to avoid blocking
+
+Note: Guild/GuildConfig models have been removed (single-guild simplification).
+Prefix persistence uses the cache backend (Valkey) instead of the database.
+On restart without Valkey, custom prefixes are not persisted and the default is used.
+
+## Classes
+
+Manages command prefixes with in-memory caching.
+
+Provides O(1) prefix lookups after initial cache load through lazy loading
+and automatic caching. See module docstring for resolution priority order.
+
+Attributes
+----------
+bot : Bot
+    The bot instance this manager is attached to.
+_prefix_cache : dict[int, str]
+    In-memory cache mapping guild IDs to prefixes.
+_cache_loaded : bool
+    Whether the initial cache load has completed.
+_default_prefix : str
+    Default prefix from configuration.
+_loading_lock : asyncio.Lock
+    Lock to prevent concurrent cache loading.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the prefix manager.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to manage prefixes for.
+
+```python
+async def get_prefix(self, guild_id: int | None) -> str
+```
+
+Get the command prefix for a guild or DM.
+
+Follows the resolution priority documented in the module docstring.
+Automatically caches results for O(1) subsequent lookups.
+
+Parameters
+----------
+guild_id : int | None
+    The Discord guild ID, or None for DMs.
+
+Returns
+-------
+str
+    The command prefix, or default prefix if not found.
+
+```python
+async def set_prefix(self, guild_id: int, prefix: str) -> None
+```
+
+Set the command prefix for a guild.
+
+Updates cache immediately and persists to database asynchronously.
+No-op if prefix override is enabled via environment variable.
+
+Parameters
+----------
+guild_id : int
+    The Discord guild ID.
+prefix : str
+    The new command prefix to set.
+
+```python
+async def load_all_prefixes(self) -> None
+```
+
+Load the default prefix into cache.
+
+In single-guild mode, Guild/GuildConfig models have been removed.
+The default prefix from CONFIG is always available. No database
+lookup is performed. Idempotent and safe to call multiple times.
+
+```python
+async def invalidate_cache(self, guild_id: int | None) -> None
+```
+
+Invalidate prefix cache for a specific guild or all guilds.
+
+When guild_id is None, in-memory cache is cleared and backend keys for
+all cached guilds are removed (same as per-guild delete for each).
+When guild_id is set, both in-memory and backend state for that guild
+are invalidated.
+
+Parameters
+----------
+guild_id : int | None, optional
+    The guild ID to invalidate, or None to invalidate all.
+    Defaults to None.
+
+Examples
+--------
+>>> await manager.invalidate_cache(123456789)  # Specific guild
+>>> await manager.invalidate_cache()  # All guilds (in-memory + backend)
+
+```python
+def get_cache_stats(self) -> dict[str, int]
+```
+
+Get cache statistics for monitoring and debugging.
+
+Returns
+-------
+dict[str, int]
+    Dictionary with keys:
+    - cached_prefixes: Number of guilds in cache
+    - cache_loaded: 1 if initial load completed, 0 otherwise

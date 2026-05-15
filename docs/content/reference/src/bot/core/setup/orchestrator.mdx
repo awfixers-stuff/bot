@@ -1,0 +1,41 @@
+---
+title: Orchestrator
+icon: lucide/code-2
+---
+
+# Orchestrator
+
+Bot setup orchestrator that coordinates all setup services.
+
+## Classes
+
+Orchestrates the bot setup process using specialized setup services.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the bot setup orchestrator.
+
+Parameters
+----------
+bot : Bot
+    The Discord bot instance to set up.
+
+```python
+async def setup(self, span: DummySpan | Any) -> None
+```
+
+Execute all setup steps with standardized error handling.
+
+Performs setup in order: database (with migrations), permission system,
+prefix manager, cogs, and task monitoring.
+
+Raises
+------
+BotDatabaseConnectionError
+    If database setup fails.
+BotSetupError
+    If any setup service fails.

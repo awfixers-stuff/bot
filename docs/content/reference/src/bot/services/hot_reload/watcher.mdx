@@ -1,0 +1,128 @@
+---
+title: Watcher
+icon: lucide/code-2
+---
+
+# Watcher
+
+File system watcher for hot reload system.
+
+## Classes
+
+Protocol for file system watchers.
+
+### Methods
+
+```python
+def start(self) -> None
+```
+
+Start the file system watcher.
+
+```python
+def stop(self) -> None
+```
+
+Stop the file system watcher.
+
+File system event handler for cog reloading.
+
+### Methods
+
+```python
+def __init__(self, config: HotReloadConfig, reload_callback: Callable[[str], None], base_dir: Path, event_loop: asyncio.AbstractEventLoop | None, cwd: Path | None = None) -> None
+```
+
+Initialize the cog watcher.
+
+Parameters
+----------
+config : HotReloadConfig
+    Hot reload configuration.
+reload_callback : Callable[[str], None]
+    Callback function to invoke when a reload is needed.
+base_dir : Path
+    Base directory to watch.
+event_loop : asyncio.AbstractEventLoop | None, optional
+    Event loop for async operations, by default None.
+cwd : Path | None, optional
+    Working directory for shortening logged paths, by default None.
+
+```python
+def should_process_file(self, file_path: Path) -> bool
+```
+
+Check if file should be processed based on patterns.
+
+Returns
+-------
+bool
+    True if file should be processed, False otherwise.
+
+```python
+def on_modified(self, event: watchdog.events.FileSystemEvent) -> None
+```
+
+Handle file modification events.
+
+```python
+def on_created(self, event: watchdog.events.FileSystemEvent) -> None
+```
+
+Handle file creation events.
+
+```python
+def on_deleted(self, event: watchdog.events.FileSystemEvent) -> None
+```
+
+Handle file deletion events.
+
+Manages file system watching for hot reload.
+
+### Methods
+
+```python
+def __init__(self, config: HotReloadConfig, reload_callback: Callable[[str], None]) -> None
+```
+
+Initialize the file watcher.
+
+Parameters
+----------
+config : HotReloadConfig
+    Hot reload configuration.
+reload_callback : Callable[[str], None]
+    Callback function to invoke when a reload is needed.
+
+```python
+def start(self) -> None
+```
+
+Start file system watching.
+
+Raises
+------
+FileWatchError
+    If starting the file watcher fails.
+
+```python
+def stop(self) -> None
+```
+
+Stop file system watching.
+
+Raises
+------
+FileWatchError
+    If stopping the file watcher fails.
+
+```python
+def is_running(self) -> bool
+```
+
+Check if file watcher is running.
+
+Returns
+-------
+bool
+    True if watcher is running, False otherwise.

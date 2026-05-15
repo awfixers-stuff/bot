@@ -1,0 +1,54 @@
+---
+title: Member Count
+icon: lucide/code-2
+---
+
+# Member Count
+
+Guild member count display commands.
+
+This module provides commands to display member statistics for Discord servers,
+including total member count, human users, and bot counts.
+
+## Classes
+
+Discord cog for displaying guild member statistics.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the member count cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `hybrid_command`, `guild_only`*
+
+```python
+async def member_count(self, ctx: commands.Context[Bot]) -> None
+```
+
+Show the member count for the server.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The discord context object.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the MemberCount cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

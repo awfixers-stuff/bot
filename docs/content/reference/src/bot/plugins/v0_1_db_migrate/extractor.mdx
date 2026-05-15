@@ -1,0 +1,165 @@
+---
+title: Extractor
+icon: lucide/code-2
+---
+
+# Extractor
+
+Data extractor for old Prisma database.
+
+Extracts data from old database in batches, transforms it using
+the model mapper, and validates against SQLModel schemas.
+
+## Classes
+
+Extract and transform data from old Prisma database.
+
+Provides batch extraction with transformation and validation
+for migrating data to new SQLModel database.
+
+Attributes
+----------
+config : MigrationConfig
+    Migration configuration.
+mapper : ModelMapper
+    Model mapper for field transformations.
+engine : Engine | None
+    SQLAlchemy sync engine for old database.
+
+### Methods
+
+```python
+def __init__(self, config: MigrationConfig, mapper: ModelMapper) -> None
+```
+
+Initialize data extractor.
+
+Parameters
+----------
+config : MigrationConfig
+    Migration configuration.
+mapper : ModelMapper
+    Model mapper instance.
+
+```python
+def set_engine(self, engine: Engine) -> None
+```
+
+Set the database engine for extraction.
+
+Parameters
+----------
+engine : Engine
+    SQLAlchemy sync engine for old database.
+
+```python
+def get_row_count(self, old_table_name: str) -> int
+```
+
+Get total row count for a table.
+
+Parameters
+----------
+old_table_name : str
+    Old Prisma table name.
+
+Returns
+-------
+int
+    Total number of rows in the table.
+
+Raises
+------
+RuntimeError
+    If engine is not set.
+
+```python
+def extract_table(self, old_table_name: str, batch_size: int | None) -> Iterator[list[dict[str, Any]]]
+```
+
+Extract data from a table in batches.
+
+Parameters
+----------
+old_table_name : str
+    Old Prisma table name.
+batch_size : int | None, optional
+    Number of rows per batch. If None, uses config batch_size.
+
+Yields
+------
+list[dict[str, Any]]
+    Batch of transformed rows ready for insertion.
+
+Raises
+------
+RuntimeError
+    If engine is not set.
+
+```python
+def transform_row(self, old_table_name: str, old_row: dict[str, Any]) -> dict[str, Any]
+```
+
+Transform a single row using the model mapper.
+
+Parameters
+----------
+old_table_name : str
+    Old Prisma table name.
+old_row : dict[str, Any]
+    Row data from old database.
+
+Returns
+-------
+dict[str, Any]
+    Transformed row data.
+
+Notes
+-----
+This method delegates to ModelMapper.transform_row().
+
+```python
+def validate_row(self, table_name: str, row_data: dict[str, Any]) -> tuple[bool, str | None]
+```
+
+Validate transformed row against SQLModel schema.
+
+Parameters
+----------
+table_name : str
+    New SQLModel table name.
+row_data : dict[str, Any]
+    Transformed row data.
+
+Returns
+-------
+tuple[bool, str | None]
+    (is_valid, error_message). If valid, error_message is None.
+
+Notes
+-----
+Uses Pydantic validation through SQLModel to ensure data
+conforms to model constraints.
+
+```python
+def extract_and_validate_table(self, old_table_name: str, batch_size: int | None) -> Iterator[tuple[list[dict[str, Any]], int, int]]
+```
+
+Extract, transform, and validate table data in batches.
+
+Parameters
+----------
+old_table_name : str
+    Old Prisma table name.
+batch_size : int | None, optional
+    Number of rows per batch.
+
+Yields
+------
+tuple[list[dict[str, Any]], int, int]
+    (valid_rows, total_rows, invalid_rows) for each batch.
+
+Notes
+-----
+This is a convenience method that combines extraction,
+transformation, and validation in one generator.

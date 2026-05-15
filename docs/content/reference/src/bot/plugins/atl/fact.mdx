@@ -1,0 +1,68 @@
+---
+title: Fact
+icon: lucide/code-2
+---
+
+# Fact
+
+Fact Plugin for Bot Bot.
+
+This plugin provides random fact generation with configurable fact types,
+placeholder substitution, and automated fact posting functionality.
+Facts are loaded from TOML files and support various categories.
+
+## Classes
+
+Fact plugin for generating and posting random facts.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Fact plugin.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to initialize the plugin with.
+
+```python
+async def fact_type_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]
+```
+
+Provide autocomplete suggestions for fact types.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction object.
+current : str
+    The current user input for filtering.
+
+Returns
+-------
+list[app_commands.Choice[str]]
+    List of autocomplete choices.
+
+*Decorated with: `hybrid_command`, `describe`, `autocomplete`*
+
+```python
+async def fact(self, ctx: commands.Context[Bot], fact_type: str) -> None
+```
+
+Get a fun fact by category or random.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Fact cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

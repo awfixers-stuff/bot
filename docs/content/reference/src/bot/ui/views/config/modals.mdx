@@ -1,0 +1,41 @@
+---
+title: Modals
+icon: lucide/code-2
+---
+
+# Modals
+
+Modal dialogs for config dashboard.
+
+Provides reusable modal components for rank management and other
+configuration operations.
+
+## Classes
+
+Modal for editing an existing permission rank.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot, guild: discord.Guild, dashboard: Any, rank_value: int, current_name: str, current_description: str | None) -> None
+```
+
+```python
+async def on_submit(self, interaction: discord.Interaction) -> None
+```
+
+Handle modal submission.
+
+Modal for creating a new permission rank.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot, guild: discord.Guild, dashboard: Any, available_ranks: list[int] | None) -> None
+```
+
+```python
+async def on_submit(self, interaction: discord.Interaction) -> None
+```
+
+Handle modal submission.

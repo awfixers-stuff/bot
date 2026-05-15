@@ -1,0 +1,123 @@
+---
+title: Utils
+icon: lucide/code-2
+---
+
+# Utils
+
+Utility functions for the help command system.
+
+This module contains utility functions for formatting, categorizing,
+and navigating help command content.
+
+## Functions
+
+```python
+def format_multiline_description(text: str | None) -> str
+```
+
+Format a multiline description with quote formatting for each line.
+
+Parameters
+----------
+text : str | None
+    The text to format.
+
+Returns
+-------
+str
+    The formatted text with > prepended to each line.
+
+```python
+def truncate_description(text: str, max_length: int) -> str
+```
+
+Truncate a description to a maximum length.
+
+Parameters
+----------
+text : str
+    The text to truncate.
+max_length : int, optional
+    Maximum length before truncation, by default 100.
+
+Returns
+-------
+str
+    The truncated text with ellipsis if needed.
+
+```python
+def paginate_items(items: list[Any], page_size: int) -> list[list[Any]]
+```
+
+Split items into pages of specified size.
+
+Parameters
+----------
+items : list[Any]
+    The items to paginate.
+page_size : int
+    Maximum number of items per page.
+
+Returns
+-------
+list[list[Any]]
+    A list of pages, each containing up to page_size items.
+
+```python
+def create_cog_category_mapping(mapping: Mapping[commands.Cog | None, list[commands.Command[Any, Any, Any]]]) -> tuple[dict[str, dict[str, str]], dict[str, dict[str, commands.Command[Any, Any, Any]]]]
+```
+
+Create a mapping of command categories and commands.
+
+Parameters
+----------
+mapping : Mapping[commands.Cog | None, list[commands.Command[Any, Any, Any]]]
+    Mapping of cogs to their commands.
+
+Returns
+-------
+tuple[dict[str, dict[str, str]], dict[str, dict[str, commands.Command[Any, Any, Any]]]]
+    A tuple of (category_cache, command_mapping).
+
+```python
+def extract_cog_group(cog: commands.Cog) -> str | None
+```
+
+Extract the cog group from a cog's module path.
+
+Parameters
+----------
+cog : commands.Cog
+    The cog to extract the group from.
+
+Returns
+-------
+str | None
+    The group name or None if no group found.
+
+```python
+def get_cog_groups() -> list[str]
+```
+
+Retrieve a list of module groups from the 'modules' folder.
+
+Returns
+-------
+    A list of module group names.
+
+```python
+def is_large_command_group(command: commands.Group[Any, Any, Any]) -> bool
+```
+
+Check if a command group is large and needs special handling.
+
+Parameters
+----------
+command : commands.Group[Any, Any, Any]
+    The command group to check.
+
+Returns
+-------
+bool
+    True if the command group is large, False otherwise.

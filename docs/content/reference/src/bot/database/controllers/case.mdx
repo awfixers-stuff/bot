@@ -1,0 +1,355 @@
+---
+title: Case
+icon: lucide/code-2
+---
+
+# Case
+
+Moderation case management controller.
+
+This controller manages moderation cases (bans, kicks, timeouts, etc.) with
+automatic case numbering, status tracking, and audit logging.
+
+## Classes
+
+Clean Case controller using the new BaseController pattern.
+
+### Methods
+
+```python
+def __init__(self, db: DatabaseService | None, cache_backend: AsyncCacheBackendProtocol | None) -> None
+```
+
+Initialize the case controller.
+
+Parameters
+----------
+db : DatabaseService | None, optional
+    The database service instance. If None, uses the default service.
+cache_backend : AsyncCacheBackendProtocol | None, optional
+    Optional cache backend (Valkey/in-memory) for case-by-number lookups.
+
+```python
+async def get_case_by_id(self, case_id: int) -> Case | None
+```
+
+Get a case by its ID.
+
+Returns
+-------
+Case | None
+    The case if found, None otherwise.
+
+```python
+async def get_cases_by_user(self, user_id: int) -> list[Case]
+```
+
+Get all cases for a specific user.
+
+Returns
+-------
+list[Case]
+    List of all cases for the user.
+
+```python
+async def get_active_cases_by_user(self, user_id: int) -> list[Case]
+```
+
+Get all active cases for a specific user.
+
+Returns
+-------
+list[Case]
+    List of active cases for the user.
+
+```python
+async def create_case(self, case_type: str, case_user_id: int, case_moderator_id: int, case_reason: str | None, case_status: bool, **kwargs: Any) -> Case
+```
+
+Create a new case with auto-generated case number.
+
+Generates the next sequential case_number using MAX(case_number) + 1.
+
+Parameters
+----------
+case_type : str
+    The type of case (from CaseType enum value)
+case_user_id : int
+    Discord ID of the user being moderated
+case_moderator_id : int
+    Discord ID of the moderator
+case_reason : str | None
+    Reason for the moderation action
+case_status : bool
+    Whether the case is active (default True)
+**kwargs : Any
+    Additional case fields (e.g., case_expires_at, case_metadata, mod_log_message_id)
+
+Returns
+-------
+Case
+    The newly created case with auto-generated case number.
+
+Notes
+-----
+- For expiring cases, use `case_expires_at` (datetime) in kwargs
+- Do NOT pass `duration` - convert to `case_expires_at` before calling this method
+- Case numbers are auto-generated using MAX(case_number) + 1
+
+```python
+async def update_case(self, case_id: int, **kwargs: Any) -> Case | None
+```
+
+Update a case by ID.
+
+Returns
+-------
+Case | None
+    The updated case, or None if not found.
+
+```python
+async def update_mod_log_message_id(self, case_id: int, message_id: int) -> Case | None
+```
+
+Update the mod log message ID for a case.
+
+Parameters
+----------
+case_id : int
+    The case ID to update.
+message_id : int
+    The Discord message ID from the mod log.
+
+Returns
+-------
+Case | None
+    The updated case, or None if not found.
+
+```python
+async def close_case(self, case_id: int) -> Case | None
+```
+
+Close a case by setting its status to False.
+
+Returns
+-------
+Case | None
+    The updated case, or None if not found.
+
+```python
+async def delete_case(self, case_id: int) -> bool
+```
+
+Delete a case by ID.
+
+Returns
+-------
+bool
+    True if deleted successfully, False otherwise.
+
+```python
+async def get_all_cases(self) -> list[Case]
+```
+
+Get all cases.
+
+Returns
+-------
+list[Case]
+    List of all cases.
+
+```python
+async def get_cases_by_type(self, case_type: str) -> list[Case]
+```
+
+Get all cases of a specific type.
+
+Returns
+-------
+list[Case]
+    List of cases matching the specified type.
+
+```python
+async def get_recent_cases(self) -> list[Case]
+```
+
+Get all cases.
+
+Returns
+-------
+list[Case]
+    List of all cases.
+
+```python
+async def get_case_count(self) -> int
+```
+
+Get the total number of cases.
+
+Returns
+-------
+int
+    The total count of cases.
+
+```python
+async def is_user_under_restriction(self, user_id: int | None, **kwargs: Any) -> bool
+```
+
+Check if a user is under any active restriction.
+
+Returns
+-------
+bool
+    True if user is under restriction, False otherwise.
+
+```python
+async def get_case_by_number(self, case_number: int) -> Case | None
+```
+
+Get a case by its case number.
+
+Uses optional cache backend (Valkey when connected) to avoid repeated DB
+hits for the same case. Cache is invalidated on update_case_by_number.
+
+Returns
+-------
+Case | None
+    The case if found, None otherwise.
+
+```python
+async def get_cases_by_options(self, options: dict[str, Any] | None) -> list[Case]
+```
+
+Get cases by various filter options.
+
+Returns
+-------
+list[Case]
+    List of cases matching the specified options.
+
+```python
+async def update_case_by_number(self, case_number: int, **kwargs: Any) -> Case | None
+```
+
+Update a case by case number.
+
+Invalidates the case-by-number cache so the next get_case_by_number
+sees fresh data.
+
+Returns
+-------
+Case | None
+    The updated case, or None if not found.
+
+```python
+async def get_latest_case_by_user(self, user_id: int) -> Case | None
+```
+
+Get the most recent case for a user.
+
+Returns
+-------
+Case | None
+    The most recent case if found, None otherwise.
+
+```python
+async def get_latest_jail_case(self, user_id: int) -> Case | None
+```
+
+Get the most recent JAIL case for a user.
+
+Used when unjailing to restore roles from the case_user_roles stored at jail time.
+
+Returns
+-------
+Case | None
+    The most recent JAIL case if found, None otherwise.
+
+```python
+async def get_latest_jail_or_unjail_case(self, user_id: int) -> Case | None
+```
+
+Get the most recent JAIL or UNJAIL case for a user.
+
+Used to determine if a user is currently jailed: if the latest of these
+is JAIL, they are jailed; if UNJAIL or none, they are not.
+
+Returns
+-------
+Case | None
+    The most recent JAIL or UNJAIL case if found, None otherwise.
+
+```python
+async def get_latest_snippet_ban_or_unban_case(self, user_id: int) -> Case | None
+```
+
+Get the most recent SNIPPETBAN or SNIPPETUNBAN case for a user.
+
+Used to determine if a user is currently snippet banned: if the latest
+of these is SNIPPETBAN, they are banned; if SNIPPETUNBAN or none, they
+are not.
+
+Returns
+-------
+Case | None
+    The most recent SNIPPETBAN or SNIPPETUNBAN case if found, None otherwise.
+
+```python
+async def set_tempban_expired(self, case_id: int) -> bool
+```
+
+Mark a tempban case as processed after the user has been unbanned.
+
+This sets case_processed=True to indicate the expiration has been handled.
+The case_status remains True (the case is still valid, just completed).
+
+Returns
+-------
+bool
+    True if the case was updated, False if not found
+
+```python
+async def get_expired_tempbans(self) -> list[Case]
+```
+
+Get tempban cases that have expired but haven't been processed yet.
+
+Returns
+-------
+list[Case]
+    List of expired unprocessed tempban cases where case_expires_at is in the past,
+    case_processed=False, and case_status=True.
+
+```python
+async def get_case_count_by_user(self, user_id: int) -> int
+```
+
+Get the total number of cases for a specific user.
+
+Returns
+-------
+int
+    The total count of cases for the user.
+
+```python
+async def get_cases_by_moderator(self, moderator_id: int) -> list[Case]
+```
+
+Get all cases moderated by a specific user.
+
+Returns
+-------
+list[Case]
+    List of cases moderated by the user.
+
+```python
+async def get_expired_cases(self) -> list[Case]
+```
+
+Get all expired cases (any type) that haven't been processed yet.
+
+Returns
+-------
+list[Case]
+    List of expired unprocessed cases where case_expires_at is in the past,
+    case_processed=False, and case_status=True.

@@ -1,0 +1,31 @@
+---
+title: Prefix Setup
+icon: lucide/code-2
+---
+
+# Prefix Setup
+
+Prefix manager setup service for bot initialization.
+
+## Classes
+
+Handles prefix manager initialization during bot setup.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the prefix manager setup service.
+
+Parameters
+----------
+bot : Bot
+    The Discord bot instance to set up.
+
+```python
+async def setup(self) -> None
+```
+
+Initialize the prefix manager and load all prefixes.

@@ -1,0 +1,290 @@
+---
+title: Snippet
+icon: lucide/code-2
+---
+
+# Snippet
+
+Code snippet storage and management controller.
+
+This controller manages reusable code snippets, allowing
+users to save and retrieve frequently used code blocks and text templates.
+
+## Classes
+
+Clean Snippet controller using the new BaseController pattern.
+
+### Methods
+
+```python
+def __init__(self, db: DatabaseService | None) -> None
+```
+
+Initialize the snippet controller.
+
+Parameters
+----------
+db : DatabaseService | None, optional
+    The database service instance. If None, uses the default service.
+
+```python
+async def get_snippet_by_id(self, snippet_id: int) -> Snippet | None
+```
+
+Get a snippet by its ID.
+
+Parameters
+----------
+snippet_id : int
+    The ID of the snippet to retrieve.
+
+Returns
+-------
+Snippet | None
+    The snippet if found, None otherwise.
+
+```python
+async def get_snippet_by_name(self, name: str) -> Snippet | None
+```
+
+Get a snippet by name.
+
+Parameters
+----------
+name : str
+    The name of the snippet.
+
+Returns
+-------
+Snippet | None
+    The snippet if found, None otherwise.
+
+```python
+async def get_all_snippets(self, order_by: Any | None) -> list[Snippet]
+```
+
+Get all snippets, optionally ordered.
+
+Parameters
+----------
+order_by : Any | None, optional
+    Optional ordering expression (e.g., desc(Snippet.uses)).
+
+Returns
+-------
+list[Snippet]
+    List of all snippets.
+
+```python
+async def create_snippet(self, snippet_name: str, snippet_content: str, snippet_user_id: int, alias: str | None, **kwargs: Any) -> Snippet
+```
+
+Create a new snippet.
+
+Parameters
+----------
+snippet_name : str
+    The name of the snippet.
+snippet_content : str
+    The content of the snippet.
+snippet_user_id : int
+    The ID of the user creating the snippet.
+alias : str | None, optional
+    Optional alias name for the snippet.
+**kwargs : Any
+    Additional fields to set on the snippet.
+
+Returns
+-------
+Snippet
+    The newly created snippet.
+
+```python
+async def update_snippet_by_id(self, snippet_id: int, **kwargs: Any) -> Snippet | None
+```
+
+Update a snippet by ID.
+
+Parameters
+----------
+snippet_id : int
+    The ID of the snippet to update.
+**kwargs : Any
+    Fields to update on the snippet.
+
+Returns
+-------
+Snippet | None
+    The updated snippet, or None if not found.
+
+```python
+async def delete_snippet_by_id(self, snippet_id: int) -> bool
+```
+
+Delete a snippet by ID.
+
+Parameters
+----------
+snippet_id : int
+    The ID of the snippet to delete.
+
+Returns
+-------
+bool
+    True if deleted successfully, False otherwise.
+
+```python
+async def get_snippets_by_creator(self, creator_id: int) -> list[Snippet]
+```
+
+Get all snippets created by a specific user.
+
+Parameters
+----------
+creator_id : int
+    The ID of the user who created the snippets.
+
+Returns
+-------
+list[Snippet]
+    List of snippets created by the user.
+
+```python
+async def search_snippets(self, search_term: str) -> list[Snippet]
+```
+
+Search snippets by name or content.
+
+Uses Python-side filtering for case-insensitive search.
+For production use with large datasets, consider implementing
+database-level ILIKE queries via custom SQL.
+
+Parameters
+----------
+search_term : str
+    The search term to match against snippet names and content.
+
+Returns
+-------
+list[Snippet]
+    List of snippets matching the search term.
+
+```python
+async def get_snippet_count(self) -> int
+```
+
+Get the total number of snippets.
+
+Returns
+-------
+int
+    The total count of snippets.
+
+```python
+async def create_snippet_alias(self, original_name: str, alias_name: str) -> Snippet
+```
+
+Create a snippet alias.
+
+Returns
+-------
+Snippet
+    The newly created alias snippet.
+
+Raises
+------
+ValueError
+    If the original snippet is not found.
+
+```python
+async def get_snippet_count_by_creator(self, creator_id: int) -> int
+```
+
+Get the number of snippets created by a user.
+
+Parameters
+----------
+creator_id : int
+    The ID of the user.
+
+Returns
+-------
+int
+    The count of snippets created by the user.
+
+```python
+async def toggle_snippet_lock_by_id(self, snippet_id: int) -> Snippet | None
+```
+
+Toggle the locked status of a snippet by ID.
+
+Parameters
+----------
+snippet_id : int
+    The ID of the snippet to toggle.
+
+Returns
+-------
+Snippet | None
+    The updated snippet, or None if not found.
+
+```python
+async def increment_snippet_uses(self, snippet_id: int) -> Snippet | None
+```
+
+Increment the usage count of a snippet.
+
+Parameters
+----------
+snippet_id : int
+    The ID of the snippet to increment uses for.
+
+Returns
+-------
+Snippet | None
+    The updated snippet, or None if not found.
+
+```python
+async def get_popular_snippets(self, limit: int) -> list[Snippet]
+```
+
+Get the most popular snippets by usage count.
+
+Uses database-level ordering for better performance.
+
+Parameters
+----------
+limit : int, optional
+    Maximum number of snippets to return. Defaults to 10.
+
+Returns
+-------
+list[Snippet]
+    List of snippets sorted by usage count (most popular first).
+
+```python
+async def get_snippets_by_alias(self, alias: str) -> list[Snippet]
+```
+
+Get snippets by alias.
+
+Parameters
+----------
+alias : str
+    The alias name to search for.
+
+Returns
+-------
+list[Snippet]
+    List of snippets with the specified alias.
+
+```python
+async def get_all_aliases(self) -> list[Snippet]
+```
+
+Get all aliases.
+
+Returns
+-------
+list[Snippet]
+    List of all alias snippets.

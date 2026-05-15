@@ -1,0 +1,170 @@
+---
+title: Godbolt
+icon: lucide/code-2
+---
+
+# Godbolt
+
+Godbolt API Wrapper for Bot Bot.
+
+This module provides integration with the Godbolt API allowing code execution and compilation for various programming languages.
+
+## Classes
+
+Compiler filter options for Godbolt API.
+
+Compiler options for Godbolt API.
+
+Godbolt API request options.
+
+Payload structure for Godbolt API compilation requests.
+
+## Functions
+
+```python
+async def sendresponse(url: str) -> str
+```
+
+Send a GET request to the Godbolt API and return the response text.
+
+Parameters
+----------
+url : str
+    The URL to send the request to.
+
+Returns
+-------
+str
+    The response text if successful.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to Godbolt API fails or times out.
+BotAPIRequestError
+    If the API request fails with non-404 status code.
+BotAPIResourceNotFoundError
+    If the resource is not found (404).
+
+```python
+async def getlanguages() -> str
+```
+
+Get the languages from the Godbolt API.
+
+Returns
+-------
+str
+    The languages from the Godbolt API if successful.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to Godbolt API fails or times out.
+BotAPIRequestError
+    If the API request fails with non-404 status code.
+BotAPIResourceNotFoundError
+    If the resource is not found (404).
+
+```python
+async def getcompilers() -> str
+```
+
+Get the compilers from the Godbolt API.
+
+Returns
+-------
+str
+    The compilers from the Godbolt API if successful.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to Godbolt API fails or times out.
+BotAPIRequestError
+    If the API request fails with non-404 status code.
+BotAPIResourceNotFoundError
+    If the resource is not found (404).
+
+```python
+async def getspecificcompiler(lang: str) -> str
+```
+
+Get a specific compiler from the Godbolt API.
+
+Parameters
+----------
+lang : str
+    The language to get the specific compiler for.
+
+Returns
+-------
+str
+    The specific compiler from the Godbolt API if successful.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to Godbolt API fails or times out.
+BotAPIRequestError
+    If the API request fails with non-404 status code.
+BotAPIResourceNotFoundError
+    If the resource is not found (404).
+
+```python
+async def getoutput(code: str, lang: str, compileroptions: str | None) -> str
+```
+
+Send a POST request to the Godbolt API to get the output of the given code.
+
+Parameters
+----------
+code : str
+    The code to compile.
+lang : str
+    The language of the code.
+compileroptions : str | None, optional
+    The compiler options, by default None
+
+Returns
+-------
+str
+    The output of the code if successful.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to Godbolt API fails.
+BotAPIRequestError
+    If the API request fails.
+BotAPIResourceNotFoundError
+    If the resource is not found.
+
+```python
+async def generateasm(code: str, lang: str, compileroptions: str | None) -> str
+```
+
+Generate assembly code from the given code.
+
+Parameters
+----------
+code : str
+    The code to generate assembly from.
+lang : str
+    The language of the code.
+compileroptions : str | None, optional
+    The compiler options, by default None
+
+Returns
+-------
+str
+    The assembly code if successful.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to Godbolt API fails.
+BotAPIRequestError
+    If the API request fails.
+BotAPIResourceNotFoundError
+    If the resource is not found.

@@ -1,0 +1,78 @@
+---
+title: Eval
+icon: lucide/code-2
+---
+
+# Eval
+
+Python expression evaluation commands for administrative use.
+
+This module provides dangerous but powerful evaluation capabilities for bot owners
+and authorized sysadmins. It allows executing Python code in the context of the bot,
+with access to bot internals, Discord.py objects, and the current command context.
+
+The eval command is restricted to bot owners by default, with optional sysadmin access.
+All eval operations are logged for security auditing.
+
+## Classes
+
+Discord cog for Python expression evaluation commands.
+
+Provides the eval command which allows bot owners and authorized sysadmins
+to execute Python code in the context of the running bot. This is extremely
+powerful and potentially dangerous, so access is heavily restricted.
+
+The eval command supports both synchronous and asynchronous Python code,
+with automatic return statement insertion for expression evaluation.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Eval cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `command`, `guild_only`*
+
+```python
+async def eval(self, ctx: commands.Context[Bot], expression: str) -> None
+```
+
+Evaluate a Python expression. (Owner only).
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context in which the command is being invoked.
+expression : str
+    The Python expression to evaluate.
+
+## Functions
+
+```python
+def insert_returns(body: list[ast.stmt]) -> None
+```
+
+Insert return statements into the body of the function definition.
+
+Parameters
+----------
+body : list[ast.stmt]
+    The body of the function definition.
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Eval cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

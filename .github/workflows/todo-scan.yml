@@ -1,0 +1,140 @@
+---
+name: TODO Scan
+on:
+  schedule:
+    - cron: 0 6 * * 1  # Every Monday at 06:00 UTC
+  push:
+    branches: [main]
+    paths:
+      - 'src/**/*.py'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Preview mode — do not modify files'
+        type: boolean
+        default: false
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  PYTHON_VERSION: '3.13'
+jobs:
+  scan:
+    name: Scan TODOs
+    if: github.repository == 'awfixers-stuff/bot'
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      todo_count: ${{ steps.extract.outputs.count }}
+      has_todos: ${{ steps.extract.outputs.has_todos }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38  # v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Extract TODOs from source
+        id: extract
+        run: |
+          if [ "${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == 'true' }}" = "true" ]; then
+            echo "🧪 Dry-run mode — scanning only"
+            python .github/scripts/todo_scan.py --dry-run || true
+            echo "count=0" >> "$GITHUB_OUTPUT"
+            echo "has_todos=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # First pass: output TODOs as JSON for issue creation
+          python .github/scripts/todo_scan.py --json > /tmp/todos.json 2>&1 || true
+          TODO_COUNT=$(python -c "import json; data=json.load(open('/tmp/todos.json')); print(len(data))" 2>/dev/null || echo 0)
+          echo "count=$TODO_COUNT" >> "$GITHUB_OUTPUT"
+          if [ "$TODO_COUNT" -gt 0 ]; then
+            echo "has_todos=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_todos=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Actual extraction (removes TODOs, appends to TODO.md)
+          python .github/scripts/todo_scan.py
+
+      - name: Create Pull Request
+        if: steps.extract.outputs.has_todos == 'true'
+        id: pr
+        uses: peter-evans/create-pull-request@67dfe312b5069c014ef1e9ff026d640aa77efef2  # v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore(todo): extract TODO comments from source code'
+          title: 'chore(todo): extract TODO comments from source code'
+          body: |
+            ## TODO Extraction
+
+            This PR extracts TODO/FIXME/HACK/XXX comments from source code into `TODO.md`.
+
+            ### Changes:
+            - Removed TODO comments from source files
+            - Added extracted items to `TODO.md` with file:line references
+
+            After merging, issues will be created from the extracted TODOs.
+          branch: chore/todo-extraction
+          base: main
+          delete-branch: true
+          labels: chore, todo
+
+      - name: Create Issues from TODOs
+        if: steps.extract.outputs.has_todos == 'true'
+        run: |
+          python -c "
+import json, subprocess, os
+
+todos = json.load(open('/tmp/todos.json'))
+for todo in todos:
+    tag = todo['tag']
+    text = todo['text']
+    location = f\"{todo['file']}:{todo['line']}\"
+    todo_md_entry = f\"{location} - [{tag}] {text}\"
+
+    # Search TODO.md for the matching entry to get its line number
+    grep = subprocess.run(
+        ['grep', '-n', '-F', location, 'TODO.md'],
+        capture_output=True, text=True
+    )
+    todo_md_line = 'unknown'
+    if grep.returncode == 0 and grep.stdout.strip():
+        todo_md_line = grep.stdout.strip().split(':')[0]
+
+    title = f\"[{tag}] {text[:80]}{'...' if len(text) > 80 else ''}\"
+    body = f\"\"\"## Extracted TODO
+
+**Type:** {tag}
+**Original location:** `{location}`
+**TODO.md reference:** [TODO.md#L{todo_md_line}](TODO.md#L{todo_md_line})
+
+### Description
+
+{text}
+
+---
+
+_This issue was auto-created from an extracted TODO comment. See [TODO.md](TODO.md) for the full list._
+\"\"\"
+
+    result = subprocess.run(
+        ['gh', 'issue', 'create',
+         '--title', title,
+         '--body', body,
+         '--label', 'todo'],
+        capture_output=True, text=True
+    )
+    if result.returncode == 0:
+        print(f\"✓ Created issue for: {title}\")
+    else:
+        print(f\"✗ Failed to create issue: {result.stderr}\")
+"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,33 @@
+---
+title: Permission Setup
+icon: lucide/code-2
+---
+
+# Permission Setup
+
+Permission system setup service for bot initialization.
+
+## Classes
+
+Handles permission system initialization during bot setup.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot, db_service: DatabaseService) -> None
+```
+
+Initialize the permission setup service.
+
+Parameters
+----------
+bot : Bot
+    The Discord bot instance to set up permissions for.
+db_service : DatabaseService
+    The database service instance for storing permissions.
+
+```python
+async def setup(self) -> None
+```
+
+Set up the permission system for command authorization.

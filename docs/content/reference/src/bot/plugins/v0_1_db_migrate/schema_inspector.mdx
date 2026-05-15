@@ -1,0 +1,181 @@
+---
+title: Schema Inspector
+icon: lucide/code-2
+---
+
+# Schema Inspector
+
+Schema inspector for old Prisma database.
+
+Inspects the schema of the old Prisma/Supabase database to understand
+table structure, columns, relationships, and constraints.
+
+## Classes
+
+Inspect schema of old Prisma database.
+
+Provides methods to discover tables, columns, relationships,
+and other schema metadata from the old database.
+
+Attributes
+----------
+config : MigrationConfig
+    Migration configuration.
+engine : Engine | None
+    SQLAlchemy sync engine for old database connection.
+
+### Methods
+
+```python
+def __init__(self, config: MigrationConfig) -> None
+```
+
+Initialize schema inspector.
+
+Parameters
+----------
+config : MigrationConfig
+    Migration configuration with old database URL.
+
+```python
+def connect(self) -> None
+```
+
+Connect to the old database.
+
+Raises
+------
+SQLAlchemyError
+    If connection fails.
+
+```python
+def disconnect(self) -> None
+```
+
+Disconnect from the old database.
+
+```python
+def inspect_tables(self) -> list[str]
+```
+
+Inspect all tables in the old database.
+
+Returns
+-------
+list[str]
+    List of table names in the old database.
+
+Raises
+------
+RuntimeError
+    If not connected to database.
+
+```python
+def inspect_columns(self, table_name: str) -> list[dict[str, Any]]
+```
+
+Inspect columns for a specific table.
+
+Parameters
+----------
+table_name : str
+    Name of the table to inspect.
+
+Returns
+-------
+list[dict[str, Any]]
+    List of column metadata dictionaries with keys:
+    - name: Column name
+    - type: Column type (string representation)
+    - nullable: Whether column is nullable
+    - default: Default value (if any)
+    - primary_key: Whether column is primary key
+    - foreign_keys: List of foreign key relationships
+
+Raises
+------
+RuntimeError
+    If not connected to database.
+
+```python
+def inspect_primary_key_constraint(self, table_name: str) -> dict[str, Any]
+```
+
+Inspect primary key constraint details for a table.
+
+Parameters
+----------
+table_name : str
+    Table name to inspect.
+
+Returns
+-------
+dict[str, Any]
+    Primary key constraint details with keys:
+    - constraint_name: str
+    - columns: list[str]
+    - is_composite: bool
+
+```python
+def inspect_relationships(self) -> list[dict[str, Any]]
+```
+
+Inspect foreign key relationships in the old database.
+
+Returns
+-------
+list[dict[str, Any]]
+    List of relationship metadata dictionaries with keys:
+    - table: Source table name
+    - columns: List of column names in source table
+    - referred_table: Target table name
+    - referred_columns: List of column names in target table
+
+Raises
+------
+RuntimeError
+    If not connected to database.
+
+```python
+def inspect_indexes(self, table_name: str) -> list[dict[str, Any]]
+```
+
+Inspect indexes for a specific table.
+
+Parameters
+----------
+table_name : str
+    Name of the table to inspect.
+
+Returns
+-------
+list[dict[str, Any]]
+    List of index metadata dictionaries with keys:
+    - name: Index name
+    - columns: List of column names in index
+    - unique: Whether index is unique
+
+Raises
+------
+RuntimeError
+    If not connected to database.
+
+```python
+def get_schema_report(self) -> dict[str, Any]
+```
+
+Generate comprehensive schema report for the old database.
+
+Returns
+-------
+dict[str, Any]
+    Schema report dictionary with keys:
+    - tables: List of table names
+    - table_details: Dict mapping table names to their column metadata
+    - relationships: List of foreign key relationships
+    - indexes: Dict mapping table names to their index metadata
+
+Raises
+------
+RuntimeError
+    If not connected to database.

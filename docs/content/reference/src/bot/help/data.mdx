@@ -1,0 +1,113 @@
+---
+title: Data
+icon: lucide/code-2
+---
+
+# Data
+
+Help system data management.
+
+## Classes
+
+Manages help command data retrieval and caching.
+
+### Methods
+
+```python
+def __init__(self, bot: commands.Bot | commands.AutoShardedBot, ctx: commands.Context[Any] | None) -> None
+```
+
+Initialize the help data manager.
+
+Parameters
+----------
+bot : commands.Bot | commands.AutoShardedBot
+    The Discord bot instance to manage help data for.
+ctx : commands.Context[Any] | None, optional
+    The command context for permission checking. If None, all commands are shown.
+
+```python
+async def get_prefix(self, ctx: commands.Context[Any]) -> str
+```
+
+Get command prefix for the current context.
+
+Returns
+-------
+str
+    The command prefix for the context.
+
+```python
+async def get_command_categories(self) -> dict[str, dict[str, str]]
+```
+
+Get categorized commands mapping.
+
+Returns
+-------
+dict[str, dict[str, str]]
+    Dictionary mapping categories to their commands.
+
+```python
+async def can_run_command(self, command: commands.Command[Any, Any, Any]) -> bool
+```
+
+Check if command can be run by checking basic requirements and permissions.
+
+Returns
+-------
+bool
+    True if the command is visible and the user has permission, False otherwise.
+
+```python
+def find_command(self, command_name: str) -> commands.Command[Any, Any, Any] | None
+```
+
+Find a command by name.
+
+Returns
+-------
+commands.Command[Any, Any, Any] | None
+    The command if found, None otherwise.
+
+```python
+async def batch_can_run_commands(self, commands_list: list[commands.Command[Any, Any, Any]]) -> dict[commands.Command[Any, Any, Any], bool]
+```
+
+Batch check if multiple commands can be run.
+
+This is much more efficient than calling can_run_command multiple times,
+as it batches all database queries. Used by the help system to check
+permissions for multiple subcommands simultaneously.
+
+Parameters
+----------
+commands_list : list[commands.Command[Any, Any, Any]]
+    List of commands to check permissions for.
+
+Returns
+-------
+dict[commands.Command[Any, Any, Any], bool]
+    Dictionary mapping commands to whether they can be run.
+
+```python
+def find_parent_command(self, subcommand_name: str) -> tuple[str, commands.Command[Any, Any, Any]] | None
+```
+
+Find parent command for a subcommand.
+
+Returns
+-------
+tuple[str, commands.Command[Any, Any, Any]] | None
+    Tuple of (parent_name, subcommand) if found, None otherwise.
+
+```python
+def paginate_subcommands(self, command: commands.Group[Any, Any, Any], page_size: int) -> list[list[commands.Command[Any, Any, Any]]]
+```
+
+Paginate subcommands into pages.
+
+Returns
+-------
+list[list[commands.Command[Any, Any, Any]]]
+    List of pages, each containing up to page_size subcommands.

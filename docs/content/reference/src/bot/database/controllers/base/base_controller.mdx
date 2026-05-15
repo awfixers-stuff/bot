@@ -1,0 +1,327 @@
+---
+title: Base Controller
+icon: lucide/code-2
+---
+
+# Base Controller
+
+Main BaseController that composes all specialized controllers with lazy initialization.
+
+## Classes
+
+Composed database controller with lazy-loaded specialized operations.
+
+This controller delegates operations to specialized controllers for clean
+separation of concerns. Core CRUD and Query controllers are eagerly
+initialized, while specialized controllers (bulk, transaction, upsert) use
+lazy initialization to reduce overhead for simple use cases.
+
+### Methods
+
+```python
+def __init__(self, model: type[ModelT], db: DatabaseService | None) -> None
+```
+
+Initialize the base controller with lazy-loaded specialized controllers.
+
+Parameters
+----------
+model : type[ModelT]
+    The SQLModel class to perform operations on.
+db : DatabaseService | None
+    The database service instance. Must be provided.
+
+Raises
+------
+RuntimeError
+    If db is None, as database service is required.
+
+*Decorated with: `property`*
+
+```python
+def db_service(self) -> DatabaseService
+```
+
+Database service property for test compatibility.
+
+Returns
+-------
+DatabaseService
+    The database service instance.
+
+*Decorated with: `property`*
+
+```python
+def model_class(self) -> type[ModelT]
+```
+
+Model class property for test compatibility.
+
+Returns
+-------
+type[ModelT]
+    The SQLModel class.
+
+```python
+async def create(self, **kwargs: Any) -> ModelT
+```
+
+Create a new record.
+
+Returns
+-------
+ModelT
+    The newly created record.
+
+```python
+async def get_by_id(self, record_id: Any) -> ModelT | None
+```
+
+Get a record by ID.
+
+Returns
+-------
+ModelT | None
+    The record if found, None otherwise.
+
+```python
+async def update_by_id(self, record_id: Any, **values: Any) -> ModelT | None
+```
+
+Update a record by ID.
+
+Returns
+-------
+ModelT | None
+    The updated record, or None if not found.
+
+```python
+async def delete_by_id(self, record_id: Any) -> bool
+```
+
+Delete a record by ID.
+
+Returns
+-------
+bool
+    True if deleted successfully, False otherwise.
+
+```python
+async def exists(self, filters: Any) -> bool
+```
+
+Check if a record exists.
+
+Returns
+-------
+bool
+    True if record exists, False otherwise.
+
+```python
+async def find_one(self, filters: Any | None, order_by: Any | None) -> ModelT | None
+```
+
+Find one record.
+
+Returns
+-------
+ModelT | None
+    The found record, or None if not found.
+
+```python
+async def find_all(self, filters: Any | None, order_by: Any | None, limit: int | None, offset: int | None) -> list[ModelT]
+```
+
+Find all records with performance optimizations.
+
+Returns
+-------
+list[ModelT]
+    List of found records.
+
+```python
+async def find_all_with_options(self, filters: Any | None, order_by: Any | None, limit: int | None, offset: int | None, load_relationships: list[str] | None) -> list[ModelT]
+```
+
+Find all records with relationship loading options.
+
+Returns
+-------
+list[ModelT]
+    List of found records with loaded relationships.
+
+```python
+async def count(self, filters: Any | None) -> int
+```
+
+Count records.
+
+Returns
+-------
+int
+    The count of matching records.
+
+```python
+async def get_all(self, filters: Any | None, order_by: Any | None) -> list[ModelT]
+```
+
+Get all records (alias for find_all without pagination).
+
+Returns
+-------
+list[ModelT]
+    List of all matching records.
+
+```python
+async def execute_query(self, query: Executable) -> Result[Any]
+```
+
+Execute a custom query.
+
+Returns
+-------
+Result[Any]
+    The query result.
+
+```python
+async def bulk_create(self, items: list[dict[str, Any]]) -> list[ModelT]
+```
+
+Create multiple records in bulk.
+
+Returns
+-------
+list[ModelT]
+    List of created records.
+
+```python
+async def bulk_update(self, updates: list[tuple[Any, dict[str, Any]]]) -> int
+```
+
+Update multiple records in bulk.
+
+Returns
+-------
+int
+    Number of records updated.
+
+```python
+async def bulk_delete(self, record_ids: list[Any]) -> int
+```
+
+Delete multiple records in bulk.
+
+Returns
+-------
+int
+    Number of records deleted.
+
+```python
+async def update_where(self, filters: Any, values: dict[str, Any]) -> int
+```
+
+Update records matching filters.
+
+Returns
+-------
+int
+    Number of records updated.
+
+```python
+async def delete_where(self, filters: Any) -> int
+```
+
+Delete records matching filters.
+
+Returns
+-------
+int
+    Number of records deleted.
+
+```python
+async def with_session(self, operation: Callable[[Any], Awaitable[R]]) -> R
+```
+
+Execute operation within a session context.
+
+Returns
+-------
+R
+    The result of the operation.
+
+```python
+async def with_transaction(self, operation: Callable[[Any], Awaitable[R]]) -> R
+```
+
+Execute operation within a transaction context.
+
+Returns
+-------
+R
+    The result of the operation.
+
+```python
+async def execute_transaction(self, callback: Callable[[], Awaitable[R]]) -> R
+```
+
+Execute a callback within a transaction.
+
+Returns
+-------
+R
+    The result of the callback.
+
+```python
+async def upsert_by_field(self, field_name: str, field_value: Any, defaults: dict[str, Any] | None, **kwargs: Any) -> tuple[ModelT, bool]
+```
+
+Upsert a record by a specific field.
+
+Returns
+-------
+tuple[ModelT, bool]
+    Tuple of (record, created) where created is True if new record was created.
+
+```python
+async def upsert_by_id(self, record_id: Any, defaults: dict[str, Any] | None, **kwargs: Any) -> tuple[ModelT, bool]
+```
+
+Upsert a record by ID.
+
+Returns
+-------
+tuple[ModelT, bool]
+    Tuple of (record, created) where created is True if new record was created.
+
+```python
+async def get_or_create_by_field(self, field_name: str, field_value: Any, defaults: dict[str, Any] | None, **kwargs: Any) -> tuple[ModelT, bool]
+```
+
+Get existing record or create new one by field.
+
+Returns
+-------
+tuple[ModelT, bool]
+    Tuple of (record, created) where created is True if new record was created.
+
+```python
+async def get_or_create(self, defaults: dict[str, Any] | None, **filters: Any) -> tuple[ModelT, bool]
+```
+
+Get existing record or create new one.
+
+Returns
+-------
+tuple[ModelT, bool]
+    Tuple of (record, created) where created is True if new record was created.
+
+```python
+async def upsert(self, filters: dict[str, Any], defaults: dict[str, Any] | None, **kwargs: Any) -> tuple[ModelT, bool]
+```
+
+Upsert a record.
+
+Returns
+-------
+tuple[ModelT, bool]
+    Tuple of (record, created) where created is True if new record was created.

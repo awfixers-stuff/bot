@@ -1,0 +1,92 @@
+---
+title: Avatar
+icon: lucide/code-2
+---
+
+# Avatar
+
+Avatar command for Bot Bot.
+
+This module provides the avatar command, allowing users to view
+their own avatar or other members' avatars in the server.
+
+## Classes
+
+Avatar command cog for displaying user avatars.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Avatar cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to initialize the cog with.
+
+*Decorated with: `hybrid_command`, `guild_only`*
+
+```python
+async def avatar(self, ctx: commands.Context[Bot], member: discord.Member | None) -> None
+```
+
+Get the global/server avatar for a member.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The discord context object.
+member : discord.Member | None
+    The member to get the avatar of. If None, uses the command author.
+
+```python
+async def send_avatar(self, ctx: commands.Context[Bot], member: discord.Member | None) -> None
+```
+
+Send the global/server avatar for a member.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The discord context object.
+member : discord.Member | None
+    The member to get the avatar of. If None, uses the context author.
+
+*Decorated with: `staticmethod`*
+
+```python
+async def create_avatar_file(url: str) -> discord.File
+```
+
+Create a discord file from an avatar url.
+
+Parameters
+----------
+url : str
+    The url of the avatar.
+
+Returns
+-------
+discord.File
+    The discord file.
+
+Raises
+------
+RuntimeError
+    If the avatar cannot be fetched or processed.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Avatar cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

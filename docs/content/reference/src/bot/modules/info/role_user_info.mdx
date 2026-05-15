@@ -1,0 +1,40 @@
+---
+title: Role User Info
+icon: lucide/code-2
+---
+
+# Role User Info
+
+Role and user helper utilities for info commands.
+
+## Functions
+
+```python
+def get_role_type_info(role: discord.Role) -> list[tuple[str, bool]]
+```
+
+Get role type information.
+
+```python
+def get_role_tags_info(role: discord.Role) -> list[str] | None
+```
+
+Get role tags information.
+
+```python
+def get_role_flags_info(role: discord.Role) -> list[str] | None
+```
+
+Get role flags information.
+
+```python
+def get_user_banner(user: discord.User) -> str | None
+```
+
+Get the banner URL from a user object.
+
+```python
+async def get_member_banner(member: discord.Member, bot: Bot) -> str | None
+```
+
+Get the banner URL from a member's user object (requires fetch).

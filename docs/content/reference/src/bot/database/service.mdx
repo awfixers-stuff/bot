@@ -1,0 +1,207 @@
+---
+title: Service
+icon: lucide/code-2
+---
+
+# Service
+
+Database Service for Bot Bot.
+
+This module provides a clean, maintainable database service for async PostgreSQL operations.
+
+Key Principles:
+- Async-first design
+- Connection pooling with retry logic
+- Type-safe interfaces
+- Automatic reconnection handling
+
+## Classes
+
+Async database service for PostgreSQL.
+
+Provides connection management, session handling, query execution with retry logic,
+and health checks for the PostgreSQL database.
+
+Attributes
+----------
+_engine : AsyncEngine | None
+    SQLAlchemy async engine for database connections.
+_session_factory : async_sessionmaker[AsyncSession] | None
+    Factory for creating database sessions.
+_echo : bool
+    Whether to log SQL queries (useful for debugging).
+
+### Methods
+
+```python
+def __init__(self, echo: bool)
+```
+
+Initialize the database service.
+
+Parameters
+----------
+echo : bool, optional
+    Whether to enable SQL query logging (default is False).
+
+```python
+async def connect(self, database_url: str, **kwargs: Any) -> None
+```
+
+Connect to the PostgreSQL database.
+
+Parameters
+----------
+database_url : str
+    PostgreSQL connection URL in format:
+    postgresql+psycopg://user:password@host:port/database
+**kwargs : Any
+    Additional arguments passed to create_async_engine.
+
+```python
+async def disconnect(self) -> None
+```
+
+Disconnect from the database and dispose of the connection pool.
+
+```python
+def is_connected(self) -> bool
+```
+
+Check if database is currently connected.
+
+Returns
+-------
+bool
+    True if connected, False otherwise.
+
+```python
+async def test_connection(self) -> None
+```
+
+Test database connectivity with a simple query.
+
+Raises
+------
+Exception
+    If the database connection fails or the test query fails.
+
+*Decorated with: `property`*
+
+```python
+def engine(self) -> AsyncEngine | None
+```
+
+Get the database engine.
+
+Returns
+-------
+AsyncEngine | None
+    The SQLAlchemy async engine, or None if not connected.
+
+Notes
+-----
+Primarily used for testing and advanced operations.
+
+*Decorated with: `asynccontextmanager`*
+
+```python
+async def session(self) -> AsyncGenerator[AsyncSession]
+```
+
+Get a database session context manager.
+
+Automatically handles connection, commit, and rollback.
+
+Yields
+------
+AsyncSession
+    An active database session.
+
+Examples
+--------
+>>> async with db.session() as session:
+...     result = await session.execute(select(User))
+...     users = result.scalars().all()
+
+```python
+async def execute_transaction(self, callback: Callable[[], Any]) -> Any
+```
+
+Execute a callback inside a database transaction.
+
+Parameters
+----------
+callback : Callable[[], Any]
+    Async function to execute within the transaction.
+
+Returns
+-------
+Any
+    The return value of the callback function.
+
+Notes
+-----
+If the transaction fails, it will be rolled back automatically.
+
+```python
+async def execute_query(self, operation: Callable[[AsyncSession], Awaitable[T]], span_desc: str) -> T
+```
+
+Execute database operation with automatic retry logic.
+
+Parameters
+----------
+operation : Callable[[AsyncSession], Awaitable[T]]
+    Async function that performs database operations.
+span_desc : str
+    Description for Sentry performance monitoring.
+
+Returns
+-------
+T
+    Result of the operation.
+
+Notes
+-----
+Retries the operation automatically on transient failures.
+
+```python
+async def health_check(self) -> dict[str, Any]
+```
+
+Perform database health check.
+
+Returns
+-------
+dict[str, Any]
+    Health check result with status and optional error message.
+    Status can be: "healthy", "unhealthy", or "disconnected".
+
+Examples
+--------
+>>> result = await db.health_check()
+>>> print(result)
+{'status': 'healthy', 'mode': 'async'}
+
+```python
+async def validate_schema(self) -> dict[str, Any]
+```
+
+Validate that the database schema matches the current model definitions.
+
+Uses SQLAlchemy's metadata reflection to compare the actual database schema
+with the defined model metadata. Much more efficient and accurate than
+manual queries.
+
+Returns
+-------
+dict[str, Any]
+    Schema validation result with status and optional error message.
+    Status can be: "valid", "invalid", or "error".
+
+Examples
+--------
+>>> result = await db.validate_schema()
+>>> print(result)
+{'status': 'valid', 'mode': 'async'}

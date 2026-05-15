@@ -1,0 +1,318 @@
+---
+title: Version
+icon: lucide/code-2
+---
+
+# Version
+
+Unified version detection and management system.
+
+This module provides a clean, DRY approach to version handling across all environments:
+- Development (git describe)
+- Docker containers (VERSION file)
+- Production releases (environment variables)
+- Package metadata (fallback)
+
+The system follows a clear priority order and provides consistent behavior.
+
+## Classes
+
+Raised when version detection fails in an unexpected way.
+
+Centralized version detection and management.
+
+This class provides a single source of truth for version information
+across all environments and use cases.
+
+### Methods
+
+```python
+def __init__(self, root_path: Path | None)
+```
+
+Initialize the version manager.
+
+Parameters
+----------
+root_path : Path, optional
+    Root path of the project. If None, will be auto-detected.
+
+```python
+def get_version(self, force_refresh: bool) -> str
+```
+
+Get the current version using the established priority order.
+
+Priority order:
+1. TUX_VERSION environment variable
+2. VERSION file in project root
+3. Git describe (if git is available)
+4. "dev" as final fallback
+
+Parameters
+----------
+force_refresh : bool, default False
+    If True, bypass cache and detect version fresh.
+
+Returns
+-------
+str
+    The detected version string.
+
+```python
+def is_semantic_version(self, version: str | None) -> bool
+```
+
+Check if a version string is a valid semantic version.
+
+Parameters
+----------
+version : str, optional
+    The version to check. If None, uses the current detected version.
+
+Returns
+-------
+bool
+    True if the version is valid semver, False otherwise.
+
+```python
+def compare_versions(self, version1: str, version2: str) -> int
+```
+
+Compare two semantic version strings.
+
+Parameters
+----------
+version1 : str
+    First version to compare.
+version2 : str
+    Second version to compare.
+
+Returns
+-------
+int
+    -1 if version1 < version2, 0 if equal, 1 if version1 > version2.
+
+Raises
+------
+ValueError
+    If either version is not a valid semantic version.
+
+```python
+def get_version_info(self, version: str | None) -> dict[str, str | int | None]
+```
+
+Get detailed information about a semantic version.
+
+Parameters
+----------
+version : str, optional
+    The version to analyze. If None, uses the current detected version.
+
+Returns
+-------
+dict
+    Dictionary containing version components and metadata.
+
+```python
+def get_build_info(self) -> dict[str, str]
+```
+
+Get build information for the current version.
+
+Returns
+-------
+dict
+    Dictionary containing build metadata.
+
+```python
+def bump_version(self, version: str, bump_type: str) -> str
+```
+
+Bump a semantic version.
+
+Parameters
+----------
+version : str
+    The version to bump.
+bump_type : str
+    Type of bump: 'major', 'minor', 'patch'.
+
+Returns
+-------
+str
+    The bumped version string.
+
+Raises
+------
+ValueError
+    If version is not semantic or bump_type is invalid.
+
+```python
+def satisfies_constraint(self, version: str, constraint: str) -> bool
+```
+
+Check if a version satisfies a semver constraint.
+
+Parameters
+----------
+version : str
+    Version to check.
+constraint : str
+    Semver constraint (e.g., ">=1.0.0", "^1.2.0").
+
+Returns
+-------
+bool
+    True if version satisfies the constraint.
+
+Raises
+------
+ValueError
+    If constraint syntax is invalid.
+
+```python
+def generate_build_metadata(self, git_sha: str | None, build_date: str | None) -> str
+```
+
+Generate build metadata string from git SHA and build date.
+
+Parameters
+----------
+git_sha : str, optional
+    Git SHA (short form). If None, attempts to detect from git.
+build_date : str, optional
+    Build date in YYYYMMDD format. If None, uses current date.
+
+Returns
+-------
+str
+    Build metadata string (e.g., "sha.abcdef.20231029").
+
+## Functions
+
+```python
+def get_version() -> str
+```
+
+Get the current version.
+
+Returns
+-------
+str
+    The current version string.
+
+```python
+def is_semantic_version(version: str | None) -> bool
+```
+
+Check if a version is valid semantic version.
+
+Parameters
+----------
+version : str, optional
+    Version to check. If None, uses current version.
+
+Returns
+-------
+bool
+    True if valid semver, False otherwise.
+
+```python
+def compare_versions(version1: str, version2: str) -> int
+```
+
+Compare two semantic versions.
+
+Parameters
+----------
+version1 : str
+    First version.
+version2 : str
+    Second version.
+
+Returns
+-------
+int
+    Comparison result (-1, 0, 1).
+
+```python
+def get_version_info(version: str | None) -> dict[str, str | int | None]
+```
+
+Get detailed version information.
+
+Parameters
+----------
+version : str, optional
+    Version to analyze. If None, uses current version.
+
+Returns
+-------
+dict
+    Version information dictionary.
+
+```python
+def get_build_info() -> dict[str, str]
+```
+
+Get build information.
+
+Returns
+-------
+dict
+    Build information dictionary.
+
+```python
+def bump_version(version: str, bump_type: str) -> str
+```
+
+Bump a semantic version.
+
+Parameters
+----------
+version : str
+    The version to bump.
+bump_type : str
+    Type of bump: 'major', 'minor', 'patch'.
+
+Returns
+-------
+str
+    The bumped version string.
+
+```python
+def satisfies_constraint(version: str, constraint: str) -> bool
+```
+
+Check if a version satisfies a semver constraint.
+
+Parameters
+----------
+version : str
+    Version to check.
+constraint : str
+    Semver constraint (e.g., ">=1.0.0", "^1.2.0").
+
+Returns
+-------
+bool
+    True if version satisfies the constraint.
+
+```python
+def generate_build_metadata(git_sha: str | None, build_date: str | None) -> str
+```
+
+Generate build metadata string from git SHA and build date.
+
+Parameters
+----------
+git_sha : str, optional
+    Git SHA (short form). If None, attempts to detect from git.
+build_date : str, optional
+    Build date in YYYYMMDD format. If None, uses current date.
+
+Returns
+-------
+str
+    Build metadata string (e.g., "sha.abcdef.20231029").

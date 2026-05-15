@@ -1,0 +1,205 @@
+---
+title: Extractors
+icon: lucide/code-2
+---
+
+# Extractors
+
+Error detail extraction utilities.
+
+## Functions
+
+```python
+def unwrap_error(error: Any) -> Exception
+```
+
+Unwrap nested exceptions to find root cause.
+
+Returns
+-------
+Exception
+    The unwrapped root exception.
+
+```python
+def fallback_format_message(message_format: str, error: Exception) -> str
+```
+
+Safely format error message with fallbacks.
+
+Returns
+-------
+str
+    The formatted error message.
+
+```python
+def format_list(items: list[str]) -> str
+```
+
+Format list as comma-separated code blocks.
+
+Returns
+-------
+str
+    Comma-separated list in code blocks.
+
+```python
+def extract_missing_role_details(error: Exception, **_kwargs: Any) -> dict[str, Any]
+```
+
+Extract missing role details.
+
+Parameters
+----------
+error : Exception
+    The missing role error.
+**_kwargs : Any
+    Additional context (unused but part of extractor interface).
+
+Returns
+-------
+dict[str, Any]
+    Dictionary containing role information.
+
+```python
+def extract_missing_any_role_details(error: Exception, **_kwargs: Any) -> dict[str, Any]
+```
+
+Extract missing roles list.
+
+Parameters
+----------
+error : Exception
+    The missing any role error.
+**_kwargs : Any
+    Additional context (unused but part of extractor interface).
+
+Returns
+-------
+dict[str, Any]
+    Dictionary containing roles information.
+
+```python
+def extract_permissions_details(error: Exception, **_kwargs: Any) -> dict[str, Any]
+```
+
+Extract missing permissions.
+
+Parameters
+----------
+error : Exception
+    The missing permissions error.
+**_kwargs : Any
+    Additional context (unused but part of extractor interface).
+
+Returns
+-------
+dict[str, Any]
+    Dictionary containing permissions information.
+
+```python
+def extract_bad_flag_argument_details(error: Exception, **kwargs: Any) -> dict[str, Any]
+```
+
+Extract flag argument details.
+
+Parameters
+----------
+error : Exception
+    The bad flag argument error.
+**kwargs : Any
+    Additional context, may include 'source' for command information.
+
+Returns
+-------
+dict[str, Any]
+    Dictionary containing flag details, original cause, and usage information.
+
+```python
+def extract_missing_flag_details(error: Exception, **kwargs: Any) -> dict[str, Any]
+```
+
+Extract missing flag details.
+
+Parameters
+----------
+error : Exception
+    The missing flag error.
+**kwargs : Any
+    Additional context, may include 'source' for command information.
+
+Returns
+-------
+dict[str, Any]
+    Dictionary containing flag name and usage information.
+
+```python
+def extract_httpx_status_details(error: Exception, **_kwargs: Any) -> dict[str, Any]
+```
+
+Extract HTTPX status error details.
+
+Parameters
+----------
+error : Exception
+    The HTTPX status error.
+**_kwargs : Any
+    Additional context (unused but part of extractor interface).
+
+Returns
+-------
+dict[str, Any]
+    Dictionary containing status code, URL, and response text.
+
+```python
+def extract_missing_argument_details(error: Exception, **kwargs: Any) -> dict[str, Any]
+```
+
+Extract missing argument details.
+
+Parameters
+----------
+error : Exception
+    The missing argument error.
+**kwargs : Any
+    Additional context, may include 'source' for command information.
+
+Returns
+-------
+dict[str, Any]
+    Dictionary containing parameter name and usage information.
+
+```python
+def extract_bad_union_argument_details(error: Exception, **kwargs: Any) -> dict[str, Any]
+```
+
+Extract bad union argument details.
+
+Parameters
+----------
+error : Exception
+    The bad union argument error.
+**kwargs : Any
+    Additional context, may include 'source' for command information.
+
+Returns
+-------
+dict[str, Any]
+    Dictionary containing argument, expected types, and usage information.
+
+```python
+def extract_permission_denied_details(error: Exception, **kwargs: Any) -> dict[str, Any]
+```
+
+Extract permission denied error details.
+
+Parameters
+----------
+error : Exception
+    The permission denied error.
+**kwargs : Any
+    Additional context, may include 'ctx' for command context.
+
+Returns
+-------
+dict[str, Any]
+    Dictionary containing formatted permission message.

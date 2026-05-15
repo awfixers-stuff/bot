@@ -1,0 +1,362 @@
+---
+title: Tldr
+icon: lucide/code-2
+---
+
+# Tldr
+
+TLDR Pages Client Wrapper.
+
+A pure Python implementation of the TLDR client specification v2.3,
+providing command documentation lookup with proper caching, localization, and platform support.
+This wrapper contains no Discord dependencies and can be used independently.
+
+## Classes
+
+Core TLDR client functionality for fetching and managing pages.
+
+Implements the TLDR client specification v2.3 with proper caching,
+platform detection, and language fallback mechanisms.
+
+### Methods
+
+*Decorated with: `staticmethod`*
+
+```python
+def normalize_page_name(name: str) -> str
+```
+
+Normalize command name according to TLDR specification.
+
+Parameters
+----------
+name : str
+    Raw command name that may contain spaces or mixed case.
+
+Returns
+-------
+str
+    Normalized command name: lowercase, dash-separated, trimmed.
+
+Examples
+--------
+>>> TldrClient.normalize_page_name("git status")
+"git-status"
+>>> TldrClient.normalize_page_name("GyE D3")
+"gye-d3"
+
+*Decorated with: `staticmethod`*
+
+```python
+def get_cache_file_path(command: str, platform: str, language: str) -> Path
+```
+
+Generate the file system path for a cached TLDR page.
+
+Parameters
+----------
+command : str
+    Normalized command name.
+platform : str
+    Target platform (linux, osx, windows, etc.).
+language : str
+    Language code (en, es, fr, etc.).
+
+Returns
+-------
+Path
+    Full path to the cached page file.
+
+*Decorated with: `staticmethod`*
+
+```python
+def have_recent_cache(command: str, platform: str, language: str) -> bool
+```
+
+Check if a recent cached version of a page exists.
+
+Parameters
+----------
+command : str
+    Command name to check.
+platform : str
+    Platform to check.
+language : str
+    Language to check.
+
+Returns
+-------
+bool
+    True if cached file exists and is within MAX_CACHE_AGE_HOURS.
+
+*Decorated with: `staticmethod`*
+
+```python
+def load_page_from_cache(command: str, platform: str, language: str) -> str | None
+```
+
+Load a TLDR page from local cache.
+
+Parameters
+----------
+command : str
+    Command name.
+platform : str
+    Platform name.
+language : str
+    Language code.
+
+Returns
+-------
+str | None
+    Page content if available, None if not found or on error.
+
+*Decorated with: `staticmethod`*
+
+```python
+def store_page_to_cache(page: str, command: str, platform: str, language: str) -> None
+```
+
+Store a TLDR page to local cache.
+
+Parameters
+----------
+page : str
+    Page content to store.
+command : str
+    Command name.
+platform : str
+    Platform name.
+language : str
+    Language code.
+
+*Decorated with: `staticmethod`*
+
+```python
+def detect_platform() -> str
+```
+
+Detect the default platform for Discord bot context.
+
+Returns
+-------
+str
+    Platform identifier, defaults to 'linux' for container environments.
+
+*Decorated with: `staticmethod`*
+
+```python
+def get_language_priority(user_language: str | None) -> list[str]
+```
+
+Get prioritized list of languages for Discord bot context.
+
+Parameters
+----------
+user_language : str | None
+    User-specified language preference.
+
+Returns
+-------
+list[str]
+    Ordered list of languages to try, always ending with 'en'.
+
+*Decorated with: `staticmethod`*
+
+```python
+def get_platform_priority(user_platform_input: str | None) -> list[str]
+```
+
+Determine platform search order based on user input and TLDR spec.
+
+Parameters
+----------
+user_platform_input : str | None
+    User-specified platform preference.
+
+Returns
+-------
+list[str]
+    Ordered list of platforms to search, following TLDR specification.
+
+Notes
+-----
+Implementation follows TLDR spec v2.3:
+- If user specifies "common", only return "common"
+- Otherwise: [user_platform, detected_platform, common, all_other_platforms]
+
+*Decorated with: `staticmethod`*
+
+```python
+def fetch_tldr_page(command: str, languages: list[str], platform_preference: str | None) -> tuple[str, str] | None
+```
+
+Fetch a TLDR page with platform priority and language fallback.
+
+Parameters
+----------
+command : str
+    Normalized command name to fetch.
+languages : list[str]
+    Ordered list of languages to try.
+platform_preference : str | None
+    User's platform preference.
+
+Returns
+-------
+tuple[str, str] | None
+    Tuple of (page_content, found_platform) if successful, None if not found.
+
+Notes
+-----
+Follows TLDR spec priority: platform takes precedence over language.
+Tries cache first, then remote fetch with automatic caching.
+
+*Decorated with: `staticmethod`, `lru_cache`*
+
+```python
+def list_tldr_commands(language: str, platform_filter: str | None) -> list[str]
+```
+
+List available TLDR commands for a given language and platform filter.
+
+Parameters
+----------
+language : str
+    Language code to search.
+platform_filter : str | None
+    Platform to filter by. If None, searches linux + common platforms.
+
+Returns
+-------
+list[str]
+    Sorted list of available command names.
+
+*Decorated with: `staticmethod`*
+
+```python
+def parse_placeholders(line: str, show_short: bool, show_long: bool, show_both: bool, highlight: bool) -> str
+```
+
+Parse and format placeholder text in TLDR pages.
+
+Parameters
+----------
+line : str
+    Line containing TLDR placeholder syntax.
+show_short : bool
+    Show only short options for placeholders.
+show_long : bool
+    Show only long options for placeholders.
+show_both : bool
+    Show both short and long options.
+highlight : bool
+    Whether to apply highlighting markup.
+
+Returns
+-------
+str
+    Processed line with placeholders resolved.
+
+*Decorated with: `staticmethod`*
+
+```python
+def format_tldr_for_discord(md: str, show_short: bool, show_long: bool, show_both: bool) -> str
+```
+
+Format a TLDR markdown page for Discord output.
+
+Parameters
+----------
+md : str
+    Raw TLDR markdown content.
+show_short : bool
+    Show only short options for placeholders.
+show_long : bool
+    Show only long options for placeholders.
+show_both : bool
+    Show both short and long options.
+
+Returns
+-------
+str
+    Formatted content suitable for Discord display.
+
+*Decorated with: `staticmethod`*
+
+```python
+def not_found_message(command: str) -> str
+```
+
+Generate a message for when a page is not found.
+
+Parameters
+----------
+command : str
+    Command that was not found.
+
+Returns
+-------
+str
+    Formatted not found message with GitHub link.
+
+*Decorated with: `staticmethod`*
+
+```python
+def update_tldr_cache(language: str) -> str
+```
+
+Update the TLDR cache for a specific language.
+
+Parameters
+----------
+language : str
+    Language code to update cache for.
+
+Returns
+-------
+str
+    Status message indicating success or failure.
+
+Notes
+-----
+Downloads from GitHub releases following TLDR spec v2.3.
+Replaces existing cache completely to ensure consistency.
+
+*Decorated with: `staticmethod`*
+
+```python
+def cache_needs_update(language: str) -> bool
+```
+
+Check if the cache needs updating based on age.
+
+Parameters
+----------
+language : str
+    Language to check cache for.
+
+Returns
+-------
+bool
+    True if cache is missing or older than MAX_CACHE_AGE_HOURS.
+
+*Decorated with: `staticmethod`*
+
+```python
+def split_long_text(text: str, max_len: int) -> list[str]
+```
+
+Split long text into pages for Discord embeds.
+
+Parameters
+----------
+text : str
+    Text to split.
+max_len : int
+    Maximum length per page.
+
+Returns
+-------
+list[str]
+    List of text chunks within max_len limits.

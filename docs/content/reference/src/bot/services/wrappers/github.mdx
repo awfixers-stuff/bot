@@ -1,0 +1,255 @@
+---
+title: Github
+icon: lucide/code-2
+---
+
+# Github
+
+GitHub API Service Wrapper for Bot Bot.
+
+This module provides integration with the GitHub API using GitHub Apps authentication,
+enabling the bot to interact with GitHub repositories, issues, pull requests, and more.
+
+## Classes
+
+GitHub API service wrapper for repository and issue management.
+
+### Methods
+
+```python
+def __init__(self) -> None
+```
+
+Initialize the GitHub service with app credentials.
+
+Raises
+------
+ValueError
+    If any required GitHub configuration is missing or invalid.
+
+```python
+async def get_repo(self) -> FullRepository
+```
+
+Get the repository.
+
+Returns
+-------
+FullRepository
+    The repository.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to GitHub API fails.
+BotAPIPermissionError
+    If insufficient permissions to access the repository.
+BotAPIRequestError
+    If the API request fails for other reasons.
+BotAPIResourceNotFoundError
+    If the repository is not found.
+
+```python
+async def create_issue(self, title: str, body: str) -> Issue
+```
+
+Create an issue.
+
+Parameters
+----------
+title : str
+    The title of the issue.
+body : str
+    The body of the issue.
+
+Returns
+-------
+Issue
+    The created issue.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to GitHub API fails.
+BotAPIPermissionError
+    If insufficient permissions.
+BotAPIRequestError
+    If the API request fails.
+
+```python
+async def create_issue_comment(self, issue_number: int, body: str) -> IssueComment
+```
+
+Create an issue comment.
+
+Parameters
+----------
+issue_number : int
+    The number of the issue.
+body : str
+    The body of the comment.
+
+Returns
+-------
+IssueComment
+    The created issue comment.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to GitHub API fails.
+BotAPIPermissionError
+    If insufficient permissions.
+BotAPIRequestError
+    If the API request fails.
+BotAPIResourceNotFoundError
+    If the issue is not found.
+
+```python
+async def close_issue(self, issue_number: int) -> Issue
+```
+
+Close an issue.
+
+Parameters
+----------
+issue_number : int
+    The number of the issue.
+
+Returns
+-------
+Issue
+    The closed issue.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to GitHub API fails.
+BotAPIPermissionError
+    If insufficient permissions.
+BotAPIRequestError
+    If the API request fails.
+BotAPIResourceNotFoundError
+    If the issue is not found.
+
+```python
+async def get_issue(self, issue_number: int) -> Issue
+```
+
+Get an issue.
+
+Parameters
+----------
+issue_number : int
+    The number of the issue.
+
+Returns
+-------
+Issue
+    The issue.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to GitHub API fails.
+BotAPIRequestError
+    If the API request fails.
+BotAPIResourceNotFoundError
+    If the issue is not found.
+
+```python
+async def get_open_issues(self) -> list[Issue]
+```
+
+Get all open issues.
+
+Returns
+-------
+list[Issue]
+    The list of open issues.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to GitHub API fails.
+BotAPIRequestError
+    If the API request fails.
+
+```python
+async def get_closed_issues(self) -> list[Issue]
+```
+
+Get all closed issues.
+
+Returns
+-------
+list[Issue]
+    The list of closed issues.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to GitHub API fails.
+BotAPIRequestError
+    If the API request fails.
+
+```python
+async def get_open_pulls(self) -> list[PullRequestSimple]
+```
+
+Get all open pulls.
+
+Returns
+-------
+list[PullRequestSimple]
+    The list of open pulls.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to GitHub API fails.
+BotAPIRequestError
+    If the API request fails.
+
+```python
+async def get_closed_pulls(self) -> list[PullRequestSimple]
+```
+
+Get all closed pulls.
+
+Returns
+-------
+list[PullRequestSimple]
+    The list of closed pulls.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to GitHub API fails.
+BotAPIRequestError
+    If the API request fails.
+
+```python
+async def get_pull(self, pr_number: int) -> PullRequest
+```
+
+Get a pull request.
+
+Parameters
+----------
+pr_number : int
+    The number of the pull request.
+
+Returns
+-------
+PullRequest
+    The pull request.
+
+Raises
+------
+BotAPIConnectionError
+    If connection to GitHub API fails.
+BotAPIRequestError
+    If the API request fails.
+BotAPIResourceNotFoundError
+    If the pull request is not found.

@@ -1,0 +1,91 @@
+---
+title: App
+icon: lucide/code-2
+---
+
+# App
+
+Bot application entrypoint and lifecycle management.
+
+This module provides the orchestration necessary to run Bot,
+including command prefix resolution, signal handling, configuration validation,
+and structured startup/shutdown flows with Sentry integration.
+
+## Classes
+
+Application wrapper for managing Bot bot lifecycle.
+
+This class encapsulates the setup, run, and shutdown phases of the bot,
+providing consistent signal handling, configuration validation, and
+graceful startup/shutdown orchestration.
+
+Attributes
+----------
+bot : Bot | None
+    The Discord bot instance, initialized in :meth:`start`.
+
+### Methods
+
+```python
+def __init__(self) -> None
+```
+
+Initialize the application state.
+
+```python
+def run(self) -> int
+```
+
+Run the Bot bot application.
+
+Synchronous entrypoint typically invoked by the CLI. Handles the
+event loop lifecycle and graceful shutdown.
+
+Returns
+-------
+int
+    Exit code: 0 for success, 130 for user-requested shutdown, 1 for errors.
+
+```python
+async def start(self) -> int
+```
+
+Start the Bot bot with full lifecycle management.
+
+Orchestrates the complete bot startup sequence: logging configuration,
+Sentry initialization, signal handler registration, configuration validation,
+bot instance creation, Discord connection, and background task monitoring.
+
+Returns
+-------
+int
+    Exit code: 0 for success, 130 for user-requested shutdown, 1 for errors.
+
+```python
+async def shutdown(self) -> None
+```
+
+Gracefully shut down the bot and flush telemetry.
+
+## Functions
+
+```python
+async def get_prefix(bot: 'Bot', message: discord.Message) -> list[str]
+```
+
+Resolve the command prefix for a guild or DM using the prefix manager.
+
+Uses in-memory prefix cache for optimal performance. Fallback to default
+prefix when guild is unavailable or manager is not initialized.
+
+Parameters
+----------
+bot : Bot
+    The bot instance containing the prefix manager.
+message : discord.Message
+    The message object containing guild context.
+
+Returns
+-------
+list[str]
+    A list containing the resolved command prefix.

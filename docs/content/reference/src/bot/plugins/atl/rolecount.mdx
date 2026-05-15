@@ -1,0 +1,62 @@
+---
+title: Rolecount
+icon: lucide/code-2
+---
+
+# Rolecount
+
+AWFixer Enterprising Inc Discord Server - Role Count Plugin.
+
+This plugin is specifically designed for the AWFixer Enterprising Inc Discord server
+and contains hardcoded role IDs that are specific to that server.
+
+DO NOT USE this plugin on other Discord servers - it will not work correctly
+and may cause errors due to missing roles.
+
+This serves as an example of server-specific functionality that should be
+implemented as a plugin rather than core bot functionality.
+
+## Classes
+
+Role count plugin for ATL Discord server.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot)
+```
+
+Initialize the RoleCount plugin.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to initialize the plugin with.
+
+*Decorated with: `command`, `describe`, `choices`*
+
+```python
+async def rolecount(self, interaction: discord.Interaction, which: discord.app_commands.Choice[str]) -> None
+```
+
+Show the number of users in each role.
+
+Parameters
+----------
+interaction : discord.Interaction
+    The interaction object.
+which : discord.app_commands.Choice[str]
+    The role type to list.
+
+## Functions
+
+```python
+async def setup(bot: Bot)
+```
+
+Set up the rolecount plugin.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

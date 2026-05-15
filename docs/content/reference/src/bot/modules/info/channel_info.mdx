@@ -1,0 +1,40 @@
+---
+title: Channel Info
+icon: lucide/code-2
+---
+
+# Channel Info
+
+Channel-specific embed builders for info commands.
+
+## Functions
+
+```python
+def add_text_channel_info(container: discord.ui.Container[discord.ui.LayoutView], channel: discord.TextChannel) -> None
+```
+
+Add TextChannel-specific information to container.
+
+```python
+def add_voice_channel_info(container: discord.ui.Container[discord.ui.LayoutView], channel: discord.VoiceChannel) -> None
+```
+
+Add VoiceChannel-specific information to container.
+
+```python
+def add_stage_channel_info(container: discord.ui.Container[discord.ui.LayoutView], channel: discord.StageChannel) -> None
+```
+
+Add StageChannel-specific information to container.
+
+```python
+def add_forum_channel_info(container: discord.ui.Container[discord.ui.LayoutView], channel: discord.ForumChannel) -> None
+```
+
+Add ForumChannel-specific information to container.
+
+```python
+def add_category_channel_info(container: discord.ui.Container[discord.ui.LayoutView], channel: discord.CategoryChannel) -> None
+```
+
+Add CategoryChannel-specific information to container.

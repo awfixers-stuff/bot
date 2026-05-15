@@ -1,0 +1,55 @@
+---
+title: Toggle Snippet Lock
+icon: lucide/code-2
+---
+
+# Toggle Snippet Lock
+
+Toggle snippet lock commands.
+
+This module provides functionality for locking and unlocking
+code snippets to prevent or allow modifications.
+
+## Classes
+
+Discord cog for toggling snippet locks.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the toggle snippet lock cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+*Decorated with: `command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def toggle_snippet_lock(self, ctx: commands.Context[Bot], name: str) -> None
+```
+
+Toggle the lock status of a snippet.
+
+Only users with moderator permissions can use this command.
+Locked snippets cannot be edited or deleted by regular users.
+Attempts to DM the snippet author about the status change.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+name : str
+    The name of the snippet to lock or unlock.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Load the ToggleSnippetLock cog.

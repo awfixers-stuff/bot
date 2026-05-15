@@ -1,0 +1,54 @@
+---
+title: Help
+icon: lucide/code-2
+---
+
+# Help
+
+Simplified help command using refactored components.
+
+This replaces the massive 1,328-line help.py with a clean, focused implementation.
+
+## Classes
+
+Simplified help command using separated components.
+
+### Methods
+
+```python
+def __init__(self) -> None
+```
+
+Initialize the Bot help command.
+
+Sets up the help command with standard attributes and aliases.
+
+```python
+async def send_bot_help(self, mapping: Mapping[commands.Cog | None, list[commands.Command[Any, ..., Any]]]) -> None
+```
+
+Send the main help menu.
+
+```python
+async def send_cog_help(self, cog: commands.Cog) -> None
+```
+
+Send help for a specific cog.
+
+```python
+async def send_command_help(self, command: commands.Command[Any, Any, Any]) -> None
+```
+
+Send help for a specific command.
+
+```python
+async def send_group_help(self, group: commands.Group[Any, Any, Any]) -> None
+```
+
+Send help for a command group.
+
+```python
+async def send_error_message(self, error: str) -> None
+```
+
+Send an error message.

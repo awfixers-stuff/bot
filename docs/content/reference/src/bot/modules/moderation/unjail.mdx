@@ -1,0 +1,96 @@
+---
+title: Unjail
+icon: lucide/code-2
+---
+
+# Unjail
+
+User unjailing commands for Discord moderation.
+
+This module provides functionality to remove jail status from users,
+restoring their roles and permissions in Discord servers.
+
+## Classes
+
+Discord cog for removing jail status from users.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Unjail cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+```python
+async def get_latest_jail_case(self, guild_id: int, user_id: int) -> Case | None
+```
+
+Get the latest jail case for a user.
+
+Parameters
+----------
+guild_id : int
+    The ID of the guild to check in.
+user_id : int
+    The ID of the user to check.
+
+Returns
+-------
+Case | None
+    The latest JAIL case, or None if not found.
+
+```python
+async def restore_roles(self, member: discord.Member, role_ids: list[int], reason: str) -> tuple[bool, list[discord.Role]]
+```
+
+Restore roles to a member with error handling.
+
+Parameters
+----------
+member : discord.Member
+    The member to restore roles to.
+role_ids : List[int]
+    The IDs of the roles to restore.
+reason : str
+    The reason for restoring the roles.
+
+Returns
+-------
+Tuple[bool, List[discord.Role]]
+    A tuple containing whether the operation was successful and which roles were restored.
+
+*Decorated with: `hybrid_command`, `guild_only`, `requires_command_permission`*
+
+```python
+async def unjail(self, ctx: commands.Context[Bot], member: discord.Member, flags: UnjailFlags) -> None
+```
+
+Remove a member from jail.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context in which the command is being invoked.
+member : discord.Member
+    The member to unjail.
+flags : UnjailFlags
+    The flags for the command. (reason: str, silent: bool)
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Unjail cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

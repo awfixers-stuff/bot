@@ -1,0 +1,89 @@
+---
+title: Embeds
+icon: lucide/code-2
+---
+
+# Embeds
+
+Discord Embed Creation Utilities for Bot Bot.
+
+This module provides utilities for creating standardized Discord embeds
+with consistent styling, colors, and formatting across the bot.
+
+## Classes
+
+Enumeration of available embed types with predefined styles.
+
+Utility class for creating standardized Discord embeds.
+
+### Methods
+
+*Decorated with: `staticmethod`*
+
+```python
+def create_embed(embed_type: EmbedType, bot: Bot | None, title: str | None, description: str | None, user_name: str | None, user_display_avatar: str | None, image_url: str | None, thumbnail_url: str | None, message_timestamp: datetime | None, custom_footer_text: str | None, custom_footer_icon_url: str | None, custom_author_text: str | None, custom_author_text_url: str | None, custom_author_icon_url: str | None, custom_color: int | discord.Colour | None, hide_author: bool, hide_timestamp: bool) -> discord.Embed
+```
+
+Create a customized Discord embed based on the specified type and parameters.
+
+Parameters
+----------
+embed_type : EmbedType
+    Determines the default color and icon for the embed.
+bot : Bot, optional
+    If provided, used to display bot latency in the footer.
+title : str, optional
+    The embed's title. At least one of `title` or `description` should be provided.
+description : str, optional
+    The embed's main content. At least one of `title` or `description` should be provided.
+user_name : str, optional
+    Used in footer if provided, otherwise defaults to bot's username.
+user_display_avatar : str, optional
+    User's avatar URL for the footer icon.
+image_url : str, optional
+    URL for the embed's main image.
+thumbnail_url : str, optional
+    URL for the embed's thumbnail image.
+message_timestamp : datetime, optional
+    Custom timestamp for the embed.
+custom_footer_text : str, optional
+    Overrides default footer text if provided.
+custom_footer_icon_url : str, optional
+    Overrides default footer icon if provided.
+custom_author_text : str, optional
+    Overrides default author text if provided.
+custom_author_text_url : str, optional
+    Adds author URL if provided.
+custom_author_icon_url : str, optional
+    Overrides default author icon if provided.
+hide_author : bool, default=False
+    If True, removes the author from the embed.
+custom_color : int or Colour, optional
+    Overrides default color for the embed type if provided.
+
+Returns
+-------
+discord.Embed
+    The customized Discord embed.
+
+*Decorated with: `staticmethod`*
+
+```python
+def get_footer(bot: Bot | None, user_name: str | None, user_display_avatar: str | None) -> tuple[str, str | None]
+```
+
+Generate footer text and icon for embeds.
+
+Parameters
+----------
+bot : Bot, optional
+    The bot instance to get latency from.
+user_name : str, optional
+    Username to include in footer.
+user_display_avatar : str, optional
+    User avatar URL for footer icon.
+
+Returns
+-------
+tuple[str, str | None]
+    Tuple of (footer_text, avatar_url).

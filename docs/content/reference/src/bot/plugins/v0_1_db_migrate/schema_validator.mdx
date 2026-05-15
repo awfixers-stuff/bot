@@ -1,0 +1,51 @@
+---
+title: Schema Validator
+icon: lucide/code-2
+---
+
+# Schema Validator
+
+Schema validation for migration compatibility.
+
+Validates the old database schema report against expected mappings
+to identify potential migration issues before execution.
+
+## Classes
+
+Validate old database schema against expected migration mappings.
+
+Checks for compatibility issues, missing fields, primary key mismatches,
+and other potential problems before migration execution.
+
+### Methods
+
+```python
+def __init__(self, mapper: ModelMapper) -> None
+```
+
+Initialize schema validator.
+
+Parameters
+----------
+mapper : ModelMapper
+    Model mapper instance.
+
+```python
+def validate_schema_report(self, schema_report: dict[str, Any]) -> dict[str, Any]
+```
+
+Validate schema report against expected mappings.
+
+Parameters
+----------
+schema_report : dict[str, Any]
+    Schema report from SchemaInspector.
+
+Returns
+-------
+dict[str, Any]
+    Validation results with keys:
+    - valid: bool
+    - issues: list[dict[str, Any]]
+    - warnings: list[dict[str, Any]]
+    - summary: dict[str, Any]

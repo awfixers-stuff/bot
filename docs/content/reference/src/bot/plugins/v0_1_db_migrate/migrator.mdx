@@ -1,0 +1,116 @@
+---
+title: Migrator
+icon: lucide/code-2
+---
+
+# Migrator
+
+Database migrator for executing data migration.
+
+Handles the actual migration of data from old database to new database,
+with transaction support, progress tracking, and error handling.
+
+## Classes
+
+Execute database migration from old to new database.
+
+Handles batch processing, transactions, progress tracking,
+and error recovery for data migration.
+
+Attributes
+----------
+config : MigrationConfig
+    Migration configuration.
+mapper : ModelMapper
+    Model mapper instance.
+extractor : DataExtractor
+    Data extractor instance.
+db_service : DatabaseService
+    Database service for new database.
+
+### Methods
+
+```python
+def __init__(self, config: MigrationConfig, mapper: ModelMapper, extractor: DataExtractor, db_service: DatabaseService) -> None
+```
+
+Initialize database migrator.
+
+Parameters
+----------
+config : MigrationConfig
+    Migration configuration.
+mapper : ModelMapper
+    Model mapper instance.
+extractor : DataExtractor
+    Data extractor instance.
+db_service : DatabaseService
+    Database service for new database.
+
+```python
+async def migrate_table(self, old_table_name: str, new_table_name: str, session: AsyncSession | None) -> dict[str, Any]
+```
+
+Migrate a single table from old to new database.
+
+Parameters
+----------
+old_table_name : str
+    Old Prisma table name.
+new_table_name : str
+    New SQLModel table name.
+session : AsyncSession | None, optional
+    Database session to use. If None, creates a new session.
+    If provided, does not commit/rollback (caller manages transaction).
+
+Returns
+-------
+dict[str, Any]
+    Migration result with keys:
+    - success: bool
+    - rows_migrated: int
+    - rows_failed: int
+    - error: str | None
+
+Notes
+-----
+Uses transactions for atomicity. If dry_run is enabled,
+changes are rolled back after migration.
+If session is provided, caller is responsible for commit/rollback.
+
+```python
+async def migrate_all(self) -> dict[str, dict[str, Any]]
+```
+
+Migrate all tables in dependency order.
+
+Returns
+-------
+dict[str, dict[str, Any]]
+    Dictionary mapping table names to migration results.
+
+Notes
+-----
+Tables are migrated in dependency order to respect foreign keys.
+Entire migration is atomic - if any table fails, all changes are rolled back.
+
+```python
+async def rollback_table(self, table_name: str) -> bool
+```
+
+Rollback migration for a single table (delete all rows).
+
+Parameters
+----------
+table_name : str
+    Table name to rollback.
+
+Returns
+-------
+bool
+    True if rollback successful, False otherwise.
+
+Notes
+-----
+This deletes all rows from the table. Use with caution!
+Only works if table has no foreign key dependencies from other tables.

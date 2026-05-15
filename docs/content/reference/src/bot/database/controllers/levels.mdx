@@ -1,0 +1,237 @@
+---
+title: Levels
+icon: lucide/code-2
+---
+
+# Levels
+
+User level and XP tracking controller.
+
+This controller manages Discord user experience points, levels, and ranking
+information, supporting features like leveling systems and leaderboards.
+
+## Classes
+
+Clean Levels controller using the new BaseController pattern.
+
+### Methods
+
+```python
+def __init__(self, db: DatabaseService | None) -> None
+```
+
+Initialize the levels controller.
+
+Parameters
+----------
+db : DatabaseService | None, optional
+    The database service instance. If None, uses the default service.
+
+```python
+async def get_levels_by_member(self, member_id: int) -> Levels | None
+```
+
+Get levels for a specific member.
+
+Returns
+-------
+Levels | None
+    The levels record if found, None otherwise.
+
+```python
+async def get_or_create_levels(self, member_id: int) -> Levels
+```
+
+Get levels for a member, or create them if they don't exist.
+
+Returns
+-------
+Levels
+    The levels record for the member.
+
+```python
+async def add_xp(self, member_id: int, xp_amount: float) -> Levels
+```
+
+Add XP to a member's levels.
+
+Returns
+-------
+Levels
+    The updated levels record.
+
+```python
+async def set_xp(self, member_id: int, xp: float) -> Levels
+```
+
+Set a member's XP to a specific value.
+
+Returns
+-------
+Levels
+    The updated levels record.
+
+```python
+async def set_level(self, member_id: int, level: int) -> Levels
+```
+
+Set a member's level to a specific value.
+
+Returns
+-------
+Levels
+    The updated levels record.
+
+```python
+async def blacklist_member(self, member_id: int) -> Levels
+```
+
+Blacklist a member from gaining XP.
+
+Returns
+-------
+Levels
+    The updated levels record.
+
+```python
+async def unblacklist_member(self, member_id: int) -> Levels
+```
+
+Remove a member from the blacklist.
+
+Returns
+-------
+Levels
+    The updated levels record.
+
+```python
+async def get_top_members(self, limit: int) -> list[Levels]
+```
+
+Get top members by XP.
+
+Returns
+-------
+list[Levels]
+    List of top members sorted by XP (highest first).
+
+```python
+async def get_xp(self, member_id: int) -> float
+```
+
+Get XP for a specific member.
+
+Returns
+-------
+float
+    The member's XP value.
+
+```python
+async def get_level(self, member_id: int) -> int
+```
+
+Get level for a specific member.
+
+Returns
+-------
+int
+    The member's level.
+
+```python
+async def update_xp_and_level(self, member_id: int, xp_amount: float | None, new_level: int | None, last_message: datetime | None, **kwargs: Any) -> None
+```
+
+Update XP and level for a member. Creates the record if it doesn't exist.
+
+Raises
+------
+ValueError
+    If xp_amount, new_level, or last_message is missing.
+
+```python
+async def reset_xp(self, member_id: int) -> Levels
+```
+
+Reset XP and level for a member.
+
+Returns
+-------
+Levels
+    The updated levels record with XP and level reset to 0.
+
+```python
+async def toggle_blacklist(self, member_id: int) -> bool
+```
+
+Toggle blacklist status for a member.
+
+Returns
+-------
+bool
+    The new blacklist status.
+
+```python
+async def is_blacklisted(self, member_id: int) -> bool
+```
+
+Check if a member is blacklisted.
+
+Returns
+-------
+bool
+    True if member is blacklisted, False otherwise.
+
+```python
+async def get_last_message_time(self, member_id: int) -> datetime
+```
+
+Get the last message time for a member.
+
+Returns
+-------
+datetime
+    The timestamp of the member's last message.
+
+```python
+async def get_xp_and_level(self, member_id: int) -> tuple[float, int]
+```
+
+Get both XP and level for a member.
+
+Returns
+-------
+tuple[float, int]
+    A tuple containing (xp, level).
+
+```python
+async def get_user_level_data(self, member_id: int) -> Levels | None
+```
+
+Get complete level data for a user in a single query.
+
+Returns
+-------
+Levels | None
+    The levels record if found, None otherwise.
+
+```python
+async def get_member_rank(self, member_id: int) -> int
+```
+
+Get a member's rank (1-based).
+
+Returns
+-------
+int
+    The member's rank (1 = highest XP), or -1 if blacklisted/not found.
+
+```python
+async def get_all_stats(self) -> dict[str, Any]
+```
+
+Get all stats.
+
+Returns
+-------
+dict[str, Any]
+    Dictionary containing total_members, blacklisted_count, and active_members.

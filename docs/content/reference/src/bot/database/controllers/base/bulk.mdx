@@ -1,0 +1,82 @@
+---
+title: Bulk
+icon: lucide/code-2
+---
+
+# Bulk
+
+Bulk operations for database controllers.
+
+## Classes
+
+Handles bulk create, update, and delete operations.
+
+### Methods
+
+```python
+def __init__(self, model: type[ModelT], db: DatabaseService) -> None
+```
+
+Initialize the bulk operations controller.
+
+Parameters
+----------
+model : type[ModelT]
+    The SQLModel to perform bulk operations on.
+db : DatabaseService
+    The database service instance.
+
+```python
+async def bulk_create(self, items: list[dict[str, Any]]) -> list[ModelT]
+```
+
+Create multiple records in bulk.
+
+Returns
+-------
+list[ModelT]
+    List of created records.
+
+```python
+async def bulk_update(self, updates: list[tuple[Any, dict[str, Any]]]) -> int
+```
+
+Update multiple records in bulk.
+
+Returns
+-------
+int
+    Number of records updated.
+
+```python
+async def bulk_delete(self, record_ids: list[Any]) -> int
+```
+
+Delete multiple records in bulk.
+
+Returns
+-------
+int
+    Number of records deleted.
+
+```python
+async def update_where(self, filters: Any, values: dict[str, Any]) -> int
+```
+
+Update records matching filters.
+
+Returns
+-------
+int
+    Number of records updated.
+
+```python
+async def delete_where(self, filters: Any) -> int
+```
+
+Delete records matching filters.
+
+Returns
+-------
+int
+    Number of records deleted.

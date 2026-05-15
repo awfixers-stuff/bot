@@ -1,0 +1,232 @@
+---
+title: Flags
+icon: lucide/code-2
+---
+
+# Flags
+
+Flag converters for Discord bot commands.
+
+This module provides specialized flag converters for various moderation and utility
+commands, extending discord.py's flag system with enhanced boolean handling and
+case-insensitive parsing.
+
+## Classes
+
+Enhanced flag converter with improved boolean flag handling.
+
+Extends discord.py's FlagConverter to support boolean flags with empty body
+(e.g., "-silent" becomes "-silent True"). Based on DuckBot's implementation.
+
+Notes
+-----
+Based on https://github.com/DuckBot-Discord/DuckBot/blob/acf762485815e2298479ad3cb1ab8f290b35e2a2/utils/converters.py#L419
+
+### Methods
+
+*Decorated with: `classmethod`*
+
+```python
+def parse_flags(cls, argument: str, ignore_extra: bool = True) -> dict[str, list[str]]
+```
+
+Parse command arguments into flags with enhanced boolean handling.
+
+Extends discord.py's flag parsing to handle trailing boolean flags without
+explicit values (e.g., "-silent" becomes "-silent True").
+
+Parameters
+----------
+argument : str
+    The raw argument string to parse.
+ignore_extra : bool, optional
+    Whether to ignore extra arguments that aren't flags. Defaults to True.
+
+Returns
+-------
+dict[str, list[str]]
+    Dictionary mapping flag names to lists of their values.
+
+Raises
+------
+commands.MissingFlagArgument
+    If a required flag argument is missing.
+commands.TooManyArguments
+    If too many arguments are provided when ignore_extra is False.
+
+Flags for ban commands.
+
+Attributes
+----------
+reason : str
+    The reason for the ban (positional argument).
+purge : int
+    Days of messages to delete (0-7).
+silent : bool
+    Don't send a DM to the target.
+
+Flags for temporary ban commands.
+
+Attributes
+----------
+reason : str
+    The reason for the ban (positional argument).
+duration : float
+    Length of the ban in seconds.
+purge : int
+    Days of messages to delete (0-7).
+silent : bool
+    Don't send a DM to the target.
+
+Flags for unban commands.
+
+Flags for kick commands.
+
+Attributes
+----------
+reason : str
+    The reason for the kick (positional argument).
+silent : bool
+    Don't send a DM to the target.
+
+Flags for warn commands.
+
+Attributes
+----------
+reason : str
+    The reason for the warning (positional argument).
+silent : bool
+    Don't send a DM to the target.
+
+Flags for timeout commands.
+
+Attributes
+----------
+reason : str
+    The reason for the timeout (positional argument).
+duration : str
+    Length of the timeout (e.g. 1d, 1h).
+silent : bool
+    Don't send a DM to the target.
+
+Flags for untimeout commands.
+
+Attributes
+----------
+reason : str
+    The reason for the timeout removal (positional argument).
+silent : bool
+    Don't send a DM to the target.
+
+Flags for jail commands.
+
+Attributes
+----------
+reason : str
+    The reason for the jail (positional argument).
+silent : bool
+    Don't send a DM to the target.
+
+Flags for unjail commands.
+
+Attributes
+----------
+reason : str
+    The reason for the jail removal (positional argument).
+silent : bool
+    Don't send a DM to the target.
+
+Flags for viewing cases.
+
+Attributes
+----------
+type : CaseType | None
+    Type of case to view.
+user : discord.User | None
+    User to view cases for.
+moderator : discord.User | None
+    Moderator to view cases for.
+
+### Methods
+
+```python
+def __init__(self, *args: object, **kwargs: object) -> None
+```
+
+Initialize CasesViewFlags with default values for None attributes.
+
+Ensures type, user, and moderator attributes are set to None if not
+provided during initialization.
+
+Flags for modifying cases.
+
+Attributes
+----------
+status : bool | None
+    Status of the case.
+reason : str | None
+    Modified reason.
+
+### Methods
+
+```python
+def __init__(self) -> None
+```
+
+Initialize CaseModifyFlags and validate that at least one field is provided.
+
+Raises
+------
+commands.FlagError
+    If neither status nor reason is provided.
+
+Flags for snippet ban commands.
+
+Attributes
+----------
+reason : str
+    The reason for the snippet ban (positional argument).
+silent : bool
+    Don't send a DM to the target.
+
+Flags for snippet unban commands.
+
+Attributes
+----------
+reason : str
+    The reason for the snippet unban (positional argument).
+silent : bool
+    Don't send a DM to the target.
+
+Flags for poll ban commands.
+
+Attributes
+----------
+reason : str
+    The reason for the poll ban (positional argument).
+silent : bool
+    Don't send a DM to the target.
+
+Flags for poll unban commands.
+
+Attributes
+----------
+reason : str
+    The reason for the poll unban (positional argument).
+silent : bool
+    Don't send a DM to the target.
+
+Flags for tldr commands.
+
+Attributes
+----------
+platform : str | None
+    Platform (e.g. linux, osx, common).
+language : str | None
+    Language code (e.g. en, es, fr).
+show_short : bool
+    Display shortform options over longform.
+show_long : bool
+    Display longform options over shortform.
+show_both : bool
+    Display both short and long options.

@@ -1,0 +1,44 @@
+---
+title: Api
+icon: lucide/code-2
+---
+
+# Api
+
+External API-related exceptions.
+
+## Classes
+
+Base exception for API-related errors.
+
+Raised when there's an issue connecting to an external API.
+
+### Methods
+
+```python
+def __init__(self, service_name: str, original_error: Exception) -> None
+```
+
+Raised when an API request fails with a specific status code.
+
+### Methods
+
+```python
+def __init__(self, service_name: str, status_code: int, reason: str) -> None
+```
+
+Raised when an API request results in a 404 or similar resource not found error.
+
+### Methods
+
+```python
+def __init__(self, service_name: str, resource_identifier: str, status_code: int) -> None
+```
+
+Raised when an API request fails due to permissions (e.g., 403 Forbidden).
+
+### Methods
+
+```python
+def __init__(self, service_name: str, status_code: int) -> None
+```

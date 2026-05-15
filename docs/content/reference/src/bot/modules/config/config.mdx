@@ -1,0 +1,97 @@
+---
+title: Config
+icon: lucide/code-2
+---
+
+# Config
+
+Main config cog implementation.
+
+## Classes
+
+Comprehensive guild configuration and setup system.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Config cog with all sub-modules.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to initialize the config cog with.
+
+*Decorated with: `guild_only`, `hybrid_group`, `requires_command_permission`*
+
+```python
+async def config(self, ctx: commands.Context[Bot]) -> None
+```
+
+Manage the configuration of this guild.
+
+*Decorated with: `guild_only`, `command`, `requires_command_permission`*
+
+```python
+async def config_overview(self, ctx: commands.Context[Bot]) -> None
+```
+
+View complete guild configuration overview.
+
+*Decorated with: `guild_only`, `group`, `requires_command_permission`*
+
+```python
+async def ranks_group(self, ctx: commands.Context[Bot]) -> None
+```
+
+Manage permission ranks in this guild.
+
+*Decorated with: `guild_only`, `command`, `requires_command_permission`*
+
+```python
+async def ranks_init(self, ctx: commands.Context[Bot]) -> None
+```
+
+Initialize default permission ranks (0-7).
+
+*Decorated with: `guild_only`, `group`, `requires_command_permission`*
+
+```python
+async def roles_group(self, ctx: commands.Context[Bot]) -> None
+```
+
+Manage role-to-rank assignments.
+
+*Decorated with: `guild_only`, `group`, `requires_command_permission`*
+
+```python
+async def commands_group(self, ctx: commands.Context[Bot]) -> None
+```
+
+Manage command permission requirements.
+
+*Decorated with: `guild_only`, `command`, `requires_command_permission`*
+
+```python
+async def logs(self, ctx: commands.Context[Bot]) -> None
+```
+
+Configure log channel assignments.
+
+*Decorated with: `guild_only`, `command`, `requires_command_permission`*
+
+```python
+async def jail(self, ctx: commands.Context[Bot]) -> None
+```
+
+Configure the jail channel and jail role for the /jail and /unjail commands.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Load the Config cog.

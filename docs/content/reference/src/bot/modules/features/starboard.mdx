@@ -1,0 +1,193 @@
+---
+title: Starboard
+icon: lucide/code-2
+---
+
+# Starboard
+
+Starboard service for highlighting popular messages.
+
+This module implements a starboard system that automatically reposts messages
+to a designated channel when they receive enough reactions, allowing communities
+to highlight and celebrate high-quality content.
+
+## Classes
+
+Discord cog for starboard functionality.
+
+This cog monitors reactions on messages and automatically posts messages
+to a designated starboard channel when they reach a configured threshold.
+
+### Methods
+
+```python
+def __init__(self, bot: Bot) -> None
+```
+
+Initialize the Starboard cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to attach this cog to.
+
+```python
+async def cog_unload(self) -> None
+```
+
+Cancel pending debounce tasks when cog is unloaded.
+
+*Decorated with: `listener`*
+
+```python
+async def starboard_on_reaction_add(self, payload: discord.RawReactionActionEvent) -> None
+```
+
+Handle reaction add events for starboard functionality.
+
+Parameters
+----------
+payload : discord.RawReactionActionEvent
+    The raw reaction event payload.
+
+*Decorated with: `listener`*
+
+```python
+async def starboard_on_reaction_remove(self, payload: discord.RawReactionActionEvent) -> None
+```
+
+Handle reaction remove events for starboard functionality.
+
+Parameters
+----------
+payload : discord.RawReactionActionEvent
+    The raw reaction event payload.
+
+*Decorated with: `listener`*
+
+```python
+async def starboard_on_reaction_clear(self, payload: discord.RawReactionClearEvent) -> None
+```
+
+Handle reaction clear events for starboard functionality.
+
+Parameters
+----------
+payload : discord.RawReactionClearEvent
+    The raw reaction clear event payload.
+
+*Decorated with: `listener`*
+
+```python
+async def starboard_on_reaction_clear_emoji(self, payload: discord.RawReactionClearEmojiEvent) -> None
+```
+
+Handle reaction clear emoji events for starboard functionality.
+
+Parameters
+----------
+payload : discord.RawReactionClearEmojiEvent
+    The raw reaction clear emoji event payload.
+
+*Decorated with: `hybrid_group`, `guild_only`, `requires_command_permission`*
+
+```python
+async def starboard(self, ctx: commands.Context[Bot]) -> None
+```
+
+Configure the starboard for this server.
+
+*Decorated with: `command`, `requires_command_permission`*
+
+```python
+async def setup_starboard(self, ctx: commands.Context[Bot], channel: discord.TextChannel, emoji: str, threshold: int) -> None
+```
+
+Configure the starboard for this server.
+
+Parameters
+----------
+channel : discord.TextChannel
+    The channel to use for the starboard.
+emoji : str
+    The emoji to use for the starboard.
+threshold : int
+    The number of reactions required to trigger the starboard.
+
+*Decorated with: `command`, `requires_command_permission`*
+
+```python
+async def remove_starboard(self, ctx: commands.Context[Bot]) -> None
+```
+
+Remove the starboard configuration for this server.
+
+Parameters
+----------
+ctx : commands.Context[Bot]
+    The context of the command.
+
+```python
+async def get_existing_starboard_message(self, starboard_channel: discord.TextChannel, original_message: discord.Message) -> discord.Message | None
+```
+
+Get the existing starboard message for a given original message.
+
+Parameters
+----------
+starboard_channel : discord.TextChannel
+    The starboard channel.
+original_message : discord.Message`
+    The original message.
+
+Returns
+-------
+discord.Message | None
+    The existing starboard message or None if it does not exist.
+
+```python
+async def create_or_update_starboard_message(self, starboard_channel: discord.TextChannel, original_message: discord.Message, reaction_count: int) -> None
+```
+
+Create or update a starboard message.
+
+Parameters
+----------
+starboard_channel : discord.TextChannel
+    The starboard channel.
+original_message : discord.Message
+    The original message.
+reaction_count : int
+    The number of reactions on the original message.
+
+```python
+async def handle_starboard_reaction(self, payload: discord.RawReactionActionEvent) -> None
+```
+
+Handle starboard reaction add or remove.
+
+```python
+async def handle_reaction_clear(self, payload: discord.RawReactionClearEvent | discord.RawReactionClearEmojiEvent, emoji: discord.PartialEmoji | None) -> None
+```
+
+Handle reaction clear for all emojis or a specific emoji.
+
+Parameters
+----------
+payload : discord.RawReactionClearEvent | discord.RawReactionClearEmojiEvent
+    The payload of the reaction clear event.
+emoji : discord.PartialEmoji | None
+    The emoji to handle the reaction clear for.
+
+## Functions
+
+```python
+async def setup(bot: Bot) -> None
+```
+
+Set up the Starboard cog.
+
+Parameters
+----------
+bot : Bot
+    The bot instance to add the cog to.

@@ -1,0 +1,26 @@
+---
+title: Gather Results
+icon: lucide/code-2
+---
+
+# Gather Results
+
+Helpers for asyncio gather results that involve ORM models.
+
+## Functions
+
+```python
+def handle_case_result(case_result: Case | BaseException) -> Case
+```
+
+Handle a case result from asyncio.gather with return_exceptions=True.
+
+Parameters
+----------
+case_result : Case | BaseException
+    The case result from asyncio.gather
+
+Returns
+-------
+Case
+    The case if valid

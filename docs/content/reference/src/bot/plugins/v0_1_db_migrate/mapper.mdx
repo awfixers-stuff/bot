@@ -1,0 +1,129 @@
+---
+title: Mapper
+icon: lucide/code-2
+---
+
+# Mapper
+
+Model mapper for Prisma to SQLModel conversion.
+
+Maps old Prisma model structures to new SQLModel models,
+handling field name changes, type conversions, and defaults.
+
+## Classes
+
+Map old Prisma models to new SQLModel models.
+
+Handles field name conversion, type transformation, and
+default value assignment for migrated data.
+
+Attributes
+----------
+field_mappings : dict[str, dict[str, str]]
+    Mapping from old table names to field name mappings.
+
+### Methods
+
+```python
+def __init__(self) -> None
+```
+
+Initialize model mapper with field mappings.
+
+```python
+def get_table_mapping(self, old_table_name: str) -> str
+```
+
+Get new table name for old Prisma table name.
+
+Parameters
+----------
+old_table_name : str
+    Old Prisma table name (e.g., "Guild", "Case").
+
+Returns
+-------
+str
+    New SQLModel table name (e.g., "guild", "cases").
+
+Notes
+-----
+Table name mappings:
+- Guild -> guild
+- GuildConfig -> guild_config
+- Case -> cases
+- Snippet -> snippet
+- Reminder -> reminder
+- AFK -> afk
+- Levels -> levels
+- Starboard -> starboard
+- StarboardMessage -> starboard_message
+- PermissionRank -> permission_ranks
+- PermissionAssignment -> permission_assignments
+- PermissionCommand -> permission_commands
+
+```python
+def get_field_mapping(self, old_table_name: str, old_field_name: str) -> str
+```
+
+Get new field name for old Prisma field name.
+
+Parameters
+----------
+old_table_name : str
+    Old Prisma table name.
+old_field_name : str
+    Old Prisma field name.
+
+Returns
+-------
+str
+    New SQLModel field name.
+
+```python
+def transform_row(self, old_table_name: str, old_row: dict[str, Any]) -> dict[str, Any]
+```
+
+Transform a row from old Prisma format to new SQLModel format.
+
+Parameters
+----------
+old_table_name : str
+    Old Prisma table name.
+old_row : dict[str, Any]
+    Row data from old database.
+
+Returns
+-------
+dict[str, Any]
+    Transformed row data for new database.
+
+Notes
+-----
+Handles:
+- Field name conversion
+- Type transformations (enums, JSON, datetime)
+- Default values for new required fields
+- Removal of deprecated fields
+- Validation of required constraints (e.g., guild_id > 0)
+
+```python
+def get_model_class(self, table_name: str) -> type[Any]
+```
+
+Get SQLModel class for a table name.
+
+Parameters
+----------
+table_name : str
+    New SQLModel table name.
+
+Returns
+-------
+type[Any]
+    SQLModel model class.
+
+Raises
+------
+ValueError
+    If table name is not recognized.
