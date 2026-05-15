@@ -42,6 +42,14 @@ class BotInfo(BaseModel):
             examples=["Bot", "MyBot"],
         ),
     ]
+    GUILD_ID: Annotated[
+        int,
+        Field(
+            default=0,
+            description="The Discord guild (server) ID this bot serves. Single-guild mode constant.",
+            examples=[123456789012345678],
+        ),
+    ]
     ACTIVITIES: Annotated[
         list[dict[str, Any]],
         Field(
@@ -315,6 +323,75 @@ class IRC(BaseModel):
             default_factory=list,
             description="IRC bridge webhook IDs",
             examples=[[123456789012345678]],
+        ),
+    ]
+
+
+class LogChannels(BaseModel):
+    """Log channel and jail configuration (formerly per-guild GuildConfig fields)."""
+
+    MOD_LOG_ID: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="Channel ID for moderation action logs",
+            examples=[123456789012345678],
+        ),
+    ]
+    AUDIT_LOG_ID: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="Channel ID for detailed audit logs",
+            examples=[123456789012345678],
+        ),
+    ]
+    JOIN_LOG_ID: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="Channel ID for member join/leave logs",
+            examples=[123456789012345678],
+        ),
+    ]
+    PRIVATE_LOG_ID: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="Channel ID for private/sensitive moderation logs",
+            examples=[123456789012345678],
+        ),
+    ]
+    REPORT_LOG_ID: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="Channel ID for user-submitted reports",
+            examples=[123456789012345678],
+        ),
+    ]
+    DEV_LOG_ID: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="Channel ID for development/debug logs",
+            examples=[123456789012345678],
+        ),
+    ]
+    JAIL_CHANNEL_ID: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="Channel ID where jailed users can communicate",
+            examples=[123456789012345678],
+        ),
+    ]
+    JAIL_ROLE_ID: Annotated[
+        int | None,
+        Field(
+            default=None,
+            description="Role ID assigned to jailed users",
+            examples=[123456789012345678],
         ),
     ]
 

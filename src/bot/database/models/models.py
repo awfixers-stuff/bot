@@ -18,311 +18,17 @@ from sqlalchemy import (
     Float,
     Index,
     Integer,
-    UniqueConstraint,
 )
 from sqlalchemy import Enum as PgEnum
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import relationship
 from sqlmodel import Field, Relationship
 
 from .base import BaseModel
-from .enums import CaseType, OnboardingStage
+from .enums import CaseType
 
 # =============================================================================
-# CORE GUILD MODELS
+# PERMISSION SYSTEM MODELS
 # =============================================================================
-
-
-class Guild(BaseModel, table=True):
-    """Discord guild/server model with metadata and relationships.
-
-    Represents a Discord guild (server) with associated metadata
-    and relationships to other entities like snippets, cases, reminders, etc.
-
-    Attributes
-    ----------
-    id : int
-        Discord guild ID (primary key).
-    guild_joined_at : datetime, optional
-        When the bot joined this guild.
-    case_count : int
-        Running count of moderation cases for this guild.
-    """
-
-    id: int = Field(
-        primary_key=True,
-        sa_type=BigInteger,
-        description="Discord guild (server) ID",
-    )
-
-    guild_joined_at: datetime | None = Field(
-        default_factory=lambda: datetime.now(UTC).replace(tzinfo=None),
-        description="Timestamp when the bot joined this guild",
-    )
-
-    case_count: int = Field(
-        default=0,
-        ge=0,
-        sa_type=Integer,
-        description="Running count of moderation cases for sequential numbering",
-    )
-
-    # Relationships with cascade delete - using sa_relationship to bypass SQLModel parsing issues
-    # lazy="noload" prevents eager loading of collections when Guild is queried.
-    # Cascade deletes are handled at the DB level via passive_deletes + ON DELETE CASCADE.
-    snippets = Relationship(
-        sa_relationship=relationship(
-            "Snippet",
-            back_populates="guild",
-            cascade="all, delete",
-            passive_deletes=True,
-            lazy="noload",
-        ),
-    )
-    cases = Relationship(
-        sa_relationship=relationship(
-            "Case",
-            back_populates="guild",
-            cascade="all, delete",
-            passive_deletes=True,
-            lazy="noload",
-        ),
-    )
-    reminders = Relationship(
-        sa_relationship=relationship(
-            "Reminder",
-            back_populates="guild",
-            cascade="all, delete",
-            passive_deletes=True,
-            lazy="noload",
-        ),
-    )
-    afks = Relationship(
-        sa_relationship=relationship(
-            "AFK",
-            back_populates="guild",
-            cascade="all, delete",
-            passive_deletes=True,
-            lazy="noload",
-        ),
-    )
-    levels_entries = Relationship(
-        sa_relationship=relationship(
-            "Levels",
-            back_populates="guild",
-            cascade="all, delete",
-            passive_deletes=True,
-            lazy="noload",
-        ),
-    )
-    starboard_messages = Relationship(
-        sa_relationship=relationship(
-            "StarboardMessage",
-            back_populates="guild",
-            cascade="all, delete",
-            passive_deletes=True,
-            lazy="noload",
-        ),
-    )
-
-    # One-to-one relationships
-    guild_config = Relationship(
-        sa_relationship=relationship(
-            "GuildConfig",
-            back_populates="guild",
-            cascade="all, delete",
-            passive_deletes=True,
-            lazy="noload",
-        ),
-    )
-    starboard = Relationship(
-        sa_relationship=relationship(
-            "Starboard",
-            back_populates="guild",
-            cascade="all, delete",
-            passive_deletes=True,
-            lazy="noload",
-        ),
-    )
-    permission_ranks = Relationship(
-        sa_relationship=relationship(
-            "PermissionRank",
-            back_populates="guild",
-            cascade="all, delete",
-            passive_deletes=True,
-            lazy="noload",
-        ),
-    )
-    command_permissions = Relationship(
-        sa_relationship=relationship(
-            "PermissionCommand",
-            back_populates="guild",
-            cascade="all, delete",
-            passive_deletes=True,
-            lazy="noload",
-        ),
-    )
-
-    __table_args__ = (
-        CheckConstraint("case_count >= 0", name="check_case_count_positive"),
-        CheckConstraint("id > 0", name="check_guild_id_valid"),
-        Index("idx_guild_id", "id"),
-    )
-
-    def __repr__(self) -> str:
-        """Return string representation showing guild ID."""
-        return f"<Guild id={self.id}>"
-
-
-class GuildConfig(BaseModel, table=True):
-    """Guild-specific configuration settings.
-
-    Stores configuration options and settings for each Discord guild,
-    controlling bot behavior and feature availability.
-
-    Attributes
-    ----------
-    id : int
-        Discord guild ID (primary key, foreign key to guild table).
-    prefix : str
-        Command prefix for this guild.
-    mod_log_id : int, optional
-        Channel ID for moderation logs.
-    audit_log_id : int, optional
-        Channel ID for audit logs.
-    join_log_id : int, optional
-        Channel ID for member join/leave logs.
-    private_log_id : int, optional
-        Channel ID for private moderation logs.
-    report_log_id : int, optional
-        Channel ID for user reports.
-    dev_log_id : int, optional
-        Channel ID for development/debug logs.
-    jail_channel_id : int, optional
-        Channel ID for jailed users.
-    jail_role_id : int, optional
-        Role ID assigned to jailed users.
-    onboarding_completed : bool
-        Whether guild onboarding setup is complete.
-    onboarding_stage : OnboardingStage, optional
-        Current stage of guild onboarding process.
-    """
-
-    __tablename__ = "guild_config"  # pyright: ignore[reportAssignmentType]
-
-    id: int = Field(
-        primary_key=True,
-        foreign_key="guild.id",
-        ondelete="CASCADE",
-        sa_type=BigInteger,
-        description="Discord guild ID (links to guild table)",
-    )
-    prefix: str = Field(
-        default="$",
-        min_length=1,
-        max_length=3,
-        description="Command prefix for this guild",
-    )
-
-    mod_log_id: int | None = Field(
-        default=None,
-        sa_type=BigInteger,
-        description="Channel ID for moderation action logs",
-    )
-    audit_log_id: int | None = Field(
-        default=None,
-        sa_type=BigInteger,
-        description="Channel ID for detailed audit logs",
-    )
-    join_log_id: int | None = Field(
-        default=None,
-        sa_type=BigInteger,
-        description="Channel ID for member join/leave logs",
-    )
-    private_log_id: int | None = Field(
-        default=None,
-        sa_type=BigInteger,
-        description="Channel ID for private/sensitive moderation logs",
-    )
-    report_log_id: int | None = Field(
-        default=None,
-        sa_type=BigInteger,
-        description="Channel ID for user-submitted reports",
-    )
-
-    dev_log_id: int | None = Field(
-        default=None,
-        sa_type=BigInteger,
-        description="Channel ID for development/debug logs",
-    )
-
-    jail_channel_id: int | None = Field(
-        default=None,
-        sa_type=BigInteger,
-        description="Channel ID where jailed users can communicate",
-    )
-    jail_role_id: int | None = Field(
-        default=None,
-        sa_type=BigInteger,
-        description="Role ID assigned to jailed users (restricts permissions)",
-    )
-
-    onboarding_completed: bool = Field(
-        default=False,
-        description="Whether the guild has completed initial setup",
-    )
-    onboarding_stage: OnboardingStage | None = Field(
-        default=None,
-        sa_column=Column(
-            PgEnum(OnboardingStage, name="onboarding_stage_enum"),
-            nullable=True,
-        ),
-        description="Current stage of the onboarding wizard",
-    )
-
-    guild: Mapped[Guild] = Relationship(
-        sa_relationship=relationship(back_populates="guild_config"),
-    )
-
-    __table_args__ = (
-        CheckConstraint("id > 0", name="check_guild_config_guild_id_valid"),
-        CheckConstraint("length(prefix) > 0", name="check_prefix_not_empty"),
-        CheckConstraint(
-            "mod_log_id IS NULL OR mod_log_id > 0",
-            name="check_mod_log_id_valid",
-        ),
-        CheckConstraint(
-            "audit_log_id IS NULL OR audit_log_id > 0",
-            name="check_audit_log_id_valid",
-        ),
-        CheckConstraint(
-            "join_log_id IS NULL OR join_log_id > 0",
-            name="check_join_log_id_valid",
-        ),
-        CheckConstraint(
-            "private_log_id IS NULL OR private_log_id > 0",
-            name="check_private_log_id_valid",
-        ),
-        CheckConstraint(
-            "report_log_id IS NULL OR report_log_id > 0",
-            name="check_report_log_id_valid",
-        ),
-        CheckConstraint(
-            "dev_log_id IS NULL OR dev_log_id > 0",
-            name="check_dev_log_id_valid",
-        ),
-        CheckConstraint(
-            "jail_channel_id IS NULL OR jail_channel_id > 0",
-            name="check_jail_channel_id_valid",
-        ),
-        CheckConstraint(
-            "jail_role_id IS NULL OR jail_role_id > 0",
-            name="check_jail_role_id_valid",
-        ),
-    )
-
-    def __repr__(self) -> str:
-        """Return string representation showing guild ID and prefix."""
-        return f"<GuildConfig id={self.id} prefix={self.prefix!r}>"
 
 
 # =============================================================================
@@ -331,19 +37,17 @@ class GuildConfig(BaseModel, table=True):
 
 
 class PermissionRank(BaseModel, table=True):
-    """Permission ranks for guild role-based access control.
+    """Permission ranks for role-based access control.
 
-    Defines hierarchical permission ranks that can be assigned to roles
-    within a guild, controlling access to bot commands and features.
+    Defines hierarchical permission ranks that can be assigned to roles,
+    controlling access to bot commands and features.
 
     Attributes
     ----------
     id : int, optional
         Auto-generated primary key.
-    guild_id : int
-        Guild ID this permission rank belongs to.
     rank : int
-        Numeric permission rank (0-100, higher = more permissions).
+        Numeric permission rank (0-10, higher = more permissions).
     name : str
         Human-readable name for the permission rank.
     description : str, optional
@@ -358,33 +62,20 @@ class PermissionRank(BaseModel, table=True):
         sa_type=BigInteger,
         description="Auto-generated unique identifier",
     )
-    guild_id: int = Field(
-        foreign_key="guild.id",
-        ondelete="CASCADE",
-        sa_type=BigInteger,
-        description="Discord guild ID this rank belongs to",
-    )
     rank: int = Field(
         sa_type=Integer,
+        unique=True,
         description="Numeric permission level (0-10, higher = more permissions)",
     )
     name: str = Field(
         max_length=100,
+        unique=True,
         description="Human-readable name for this rank (e.g., 'Moderator', 'Admin')",
     )
     description: str | None = Field(
         default=None,
         max_length=500,
         description="Optional description explaining this rank's purpose and permissions",
-    )
-
-    # Relationship to Guild
-    guild: Mapped[Guild] = Relationship(
-        sa_relationship=relationship(
-            "Guild",
-            back_populates="permission_ranks",
-            lazy="noload",
-        ),
     )
 
     # Relationship to permission assignments
@@ -400,21 +91,17 @@ class PermissionRank(BaseModel, table=True):
 
     __table_args__ = (
         CheckConstraint("rank >= 0 AND rank <= 10", name="check_rank_range"),
-        CheckConstraint("guild_id > 0", name="check_permission_rank_guild_id_valid"),
         CheckConstraint("length(name) > 0", name="check_rank_name_not_empty"),
-        UniqueConstraint("guild_id", "rank", name="unique_permission_rank"),
-        UniqueConstraint("guild_id", "name", name="unique_permission_rank_name"),
-        Index("idx_permission_ranks_guild", "guild_id"),
         Index("idx_permission_ranks_rank", "rank"),
     )
 
     def __repr__(self) -> str:
-        """Return string representation showing guild, rank and name."""
-        return f"<PermissionRank id={self.id} guild={self.guild_id} rank={self.rank} name={self.name!r}>"
+        """Return string representation showing rank and name."""
+        return f"<PermissionRank id={self.id} rank={self.rank} name={self.name!r}>"
 
 
 class PermissionAssignment(BaseModel, table=True):
-    """Assigns permission ranks to Discord roles in each server.
+    """Assigns permission ranks to Discord roles.
 
     Maps Discord roles to permission ranks, granting all members with that role
     the associated permission level.
@@ -423,8 +110,6 @@ class PermissionAssignment(BaseModel, table=True):
     ----------
     id : int, optional
         Auto-generated primary key.
-    guild_id : int
-        Guild ID where this assignment exists.
     permission_rank_id : int
         ID of the permission rank being assigned.
     role_id : int
@@ -439,12 +124,6 @@ class PermissionAssignment(BaseModel, table=True):
         sa_type=BigInteger,
         description="Auto-generated unique identifier",
     )
-    guild_id: int = Field(
-        foreign_key="guild.id",
-        ondelete="CASCADE",
-        sa_type=BigInteger,
-        description="Discord guild ID where this assignment exists",
-    )
     permission_rank_id: int = Field(
         foreign_key="permission_ranks.id",
         ondelete="CASCADE",
@@ -453,16 +132,11 @@ class PermissionAssignment(BaseModel, table=True):
     )
     role_id: int = Field(
         sa_type=BigInteger,
+        unique=True,
         description="Discord role ID receiving this permission rank",
     )
 
     # Relationships
-    guild: Mapped[Guild] = Relationship(
-        sa_relationship=relationship(
-            "Guild",
-            lazy="noload",
-        ),
-    )
     permission_rank = Relationship(
         sa_relationship=relationship(
             "PermissionRank",
@@ -472,33 +146,28 @@ class PermissionAssignment(BaseModel, table=True):
     )
 
     __table_args__ = (
-        CheckConstraint("guild_id > 0", name="check_assignment_guild_id_valid"),
         CheckConstraint("role_id > 0", name="check_assignment_role_id_valid"),
-        UniqueConstraint("guild_id", "role_id", name="unique_permission_assignment"),
-        Index("idx_permission_assignments_guild", "guild_id"),
         Index("idx_permission_assignments_rank", "permission_rank_id"),
         Index("idx_permission_assignments_role", "role_id"),
     )
 
     def __repr__(self) -> str:
-        """Return string representation showing guild, role and rank assignment."""
-        return f"<PermissionAssignment id={self.id} guild={self.guild_id} role={self.role_id} rank={self.permission_rank_id}>"
+        """Return string representation showing role and rank assignment."""
+        return f"<PermissionAssignment id={self.id} role={self.role_id} rank={self.permission_rank_id}>"
 
 
 class PermissionCommand(BaseModel, table=True):
     """Assigns permission requirements to specific commands.
 
-    Allows guilds to customize the permission rank required for specific commands,
+    Defines the minimum permission rank required for specific commands,
     overriding default permission requirements.
 
     Attributes
     ----------
     id : int, optional
         Auto-generated primary key.
-    guild_id : int
-        Guild ID where this command permission is set.
     command_name : str
-        Name of the command.
+        Name of the command (unique).
     required_rank : int
         Minimum permission rank required (0-10).
     description : str, optional
@@ -513,15 +182,10 @@ class PermissionCommand(BaseModel, table=True):
         sa_type=BigInteger,
         description="Auto-generated unique identifier",
     )
-    guild_id: int = Field(
-        foreign_key="guild.id",
-        ondelete="CASCADE",
-        sa_type=BigInteger,
-        description="Discord guild ID where this command permission applies",
-    )
     command_name: str = Field(
         min_length=1,
         max_length=200,
+        unique=True,
         description="Name of the command (e.g., 'ban', 'kick', 'warn')",
     )
     required_rank: int = Field(
@@ -534,33 +198,21 @@ class PermissionCommand(BaseModel, table=True):
         description="Optional human-readable description of the command",
     )
 
-    # Relationship to Guild
-    guild: Mapped[Guild] = Relationship(
-        sa_relationship=relationship(
-            "Guild",
-            back_populates="command_permissions",
-            lazy="noload",
-        ),
-    )
-
     __table_args__ = (
         CheckConstraint(
             "required_rank >= 0 AND required_rank <= 10",
             name="check_required_rank_range",
         ),
-        CheckConstraint("guild_id > 0", name="check_permission_command_guild_id_valid"),
         CheckConstraint(
             "length(command_name) > 0",
             name="check_command_name_not_empty",
         ),
-        UniqueConstraint("guild_id", "command_name", name="unique_permission_command"),
-        Index("idx_permission_commands_guild", "guild_id"),
         Index("idx_permission_commands_rank", "required_rank"),
     )
 
     def __repr__(self) -> str:
-        """Return string representation showing guild, command and rank requirement."""
-        return f"<PermissionCommand id={self.id} guild={self.guild_id} cmd={self.command_name!r} rank={self.required_rank}>"
+        """Return string representation showing command and rank requirement."""
+        return f"<PermissionCommand id={self.id} cmd={self.command_name!r} rank={self.required_rank}>"
 
 
 # =============================================================================
@@ -577,7 +229,7 @@ class Case(BaseModel, table=True):
     Attributes
     ----------
     id : int
-        Unique case identifier for the guild.
+        Unique case identifier.
     case_status : bool
         Whether the case is valid or voided.
     case_processed : bool
@@ -593,15 +245,13 @@ class Case(BaseModel, table=True):
     case_user_roles : list[int]
         User's roles at the time of the case.
     case_number : int, optional
-        Sequential case number for the guild.
+        Sequential case number.
     case_expires_at : datetime, optional
         When temporary action expires.
     case_metadata : dict, optional
         Additional case-specific metadata.
     mod_log_message_id : int, optional
         Discord message ID in mod log.
-    guild_id : int
-        Discord guild ID where the case occurred.
     """
 
     # case is a reserved word in postgres, so we need to use a custom table name
@@ -648,7 +298,8 @@ class Case(BaseModel, table=True):
     case_number: int | None = Field(
         default=None,
         ge=1,
-        description="Sequential case number within the guild for easy reference",
+        unique=True,
+        description="Sequential case number for easy reference",
     )
     case_expires_at: datetime | None = Field(
         default=None,
@@ -666,19 +317,7 @@ class Case(BaseModel, table=True):
         description="Discord message ID in mod log channel (allows editing case embeds)",
     )
 
-    guild_id: int = Field(
-        foreign_key="guild.id",
-        ondelete="CASCADE",
-        sa_type=BigInteger,
-        description="Discord guild ID where this case occurred",
-    )
-
-    guild: Mapped[Guild] = Relationship(
-        sa_relationship=relationship(back_populates="cases"),
-    )
-
     __table_args__ = (
-        CheckConstraint("guild_id > 0", name="check_case_guild_id_valid"),
         CheckConstraint("case_user_id > 0", name="check_case_user_id_valid"),
         CheckConstraint("case_moderator_id > 0", name="check_case_moderator_id_valid"),
         CheckConstraint(
@@ -689,52 +328,40 @@ class Case(BaseModel, table=True):
             "mod_log_message_id IS NULL OR mod_log_message_id > 0",
             name="check_mod_msg_id_valid",
         ),
-        Index("idx_case_guild", "guild_id"),
-        Index("idx_case_guild_user", "guild_id", "case_user_id"),
-        Index("idx_case_guild_moderator", "guild_id", "case_moderator_id"),
+        Index("idx_case_user", "case_user_id"),
+        Index("idx_case_moderator", "case_moderator_id"),
         Index("idx_case_type", "case_type"),
         Index("idx_case_status", "case_status"),
         Index("idx_case_expires_at", "case_expires_at"),
         Index("idx_case_number", "case_number"),
         Index("idx_case_processed", "case_processed"),
-        # Composite index for case lookup by guild and case number (common query pattern)
-        Index("idx_case_guild_number", "guild_id", "case_number"),
-        # Composite index for expired tempban queries (guild_id, case_type, case_status, case_expires_at)
-        Index(
-            "idx_case_expired_tempbans",
-            "guild_id",
-            "case_type",
-            "case_status",
-            "case_expires_at",
-            postgresql_where="case_type = 'TEMPBAN' AND case_status = TRUE AND case_processed = FALSE AND case_expires_at IS NOT NULL",
-        ),
         # Partial index for unprocessed temporary cases needing attention
         Index(
             "idx_case_unprocessed_expiring",
             "case_expires_at",
             postgresql_where="case_processed = FALSE AND case_expires_at IS NOT NULL",
         ),
-        # Partial index for active (valid) cases
+        # Composite partial index for expired tempban queries
         Index(
-            "idx_case_active_guild",
-            "guild_id",
-            postgresql_where="case_status = TRUE",
+            "idx_case_expired_tempbans",
+            "case_type",
+            "case_status",
+            "case_expires_at",
+            postgresql_where="case_type = 'TEMPBAN' AND case_status = TRUE AND case_processed = FALSE AND case_expires_at IS NOT NULL",
         ),
-        # Composite partial index for jail/unjail case lookups (optimizes is_jailed checks)
+        # Composite partial index for jail/unjail case lookups
         Index(
             "idx_case_jail_unjail",
-            "guild_id",
             "case_user_id",
             "case_type",
             "id",
             postgresql_where="case_type IN ('JAIL', 'UNJAIL')",
         ),
-        UniqueConstraint("guild_id", "case_number", name="uq_case_guild_case_number"),
     )
 
     def __repr__(self) -> str:
-        """Return string representation showing guild, case number, type and target user."""
-        return f"<Case id={self.id} guild={self.guild_id} num={self.case_number} type={self.case_type} user={self.case_user_id}>"
+        """Return string representation showing case number, type and target user."""
+        return f"<Case id={self.id} num={self.case_number} type={self.case_type} user={self.case_user_id}>"
 
 
 # =============================================================================
@@ -743,23 +370,20 @@ class Case(BaseModel, table=True):
 
 
 class Snippet(BaseModel, table=True):
-    """Custom command snippets for guilds.
+    """Custom command snippets.
 
-    Represents user-defined text snippets that can be triggered by custom commands
-    within a Discord guild.
+    Represents user-defined text snippets that can be triggered by custom commands.
 
     Attributes
     ----------
     id : int, optional
         Auto-generated primary key.
     snippet_name : str
-        Name of the snippet command.
+        Name of the snippet command (unique).
     snippet_content : str, optional
         Content/text of the snippet.
     snippet_user_id : int
         Discord user ID who created the snippet.
-    guild_id : int
-        ID of the guild this snippet belongs to.
     uses : int
         Number of times this snippet has been used.
     locked : bool
@@ -777,6 +401,7 @@ class Snippet(BaseModel, table=True):
     snippet_name: str = Field(
         min_length=1,
         max_length=100,
+        unique=True,
         description="Command name to trigger this snippet",
     )
     snippet_content: str | None = Field(
@@ -787,13 +412,6 @@ class Snippet(BaseModel, table=True):
     snippet_user_id: int = Field(
         sa_type=BigInteger,
         description="Discord user ID of the snippet creator",
-    )
-
-    guild_id: int = Field(
-        foreign_key="guild.id",
-        ondelete="CASCADE",
-        sa_type=BigInteger,
-        description="Discord guild ID where this snippet exists",
     )
 
     uses: int = Field(
@@ -812,30 +430,22 @@ class Snippet(BaseModel, table=True):
         description="Optional alternative name for triggering the snippet",
     )
 
-    guild: Mapped[Guild] = Relationship(
-        sa_relationship=relationship(back_populates="snippets"),
-    )
-
     __table_args__ = (
-        CheckConstraint("guild_id > 0", name="check_snippet_guild_id_valid"),
         CheckConstraint("snippet_user_id > 0", name="check_snippet_user_id_valid"),
         CheckConstraint("uses >= 0", name="check_snippet_uses_positive"),
         CheckConstraint(
             "length(snippet_name) > 0",
             name="check_snippet_name_not_empty",
         ),
-        Index("idx_snippet_guild", "guild_id"),
-        Index("idx_snippet_name_guild", "snippet_name", "guild_id", unique=True),
         Index("idx_snippet_user", "snippet_user_id"),
+        Index("idx_snippet_name", "snippet_name", unique=True),
         Index("idx_snippet_uses", "uses"),
         Index("idx_snippet_locked", "locked"),
     )
 
     def __repr__(self) -> str:
         """Return string representation showing ID and name."""
-        return (
-            f"<Snippet id={self.id} name={self.snippet_name!r} guild={self.guild_id}>"
-        )
+        return f"<Snippet id={self.id} name={self.snippet_name!r}>"
 
 
 # =============================================================================
@@ -862,8 +472,6 @@ class Reminder(BaseModel, table=True):
         Discord user ID who set the reminder.
     reminder_sent : bool
         Whether the reminder has been sent.
-    guild_id : int
-        Guild ID where the reminder was set.
     """
 
     id: int | None = Field(
@@ -892,30 +500,15 @@ class Reminder(BaseModel, table=True):
         description="Whether the reminder notification has been delivered",
     )
 
-    guild_id: int = Field(
-        foreign_key="guild.id",
-        ondelete="CASCADE",
-        sa_type=BigInteger,
-        description="Discord guild ID where this reminder was created",
-    )
-
-    guild: Mapped[Guild] = Relationship(
-        sa_relationship=relationship(back_populates="reminders"),
-    )
-
     __table_args__ = (
-        CheckConstraint("guild_id > 0", name="check_reminder_guild_id_valid"),
         CheckConstraint("reminder_user_id > 0", name="check_reminder_user_id_valid"),
         CheckConstraint(
             "reminder_channel_id > 0",
             name="check_reminder_channel_id_valid",
         ),
-        Index("idx_reminder_guild", "guild_id"),
         Index("idx_reminder_expires_at", "reminder_expires_at"),
         Index("idx_reminder_user", "reminder_user_id"),
         Index("idx_reminder_sent", "reminder_sent"),
-        Index("idx_reminder_guild_expires", "guild_id", "reminder_expires_at"),
-        Index("idx_reminder_guild_sent", "guild_id", "reminder_sent"),
         # Partial index for pending reminders that need to be sent
         Index(
             "idx_reminder_pending",
@@ -925,8 +518,8 @@ class Reminder(BaseModel, table=True):
     )
 
     def __repr__(self) -> str:
-        """Return string representation showing guild, user and expiration."""
-        return f"<Reminder id={self.id} guild={self.guild_id} user={self.reminder_user_id} expires={self.reminder_expires_at:%Y-%m-%d %H:%M}>"
+        """Return string representation showing user and expiration."""
+        return f"<Reminder id={self.id} user={self.reminder_user_id} expires={self.reminder_expires_at:%Y-%m-%d %H:%M}>"
 
 
 class AFK(BaseModel, table=True):
@@ -939,8 +532,6 @@ class AFK(BaseModel, table=True):
     ----------
     member_id : int
         Discord user ID (primary key).
-    guild_id : int
-        Guild ID (primary key, foreign key to guild table).
     nickname : str
         User's nickname when they went AFK.
     reason : str
@@ -959,13 +550,6 @@ class AFK(BaseModel, table=True):
         primary_key=True,
         sa_type=BigInteger,
         description="Discord user ID",
-    )
-    guild_id: int = Field(
-        primary_key=True,
-        foreign_key="guild.id",
-        ondelete="CASCADE",
-        sa_type=BigInteger,
-        description="Discord guild ID where AFK status was set",
     )
     nickname: str = Field(
         min_length=1,
@@ -994,18 +578,12 @@ class AFK(BaseModel, table=True):
         description="Whether this is a permanent AFK status",
     )
 
-    guild: Mapped[Guild] = Relationship(
-        sa_relationship=relationship(back_populates="afks"),
-    )
-
     __table_args__ = (
         CheckConstraint("member_id > 0", name="check_afk_member_id_valid"),
-        CheckConstraint("guild_id > 0", name="check_afk_guild_id_valid"),
         CheckConstraint(
             "until IS NULL OR until > since",
             name="check_afk_until_after_since",
         ),
-        Index("idx_afk_guild", "guild_id"),
         Index("idx_afk_member", "member_id"),
         Index("idx_afk_enforced", "enforced"),
         Index("idx_afk_perm", "perm_afk"),
@@ -1019,8 +597,8 @@ class AFK(BaseModel, table=True):
     )
 
     def __repr__(self) -> str:
-        """Return string representation showing member and guild."""
-        return f"<AFK member={self.member_id} guild={self.guild_id} since={self.since}>"
+        """Return string representation showing user."""
+        return f"<AFK member={self.member_id} since={self.since}>"
 
 
 # =============================================================================
@@ -1031,14 +609,12 @@ class AFK(BaseModel, table=True):
 class Levels(BaseModel, table=True):
     """User experience and leveling data.
 
-    Tracks user experience points and level progression within guilds.
+    Tracks user experience points and level progression.
 
     Attributes
     ----------
     member_id : int
         Discord user ID (primary key).
-    guild_id : int
-        Guild ID (primary key, foreign key to guild table).
     xp : float
         Experience points accumulated by the user.
     level : int
@@ -1053,13 +629,6 @@ class Levels(BaseModel, table=True):
         primary_key=True,
         sa_type=BigInteger,
         description="Discord user ID",
-    )
-    guild_id: int = Field(
-        primary_key=True,
-        foreign_key="guild.id",
-        ondelete="CASCADE",
-        sa_type=BigInteger,
-        description="Discord guild ID",
     )
     xp: float = Field(
         default=0.0,
@@ -1082,32 +651,20 @@ class Levels(BaseModel, table=True):
         description="Timestamp of last message for XP gain cooldown",
     )
 
-    guild: Mapped[Guild] = Relationship(
-        sa_relationship=relationship(back_populates="levels_entries"),
-    )
-
     __table_args__ = (
         CheckConstraint("member_id > 0", name="check_levels_member_id_valid"),
-        CheckConstraint("guild_id > 0", name="check_levels_guild_id_valid"),
         CheckConstraint("xp >= 0", name="check_xp_positive"),
         CheckConstraint("level >= 0", name="check_level_positive"),
-        Index("idx_levels_guild_xp", "guild_id", "xp"),
         Index("idx_levels_member", "member_id"),
+        Index("idx_levels_xp", "xp"),
         Index("idx_levels_level", "level"),
         Index("idx_levels_blacklisted", "blacklisted"),
         Index("idx_levels_last_message", "last_message"),
-        # Partial index for non-blacklisted active users (common leaderboard queries)
-        Index(
-            "idx_levels_active_leaderboard",
-            "guild_id",
-            "xp",
-            postgresql_where="blacklisted = FALSE",
-        ),
     )
 
     def __repr__(self) -> str:
-        """Return string representation showing member, guild, level and XP."""
-        return f"<Levels member={self.member_id} guild={self.guild_id} lvl={self.level} xp={self.xp:.1f}>"
+        """Return string representation showing member, level and XP."""
+        return f"<Levels member={self.member_id} lvl={self.level} xp={self.xp:.1f}>"
 
 
 # =============================================================================
@@ -1116,15 +673,15 @@ class Levels(BaseModel, table=True):
 
 
 class Starboard(BaseModel, table=True):
-    """Starboard configuration for guilds.
+    """Starboard configuration.
 
-    Defines the starboard channel and emoji settings for a guild,
-    allowing messages to be highlighted when they receive enough reactions.
+    Defines the starboard channel and emoji settings for highlighting
+    messages that receive enough reactions.
 
     Attributes
     ----------
     id : int
-        Guild ID (primary key, foreign key to guild table).
+        Config ID (primary key, single row).
     starboard_channel_id : int
         Discord channel ID where starred messages are posted.
     starboard_emoji : str
@@ -1133,12 +690,11 @@ class Starboard(BaseModel, table=True):
         Number of reactions needed to appear on starboard.
     """
 
-    id: int = Field(
+    id: int | None = Field(
+        default=None,
         primary_key=True,
-        foreign_key="guild.id",
-        ondelete="CASCADE",
         sa_type=BigInteger,
-        description="Discord guild ID",
+        description="Primary key (single-row configuration)",
     )
     starboard_channel_id: int = Field(
         sa_type=BigInteger,
@@ -1155,12 +711,7 @@ class Starboard(BaseModel, table=True):
         description="Number of reactions required for message to appear on starboard",
     )
 
-    guild: Mapped[Guild] = Relationship(
-        sa_relationship=relationship(back_populates="starboard"),
-    )
-
     __table_args__ = (
-        CheckConstraint("id > 0", name="check_starboard_guild_id_valid"),
         CheckConstraint(
             "starboard_channel_id > 0",
             name="check_starboard_channel_id_valid",
@@ -1174,8 +725,8 @@ class Starboard(BaseModel, table=True):
     )
 
     def __repr__(self) -> str:
-        """Return string representation showing guild and channel."""
-        return f"<Starboard guild={self.id} channel={self.starboard_channel_id} threshold={self.starboard_threshold}>"
+        """Return string representation showing channel and threshold."""
+        return f"<Starboard channel={self.starboard_channel_id} threshold={self.starboard_threshold}>"
 
 
 class StarboardMessage(BaseModel, table=True):
@@ -1196,8 +747,6 @@ class StarboardMessage(BaseModel, table=True):
         Original channel ID where message was posted.
     message_user_id : int
         Discord user ID of the message author.
-    message_guild_id : int
-        Guild ID where the starboard is configured.
     star_count : int
         Current number of star reactions.
     starboard_message_id : int
@@ -1226,12 +775,6 @@ class StarboardMessage(BaseModel, table=True):
         sa_type=BigInteger,
         description="Discord user ID of the message author",
     )
-    message_guild_id: int = Field(
-        foreign_key="guild.id",
-        ondelete="CASCADE",
-        sa_type=BigInteger,
-        description="Discord guild ID",
-    )
     star_count: int = Field(
         default=0,
         ge=0,
@@ -1243,16 +786,8 @@ class StarboardMessage(BaseModel, table=True):
         description="Discord message ID of the starboard post in the starboard channel",
     )
 
-    guild: Mapped[Guild] = Relationship(
-        sa_relationship=relationship(back_populates="starboard_messages"),
-    )
-
     __table_args__ = (
         CheckConstraint("id > 0", name="check_starboard_msg_id_valid"),
-        CheckConstraint(
-            "message_guild_id > 0",
-            name="check_starboard_msg_guild_id_valid",
-        ),
         CheckConstraint(
             "message_channel_id > 0",
             name="check_starboard_msg_channel_id_valid",
@@ -1266,14 +801,12 @@ class StarboardMessage(BaseModel, table=True):
             name="check_starboard_post_id_valid",
         ),
         CheckConstraint("star_count >= 0", name="check_star_count_positive"),
-        Index("ux_starboard_message", "id", "message_guild_id", unique=True),
         Index("idx_starboard_msg_expires", "message_expires_at"),
         Index("idx_starboard_msg_user", "message_user_id"),
         Index("idx_starboard_msg_channel", "message_channel_id"),
         Index("idx_starboard_msg_star_count", "star_count"),
-        Index("idx_starboard_msg_guild", "message_guild_id"),
     )
 
     def __repr__(self) -> str:
-        """Return string representation showing guild, original message and user."""
-        return f"<StarboardMessage id={self.id} guild={self.message_guild_id} user={self.message_user_id} channel={self.message_channel_id}>"
+        """Return string representation showing original message and user."""
+        return f"<StarboardMessage id={self.id} user={self.message_user_id} channel={self.message_channel_id}>"

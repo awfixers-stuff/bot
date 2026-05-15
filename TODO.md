@@ -96,3 +96,11 @@ Set permission errors to not be sent to sentry
 - [ ] **Per-Guild Customization** - Allows servers to brand error messages
 - [ ] **Error Recovery Mechanisms** - Improves user experience with transient failures
 - [ ] **Comprehensive Documentation** - Essential for maintainability
+
+## New Systems
+
+- [ ] **Ticket System** - Full ticketing system for user support requests
+- [ ] **Quarantine System** - System to quarantine members with restricted access
+- [ ] **Modmail System** - Modmail system for private communication between members and staff
+- [ ] **Forum Logging System** - All log types logged via forum posts, all logs in a single forum
+- [ ] **Quarantine Case System** - Each quarantine case gets a dedicated read-only channel visible only to the quarantined member and staff; case details sent via embed to the created channel

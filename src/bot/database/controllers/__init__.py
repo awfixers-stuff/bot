@@ -19,8 +19,6 @@ __all__ = [
     "BaseController",
     "CaseController",
     "DatabaseCoordinator",
-    "GuildConfigController",
-    "GuildController",
     "LevelsController",
     "PermissionAssignmentController",
     "PermissionCommandController",
@@ -36,8 +34,6 @@ from bot.database.controllers.base import (
     BaseController as BaseController,
 )  # Explicit re-export
 from bot.database.controllers.case import CaseController
-from bot.database.controllers.guild import GuildController
-from bot.database.controllers.guild_config import GuildConfigController
 from bot.database.controllers.levels import LevelsController
 from bot.database.controllers.permissions import (
     PermissionAssignmentController,
@@ -101,8 +97,6 @@ class DatabaseCoordinator:
             raise RuntimeError(error_msg)
         self.db = db
         self._cache_backend = cache_backend
-        self._guild: GuildController | None = None
-        self._guild_config: GuildConfigController | None = None
         self._permission_ranks: PermissionRankController | None = None
         self._permission_assignments: PermissionAssignmentController | None = None
         self._permission_commands: PermissionCommandController | None = None
@@ -113,20 +107,6 @@ class DatabaseCoordinator:
         self._starboard: StarboardController | None = None
         self._starboard_message: StarboardMessageController | None = None
         self._reminder: ReminderController | None = None
-
-    @property
-    def guild(self) -> GuildController:
-        """Get the guild controller for guild-related operations."""
-        if self._guild is None:
-            self._guild = GuildController(self.db)
-        return self._guild
-
-    @property
-    def guild_config(self) -> GuildConfigController:
-        """Get the guild configuration controller."""
-        if self._guild_config is None:
-            self._guild_config = GuildConfigController(self.db)
-        return self._guild_config
 
     @property
     def afk(self) -> AfkController:

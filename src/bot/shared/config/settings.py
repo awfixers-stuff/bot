@@ -39,6 +39,7 @@ from .models import (
     BotIntents,
     ExternalServices,
     GifLimiter,
+    LogChannels,
     Snippets,
     StatusRoles,
     TempVC,
@@ -328,6 +329,9 @@ class Config(BaseSettings):
     XP_CONFIG: XP = Field(default_factory=XP)  # type: ignore[arg-type]
     SNIPPETS: Snippets = Field(default_factory=Snippets)  # type: ignore[arg-type]
     IRC_CONFIG: IRC = Field(default_factory=IRC)  # type: ignore[arg-type]
+
+    # Log channels and jail config (formerly per-guild GuildConfig)
+    LOG_CHANNELS: LogChannels = Field(default_factory=LogChannels)  # type: ignore[arg-type]
 
     # External services
     EXTERNAL_SERVICES: ExternalServices = Field(default_factory=ExternalServices)  # type: ignore[arg-type]

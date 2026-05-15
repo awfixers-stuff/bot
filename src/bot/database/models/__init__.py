@@ -14,8 +14,6 @@ from .enums import CaseType, PermissionType
 from .models import (
     AFK,
     Case,
-    Guild,
-    GuildConfig,
     Levels,
     PermissionAssignment,
     PermissionCommand,
@@ -34,9 +32,6 @@ __all__ = [
     # Enums
     "CaseType",
     "PermissionType",
-    # Core models
-    "Guild",
-    "GuildConfig",
     # User features
     "AFK",
     "Levels",
