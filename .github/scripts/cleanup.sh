@@ -118,7 +118,7 @@ clean_old_versions() {
 
       # Fetch all versions (paginated), merge pages into a single JSON array
       local versions_json
-      versions_json=$(gh api "user/packages/$package_type/$package_name/versions" --paginate 2>/dev/null | jq -s 'add' || echo "[]")
+      versions_json=$(gh api "user/packages/$package_type/$package_name/versions" --paginate 2> /dev/null | jq -s 'add' || echo "[]")
       local total_count
       total_count=$(echo "$versions_json" | jq 'length')
       echo "**Total versions**: $total_count"
