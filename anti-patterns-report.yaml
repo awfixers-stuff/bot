@@ -1,0 +1,1218 @@
+# Anti-Pattern Analysis Report
+# Generated: 2026-05-15
+# Project: bot (discord.py Python bot)
+# Total source: ~59K lines across ~200 files
+
+metadata:
+  project: bot
+  language: Python 3.13
+  framework: discord.py 2.6+
+  total_source_lines: 58960
+  total_python_files: ~400 (src + scripts + tests)
+
+---
+## Critical Issues
+issues_critical:
+
+  # C-1: Silent swallowing of all exceptions via suppress(Exception)
+  - issue: contextlib.suppress(Exception) silently hides all errors
+    file: src/bot/database/controllers/levels.py
+    line_or_location: 216
+    severity: high
+    description: >
+      Uses `contextlib.suppress(Exception)` when creating level entry after update.
+      If the create fails (DB constraint failure, connection error, write conflict),
+      the failure is completely invisible — no log, no metric, no alert.
+    suggestion: >
+      Replace with specific exception type (e.g., `IntegrityError`) and log the failure.
+      At minimum: `try: await self.create(...) except Exception: logger.warning("...")`.
+
+  - issue: contextlib.suppress(Exception) silently hides all errors
+    file: src/bot/modules/features/starboard.py
+    line_or_location: 607
+    severity: high
+    description: >
+      Silently swallows all exceptions when removing the author's own reaction.
+      If the reaction removal fails due to permissions, rate limits, or network,
+      it's completely invisible.
+    suggestion: >
+      Narrow to `discord.Forbidden | discord.HTTPException` and log at debug level.
+
+  - issue: contextlib.suppress(Exception) silently hides all errors
+    file: src/bot/services/handlers/error/extractors.py
+    line_or_location: 45, 166, 219, 309, 397, 460
+    severity: high
+    description: >
+      Six instances in the error extraction pipeline use suppress(Exception) around
+      extraction logic. While error formatters should be resilient, suppressing ALL
+      exceptions means bugs in the extractors themselves go undetected.
+    suggestion: >
+      Narrow to expected exceptions per extractor (KeyError, ValueError, TypeError,
+      AttributeError). Log unexpected failures separately.
+
+  - issue: contextlib.suppress(Exception) silently hides all errors
+    file: src/bot/services/handlers/error/formatter.py
+    line_or_location: 98
+    severity: high
+    description: >
+      Suppresses all exceptions during error detail extraction. If the detail
+      extractor itself has a bug, user sees a generic error with zero diagnostic info.
+    suggestion: >
+      Log the suppressed exception at least. Wrap in try/except with logger.exception.
+
+  - issue: contextlib.suppress(Exception) silently hides all errors
+    file: src/bot/services/handlers/activity.py
+    line_or_location: 122
+    severity: high
+    description: >
+      Silently suppresses all exceptions during activity update. If the activity
+      update fails, the bot silently stops rotating activities without any indication.
+    suggestion: >
+      Catch specific discord errors (`discord.HTTPException`) and log failures.
+
+  - issue: contextlib.suppress(Exception) silently hides all errors
+    file: src/bot/services/emoji_manager.py
+    line_or_location: 370
+    severity: high
+    description: >
+      Suppresses all exceptions during emoji sync. Sync failures are completely hidden.
+    suggestion: >
+      Narrow to specific I/O or network exceptions. Log sync failures.
+
+  - issue: contextlib.suppress(Exception) silently hides all errors
+    file: src/bot/plugins/atl/fact.py
+    line_or_location: 54
+    severity: high
+    description: >
+      Silently swallows all exceptions during fact fetching from external API.
+    suggestion: >
+      Catch `aiohttp.ClientError | asyncio.TimeoutError` and log.
+
+  - issue: contextlib.suppress(Exception) silently hides all errors
+    file: src/bot/ui/views/config/pagination.py
+    line_or_location: 277
+    severity: high
+    description: >
+      Suppresses all exceptions during pagination callback. UI interactions should
+      handle errors gracefully but not silently.
+    suggestion: >
+      Catch `discord.Forbidden | discord.HTTPException | discord.NotFound`.
+
+  - issue: contextlib.suppress(Exception) silently hides all errors
+    file: src/bot/plugins/v0_1_db_migrate/migrator.py
+    line_or_location: 400, 534
+    severity: high
+    description: >
+      Migration plugin silently swallows all exceptions during data migration.
+      This could silently produce incomplete or corrupted data.
+    suggestion: >
+      Log suppressed exceptions. Fail loudly on migration errors since data
+      integrity is at stake.
+
+  # C-2: Sync HTTP calls blocking the event loop
+  - issue: Synchronous httpx.get() blocking event loop in async context
+    file: src/bot/services/wrappers/xkcd.py
+    line_or_location: 321
+    severity: high
+    description: >
+      `_request_comic()` uses synchronous `httpx.get(comic_url)` inside a method
+      called from async command handlers. The entire HTTP request blocks the
+      event loop, freezing the bot for the duration of the request.
+    suggestion: >
+      Convert to `httpx.AsyncClient` within the wrapper, or use the shared
+      `http_client` singleton. The error handling (BotAPI* exceptions) can remain.
+
+  - issue: Synchronous httpx.get() blocking event loop in async context
+    file: src/bot/services/wrappers/xkcd.py
+    line_or_location: 374
+    severity: high
+    description: >
+      Same issue as line 321 — `_request_raw_image()` uses synchronous
+      `httpx.get(raw_image_url)` blocking the event loop for image downloads.
+    suggestion: >
+      Same fix: convert to async HTTP client or use shared http_client.
+
+  - issue: Synchronous urllib.request.urlopen() blocking event loop
+    file: src/bot/services/wrappers/tldr.py
+    line_or_location: 332, 710
+    severity: high
+    description: >
+      `fetch_tldr_page()` and archive download use `urllib.request.urlopen()`
+      which is fully synchronous and blocking. Called from async command handlers
+      without `asyncio.to_thread()`.
+    suggestion: >
+      Convert to `httpx.AsyncClient` via the shared `http_client`, or wrap
+      these calls in `asyncio.to_thread()`.
+
+  - issue: Synchronous subprocess.run() in async activity loop
+    file: src/bot/services/handlers/activity.py
+    line_or_location: 137, 202
+    severity: high
+    description: >
+      `_substitute_placeholders()` calls `get_version()` which calls
+      `subprocess.run(["git", "describe", ...])` on every activity rotation.
+      This blocks the event loop for the entire subprocess duration.
+    suggestion: >
+      Cache the git version at import time, or use
+      `asyncio.create_subprocess_exec()` instead of `subprocess.run()`.
+
+  # C-3: Fire-and-forget tasks with no error handling
+  - issue: asyncio.create_task without error handling (fire-and-forget)
+    file: src/bot/core/prefix_manager.py
+    line_or_location: 137
+    severity: high
+    description: >
+      Creates a fire-and-forget task for `_persist_prefix` with `# noqa: RUF006`
+      to suppress the linter warning. If the task raises, the exception becomes
+      an unhandled task exception and is logged to stderr but never caught.
+    suggestion: >
+      Add a wrapper that catches exceptions: `_safe_task = lambda: try/except`
+      or use `task.add_done_callback()`.
+
+  - issue: asyncio.create_task without error handling (fire-and-forget)
+    file: src/bot/modules/moderation/jail.py
+    line_or_location: 115-117
+    severity: high
+    description: >
+      Same pattern — fire-and-forget task with suppressed linter warning.
+      Background rejail cleanup failures are invisible.
+    suggestion: >
+      Same fix: wrap with exception handler.
+
+  - issue: asyncio.create_task inside call_later lambda without error handling
+    file: src/bot/modules/utility/remindme.py
+    line_or_location: 157, 224
+    severity: high
+    description: >
+      `asyncio.create_task(self.send_reminder(r))` is created from
+      `loop.call_later` lambda. If `send_reminder` raises, exception becomes
+      unhandled and task reference may be GC'd.
+    suggestion: >
+      Use a wrapper that catches exceptions, or store task reference in a set.
+
+  # C-4: Predictable password generation
+  - issue: Predictable password generation with hardcoded prefix
+    file: src/bot/plugins/atl/mail.py
+    line_or_location: 121-122
+    severity: high
+    description: >
+      Password generation uses `"changeme"` prefix with only 6 random digits
+      + 4 special characters (20 chars total but 10 are static). This gives
+      only ~10 characters of entropy (~66 bits at best, far less in practice).
+    suggestion: >
+      Use `secrets.token_urlsafe(32)` for full cryptographic randomness.
+
+  # C-5: Raw HTTP clients instead of shared http_client
+  - issue: Uses raw aiohttp.ClientSession instead of shared http_client singleton
+    file: src/bot/modules/features/bookmarks.py
+    line_or_location: 46
+    severity: high
+    description: >
+      Creates its own `aiohttp.ClientSession()` in __init__ and closes it in
+      cog_unload. Bypasses the shared http_client which has connection pooling,
+      timeouts, HTTP/2, and centralized error handling.
+    suggestion: >
+      Replace with the shared `http_client` singleton from
+      `bot.services.http_client`.
+
+  - issue: Creates new aiohttp.ClientSession per command invocation
+    file: src/bot/modules/tools/wolfram.py
+    line_or_location: 62
+    severity: high
+    description: >
+      Creates a brand new `aiohttp.ClientSession()` on every single command
+      invocation (wasteful) and uses `except Exception:` to swallow all HTTP
+      errors (line 67).
+    suggestion: >
+      Use the shared `http_client` singleton which reuses connections and
+      has proper timeout/error handling.
+
+  # C-6: No error handling in http_client methods
+  - issue: HTTP client methods lack any error handling around raise_for_status
+    file: src/bot/services/http_client.py
+    line_or_location: 196-197, 223-224, 243-244, 263-264, 291-292
+    severity: high
+    description: >
+      Every method (get, post, put, delete, request) calls
+      `response.raise_for_status()` without any surrounding try/except.
+      Raw httpx.HTTPStatusError and httpx.RequestError propagate to callers,
+      meaning every caller must reimplement error handling.
+    suggestion: >
+      Add centralized error handling in http_client that converts httpx
+      exceptions to BotAPI* exceptions and logs consistently.
+
+---
+## Warnings (Medium Severity)
+issues_warning:
+
+  # W-1: Overly broad except Exception
+  - issue: Overly broad except Exception catches all errors
+    file: src/bot/modules/tools/wolfram.py
+    line_or_location: 67
+    severity: medium
+    description: >
+      Catches all exceptions around an aiohttp API call. KeyboardInterrupt,
+      SystemExit, and programming bugs are all silently caught.
+    suggestion: >
+      Narrow to `aiohttp.ClientError | asyncio.TimeoutError`.
+
+  - issue: Overly broad except Exception in moderation coordinator
+    file: src/bot/services/moderation/moderation_coordinator.py
+    line_or_location: 275
+    severity: medium
+    description: >
+      Catches all exceptions when voiding a moderation case. If voiding fails
+      due to a bug, the error is silently caught and logged but the operation
+      may be in an inconsistent state.
+    suggestion: >
+      Narrow to `BotDatabaseError | BotDatabaseConnectionError` or log
+      and re-raise.
+
+  - issue: Overly broad except Exception in event handler pre-warm
+    file: src/bot/services/handlers/event.py
+    line_or_location: 60
+    severity: medium
+    description: >
+      Pre-warming caches wraps everything in except Exception. Specific
+      cache/database errors should be distinguishable from programming errors.
+    suggestion: >
+      Narrow to cache/database specific exceptions.
+
+  - issue: Overly broad except Exception in fact fetch
+    file: src/bot/plugins/atl/fact.py
+    line_or_location: 151
+    severity: medium
+    description: >
+      Catches all exceptions when fetching facts from external API.
+    suggestion: >
+      Narrow to `httpx.HTTPStatusError | httpx.RequestError | asyncio.TimeoutError`.
+
+  - issue: Overly broad except Exception in slowmode command
+    file: src/bot/modules/moderation/slowmode.py
+    line_or_location: 300
+    severity: medium
+    description: >
+      Catches all exceptions when getting slowmode. Should distinguish
+      between `discord.Forbidden`, `discord.HTTPException`, and real bugs.
+    suggestion: >
+      Handle discord-specific errors separately and let bugs propagate.
+
+  - issue: Overly broad except Exception in database setup migration check
+    file: src/bot/core/setup/database_setup.py
+    line_or_location: 95
+    severity: medium
+    description: >
+      Catches all exceptions during migration check. Catches ProgrammingError
+      for missing tables as expected, but also hides real DB errors.
+    suggestion: >
+      Catch `sqlalchemy.exc.ProgrammingError` specifically, let others propagate.
+
+  - issue: Overly broad except Exception in settings key decoding
+    file: src/bot/shared/config/settings.py
+    line_or_location: 490
+    severity: medium
+    description: >
+      Catches all exceptions during config key base64 decoding.
+    suggestion: >
+      Narrow to `binascii.Error | ValueError | TypeError`.
+
+  - issue: Overly broad except Exception in error formatter fallback
+    file: src/bot/services/handlers/error/formatter.py
+    line_or_location: 107
+    severity: medium
+    description: >
+      Catches all exceptions on string format() fallback. Comment says it
+      catches KeyError/ValueError/IndexError.
+    suggestion: >
+      Explicitly catch `KeyError | ValueError | IndexError` to avoid masking
+      bugs in format string construction.
+
+  # W-2: raise ValueError/RuntimeError instead of custom exception hierarchy
+  - issue: Uses ValueError instead of BotConfigurationError
+    file: src/bot/shared/config/models.py
+    line_or_location: 31, 103, 111, 115
+    severity: medium
+    description: >
+      Raises generic ValueError for configuration validation errors instead
+      of the project's `BotConfigurationError` from custom exception hierarchy.
+    suggestion: >
+      Raise `BotConfigurationError` instead of `ValueError` for config validation.
+
+  - issue: Uses ValueError instead of BotConfigurationError
+    file: src/bot/shared/config/settings.py
+    line_or_location: 90
+    severity: medium
+    description: >
+      Raises generic ValueError for config loading errors.
+    suggestion: >
+      Raise `BotConfigurationError`.
+
+  - issue: Uses ValueError instead of custom exception
+    file: src/bot/shared/version.py
+    line_or_location: 251, 259, 352, 356, 361, 376, 400, 406
+    severity: medium
+    description: >
+      8 instances of raising generic ValueError for version parsing errors.
+    suggestion: >
+      Create a `BotVersionError` exception or use `BotRuntimeError`.
+
+  - issue: Uses RuntimeError instead of BotDatabaseError
+    file: src/bot/database/service.py
+    line_or_location: 145, 395
+    severity: medium
+    description: >
+      Raises generic RuntimeError for database transaction errors.
+    suggestion: >
+      Raise `BotDatabaseError` or `BotDatabaseQueryError`.
+
+  - issue: Uses RuntimeError instead of BotDatabaseQueryError
+    file: src/bot/database/controllers/base/base_controller.py
+    line_or_location: 51
+    severity: medium
+    description: >
+      Raises generic RuntimeError for DI resolution failure in base controller.
+    suggestion: >
+      Raise `BotDatabaseQueryError`.
+
+  - issue: Uses ValueError instead of BotAPIResourceNotFoundError
+    file: src/bot/database/controllers/levels.py
+    line_or_location: 210
+    severity: medium
+    description: >
+      Raises generic ValueError when member level entry not found.
+    suggestion: >
+      Raise `BotAPIResourceNotFoundError` or create a new domain-specific exception.
+
+  - issue: Uses ValueError instead of custom Bot exception
+    file: src/bot/modules/snippets/__init__.py
+    line_or_location: 254
+    severity: medium
+    description: >
+      Raises generic ValueError("Snippet ID is invalid") without including
+      the actual ID in the error message.
+    suggestion: >
+      Include the snippet ID in the error message and use a custom exception.
+
+  - issue: Uses RuntimeError instead of BotServiceError
+    file: src/bot/services/moderation/execution_service.py
+    line_or_location: 199, 255
+    severity: medium
+    description: >
+      Raises generic RuntimeError for code execution errors.
+    suggestion: >
+      Raise `BotCodeExecutionError` or one of its subclasses.
+
+  - issue: Uses RuntimeError instead of BotCogLoadError
+    file: src/bot/core/setup/database_setup.py
+    line_or_location: 145, 153
+    severity: medium
+    description: >
+      Uses RuntimeError instead of BotDatabaseConnectionError for migration errors.
+    suggestion: >
+      Raise `BotDatabaseConnectionError`.
+
+  # W-3: Exception subclasses defined but never raised (dead code)
+  - issue: BotConfigurationError is defined but never raised directly
+    file: src/bot/shared/exceptions/base.py
+    line_or_location: 16
+    severity: medium
+    description: >
+      BotConfigurationError exists in the exception hierarchy but all
+      configuration errors raise ValueError instead.
+    suggestion: >
+      Either start raising BotConfigurationError, or remove the dead class.
+
+  - issue: BotRuntimeError is defined but never raised directly
+    file: src/bot/shared/exceptions/base.py
+    line_or_location: 20
+    severity: medium
+    description: >
+      BotRuntimeError is never used. Runtime errors throughout the codebase
+      raise builtin RuntimeError instead.
+    suggestion: >
+      Replace `raise RuntimeError(msg)` with `raise BotRuntimeError(msg)`.
+
+  - issue: BotServiceError and 5 subclasses never raised
+    file: src/bot/shared/exceptions/services.py
+    line_or_location: 16-42
+    severity: medium
+    description: >
+      BotServiceError, BotCogLoadError, BotHotReloadError,
+      BotDependencyResolutionError, BotFileWatchError, BotModuleReloadError,
+      and BotHotReloadConfigurationError are all defined but never raised.
+    suggestion: >
+      Use them in hot_reload and cog loading paths, or remove dead code.
+
+  - issue: BotDatabaseQueryError defined but never raised
+    file: src/bot/shared/exceptions/database.py
+    line_or_location: 33
+    severity: medium
+    description: >
+      BotDatabaseQueryError is imported in __all__ but never raised anywhere.
+      All database errors use RuntimeError or ValueError.
+    suggestion: >
+      Use BotDatabaseQueryError in database controllers instead of RuntimeError.
+
+  # W-4: Service layer importing from modules layer (circular import risk)
+  - issue: Service layer imports LevelsService from modules layer
+    file: src/bot/services/handlers/event.py
+    line_or_location: 10-13
+    severity: medium
+    description: >
+      `bot.services.handlers.event` imports `LevelsService` from
+      `bot.modules.features.levels`. This breaks the architectural dependency
+      direction (modules → services, not services → modules).
+    suggestion: >
+      Extract `LevelsService` into `bot.services/levels.py` where it belongs.
+
+  - issue: Modules importing from sibling modules (tight coupling)
+    file: src/bot/modules/levels/levels.py
+    line_or_location: 19
+    severity: medium
+    description: >
+      Levels admin cog imports LevelsService from sibling `features.levels`
+      module. If levels service logic was in `bot.services`, this import
+      wouldn't cross module boundaries.
+    suggestion: >
+      Extract shared levels logic to `bot.services.levels`.
+
+  - issue: Module importing from its own parent package (circular risk)
+    file: src/bot/modules/utility/afk.py
+    line_or_location: 20
+    severity: medium
+    description: >
+      `afk.py` imports `add_afk, del_afk` from `bot.modules.utility`, which
+      is its own parent package. Those functions are implemented in __init__.py.
+    suggestion: >
+      Move `add_afk`/`del_afk` to a separate `afk_utils.py` file and import
+      from there without the circular self-reference.
+
+  - issue: Same circular import pattern in self_timeout.py
+    file: src/bot/modules/utility/self_timeout.py
+    line_or_location: 16
+    severity: medium
+    description: >
+      Same pattern as afk.py — importing `add_afk, del_afk` from parent package.
+    suggestion: >
+      Same fix: import from `bot.modules.utility.afk_utils` instead.
+
+  # W-5: CPU-bound PIL operations in event loop
+  - issue: CPU-bound PIL image processing in async command handler
+    file: src/bot/plugins/atl/deepfry.py
+    line_or_location: 54, 74-75, 98
+    severity: medium
+    description: >
+      `_deepfry_image()` performs CPU-intensive PIL operations (sharpness
+      enhancement, resize, pixel manipulation) and ImageSequence iteration
+      directly in the event loop, blocking other bot operations.
+    suggestion: >
+      Wrap the entire `_deepfry_image()` call in `asyncio.to_thread()`.
+
+  - issue: CPU-bound PIL image.save() in async context
+    file: src/bot/plugins/atl/deepfry.py
+    line_or_location: 207, 231
+    severity: medium
+    description: >
+      JPEG/AVIF encoding via `image.save()` is CPU-intensive and runs in
+      the event loop.
+    suggestion: >
+      Move `image.save()` to `asyncio.to_thread()`.
+
+  - issue: CPU-bound PIL operations in async context
+    file: src/bot/modules/tools/wolfram.py
+    line_or_location: 80-84
+    severity: medium
+    description: >
+      `Image.open()`, `.crop()`, `.save()` run directly in the event loop.
+    suggestion: >
+      Wrap in `asyncio.to_thread()`.
+
+  - issue: Inconsistent psutil sync wrappers
+    file: src/bot/modules/utility/ping.py
+    line_or_location: 76, 92
+    severity: medium
+    description: >
+      `cpu_percent` is wrapped in `asyncio.to_thread()` (lines 72-74) but
+      `memory_info()` and `num_threads()` are called directly, blocking
+      the event loop.
+    suggestion: >
+      Consistently wrap all psutil calls in `asyncio.to_thread()`.
+
+  # W-6: Hardcoded magic numbers / missing configuration
+  - issue: Hardcoded HTTP timeouts not configurable
+    file: src/bot/services/http_client.py
+    line_or_location: 124-134
+    severity: medium
+    description: >
+      HTTP connect/read/write/keepalive timeouts (10/30/10/5s) and connection
+      pool limits (100/20) are hardcoded in `_create_client()`.
+    suggestion: >
+      Expose as environment variables (e.g., `HTTP_TIMEOUT`, `HTTP_MAX_CONNECTIONS`)
+      via the config system.
+
+  - issue: Cache TTL defaults hardcoded in backend
+    file: src/bot/cache/backend.py
+    line_or_location: 196
+    severity: medium
+    description: >
+      Fallback cache TTL (300.0s) and max size (10000) are hardcoded. Should
+      be in shared/constants.py.
+    suggestion: >
+      Define `CACHE_DEFAULT_TTL` and `CACHE_DEFAULT_MAXSIZE` in constants.py.
+
+  - issue: Cache TTLs and sizes defined locally in controller
+    file: src/bot/database/controllers/permissions.py
+    line_or_location: 31-41
+    severity: medium
+    description: >
+      Cache TTLs and max sizes (1000, 5, 500, 5000, 2000) are hardcoded
+      locally instead of in shared/constants.py.
+    suggestion: >
+      Consolidate all cache configuration in shared/constants.py.
+
+  - issue: Hardcoded timeout values not using existing constants
+    file: src/bot/services/wrappers/godbolt.py
+    line_or_location: 89, 242, 324
+    severity: medium
+    description: >
+      Uses `timeout=15.0` inline instead of importing and using the existing
+      `GODBOLT_TIMEOUT` constant from shared/constants.py.
+    suggestion: >
+      Import `GODBOLT_TIMEOUT` from constants and use it consistently.
+
+  - issue: Hardcoded base URL bypassing constants
+    file: src/bot/services/wrappers/godbolt.py
+    line_or_location: 62
+    severity: medium
+    description: >
+      Godbolt base URL is hardcoded as `url = "https://godbolt.org"` at module
+      level in lowercase. Should import from shared/constants.py where
+      `GODBOLT_TIMEOUT` already exists but URL doesn't.
+    suggestion: >
+      Add `GODBOLT_BASE_URL` to constants.py and import it.
+
+  - issue: Wandbox URL hardcoded in wrapper despite constant existing
+    file: src/bot/services/wrappers/wandbox.py
+    line_or_location: 20
+    severity: medium
+    description: >
+      `url = "https://wandbox.org/api/compile.json"` is hardcoded at module
+      level in lowercase. The constant `WANDBOX_API_URL` already exists in
+      shared/constants.py.
+    suggestion: >
+      Import `WANDBOX_API_URL` from shared/constants.py.
+
+  - issue: Hardcoded pagination sizes scattered across modules
+    file: src/bot/modules/moderation/cases.py
+    line_or_location: 764
+    severity: medium
+    description: >
+      `cases_per_page = 10` hardcoded locally. Similar patterns in
+      `admin/dev.py:422` (emojis_per_page), `snippets/get_snippet.py:20`
+      (SNIPPET_MESSAGE_PAGINATION_LIMIT).
+    suggestion: >
+      Consolidate all pagination limits in shared/constants.py.
+
+  - issue: Hardcoded view timeouts across files
+    file: src/bot/ui/views/tldr.py
+    line_or_location: 37
+    severity: medium
+    description: >
+      `timeout=120` hardcoded for TLDR view. Snippets view uses `timeout=180`
+      (get_snippet.py:131). Config dashboard uses `timeout=300` at dashboard.py
+      lines 992, 1223 despite `CONFIG_DASHBOARD_TIMEOUT = 300` existing in
+      constants.py.
+    suggestion: >
+      Use the existing `CONFIG_DASHBOARD_TIMEOUT` constant for dashboard,
+      and define view-specific timeouts in constants.py.
+
+  - issue: Hardcoded moderation limits
+    file: src/bot/modules/moderation/purge.py
+    line_or_location: 62
+    severity: medium
+    description: >
+      Max purge limit of 500 and Discord's 14-day bulk delete window (line 85)
+      are hardcoded magic numbers.
+    suggestion: >
+      Define `PURGE_MAX_LIMIT` and `DISCORD_BULK_DELETE_DAYS` in constants.py.
+
+  - issue: Hardcoded timeout limits in self_timeout
+    file: src/bot/modules/utility/self_timeout.py
+    line_or_location: 81, 87
+    severity: medium
+    description: >
+      Max self-timeout (604800 = 7 days) and min self-timeout (300 = 5 min)
+      are hardcoded magic numbers.
+    suggestion: >
+      Define `SELF_TIMEOUT_MAX_SECONDS` and `SELF_TIMEOUT_MIN_SECONDS` in
+      shared/constants.py or config.
+
+  - issue: Hardcoded member processing delays
+    file: src/bot/modules/features/status_roles.py
+    line_or_location: 64, 92
+    severity: medium
+    description: >
+      Member processing chunk size (20) and delay between chunks (0.1s)
+      are hardcoded.
+    suggestion: >
+      Define `STATUS_ROLE_CHUNK_SIZE` and `STATUS_ROLE_CHUNK_DELAY` in
+      shared/constants.py.
+
+  - issue: Hardcoded post-action DM timeout
+    file: src/bot/services/moderation/moderation_coordinator.py
+    line_or_location: 403
+    severity: medium
+    description: >
+      Post-action DM timeout of 15.0 seconds is hardcoded.
+    suggestion: >
+      Define `DM_TIMEOUT` in shared/constants.py.
+
+  - issue: Hardcoded Jython delay in jail module
+    file: src/bot/modules/moderation/jail.py
+    line_or_location: 127
+    severity: medium
+    description: >
+      Delay of 6 seconds for second-pass role stripping is hardcoded.
+    suggestion: >
+      Define `JAIL_SECOND_PASS_DELAY` in shared/constants.py.
+
+  - issue: Hardcoded Sentry config values
+    file: src/bot/services/sentry/config.py
+    line_or_location: 55, 60
+    severity: medium
+    description: >
+      `profiles_sample_rate` is always 0.0 (hardcoded off) and
+      `max_breadcrumbs` is always 50. Neither is configurable via env var.
+    suggestion: >
+      Make configurable via environment variables like other Sentry settings.
+
+  - issue: Hardcoded hot_reload watcher config
+    file: src/bot/services/hot_reload/config.py
+    line_or_location: 26-27
+    severity: medium
+    description: >
+      Debounce delay (0.5s) and max reload attempts (3) are hardcoded.
+    suggestion: >
+      Expose as environment variables.
+
+  - issue: Hardcoded hot_reload source path
+    file: src/bot/services/hot_reload/config.py
+    line_or_location: 19
+    severity: medium
+    description: >
+      `Path("src/bot")` is hardcoded as the watch root.
+    suggestion: >
+      Make configurable via environment variable.
+
+  - issue: Hardcoded Alembic DB query timeout
+    file: src/bot/database/migrations/env.py
+    line_or_location: 318
+    severity: medium
+    description: >
+      DB query timeout of 300000ms (5 minutes) is hardcoded literal.
+    suggestion: >
+      Reference a configurable value from settings.
+
+  # W-7: Missing file I/O error handling
+  - issue: Missing error handling on file read
+    file: src/bot/services/emoji_manager.py
+    line_or_location: 78-79
+    severity: medium
+    description: >
+      `file_path.open("rb").read()` is called without any try/except. If the
+      file doesn't exist or can't be read, the unhandled exception crashes
+      the operation.
+    suggestion: >
+      Wrap in try/except with appropriate error handling.
+
+  - issue: Missing error handling on dependency file read
+    file: src/bot/services/hot_reload/dependencies.py
+    line_or_location: 42-43
+    severity: medium
+    description: >
+      `file_path.open(encoding="utf-8").read()` is called without an outer
+      error handler specific to file I/O.
+    suggestion: >
+      Add specific FileNotFoundError/IOError handling.
+
+  # W-8: Overly broad except Exception with comment not matching reality
+  - issue: except Exception comment says it's fine but it's still too broad
+    file: src/bot/services/handlers/error/formatter.py
+    line_or_location: 98-110
+    severity: medium
+    description: >
+      Comment at line 108 says "Catching Exception is appropriate here"
+      for format() fallback but the code actually catches ALL exceptions
+      at line 98 (suppress all for detail extractor) AND at line 107
+      (except Exception for format). Two broad catches in one function.
+    suggestion: >
+      Line 98: narrow to expected extraction errors. Line 107: still
+      expected, but separate from line 98's behavior.
+
+  # W-9: Hardcoded file path in config resolution
+  - issue: Hardcoded config file search paths
+    file: src/bot/shared/config/settings.py
+    line_or_location: 143
+    severity: medium
+    description: >
+      Config JSON file paths `["config/config.json", "config.json"]` are
+      hardcoded. Also `/run/secrets` path (line 146) is hardcoded.
+    suggestion: >
+      Make config file path configurable via environment variable.
+
+  # W-10: Embed create function has 17 parameters
+  - issue: create_embed function has too many parameters
+    file: src/bot/ui/embeds.py
+    line_or_location: 53
+    severity: medium
+    description: >
+      `create_embed` has 17 parameters making it hard to use correctly.
+      Each call site passes many keyword arguments.
+    suggestion: >
+      Introduce an `EmbedConfig` dataclass or builder pattern to reduce
+      parameter count and improve readability.
+
+  # W-11: __init__ methods missing -> None return annotation
+  - issue: Missing -> None return annotation on __init__
+    file: src/bot/services/moderation/communication_service.py
+    line_or_location: 28
+    severity: medium
+    description: >
+      `def __init__(self, bot: Bot):` missing `-> None` return annotation.
+      Project convention is 95%+ of __init__ methods have it.
+    suggestion: >
+      Add `-> None`.
+
+  - issue: Missing -> None return annotation on __init__
+    file: src/bot/services/moderation/case_service.py
+    line_or_location: 25
+    severity: medium
+    description: >
+      `def __init__(self, case_controller: CaseController):` missing `-> None`.
+    suggestion: >
+      Add `-> None`.
+
+  - issue: Missing -> None return annotation on __init__
+    file: src/bot/database/service.py
+    line_or_location: 59
+    severity: medium
+    description: >
+      `def __init__(self, echo: bool = False):` missing `-> None`.
+    suggestion: >
+      Add `-> None`.
+
+  - issue: Missing -> None on async event listeners
+    file: src/bot/modules/features/status_roles.py
+    line_or_location: 104, 169
+    severity: medium
+    description: >
+      `async def on_presence_update(self, before, after)` and
+      `async def check_and_update_roles(self, member)` missing `-> None`.
+    suggestion: >
+      Add `-> None` return annotations.
+
+  - issue: Missing -> None on async send_message
+    file: src/bot/modules/utility/encode_decode.py
+    line_or_location: 74
+    severity: medium
+    description: >
+      `async def send_message(self, ctx, data)` missing `-> None`.
+    suggestion: >
+      Add `-> None`.
+
+  - issue: Inconsistent dunder-prefix on private class
+    file: src/bot/services/moderation/moderation_coordinator.py
+    line_or_location: 27
+    severity: medium
+    description: >
+      `__ActionFailedError` uses double underscore prefix which triggers
+      Python name mangling to `_ModerationCoordinator__ActionFailedError`.
+      Almost certainly unintended — should use single underscore.
+    suggestion: >
+      Rename to `_ActionFailedError`.
+
+  - issue: Inconsistent base cog naming pattern
+    file: src/bot/snippets/__init__.py
+    line_or_location: 21
+    severity: medium
+    description: >
+      `SnippetsBaseCog` uses "BaseCog" suffix while `ModerationCogBase`
+      (moderation/__init__.py:30) uses "CogBase" suffix. Inconsistent ordering.
+    suggestion: >
+      Standardize on one pattern project-wide (e.g., `*BaseCog`).
+
+  - issue: Poll cog inherits from wrong base
+    file: src/bot/modules/utility/poll.py
+    line_or_location: 20
+    severity: medium
+    description: >
+      `class Poll(ModerationCogBase)` lives in the utility module but inherits
+      from the moderation module's base class. All other utility cogs inherit
+      from BaseCog.
+    suggestion: >
+      Either move Poll to moderation module or change base class.
+
+---
+## Info / Style (Low Severity)
+issues_info:
+
+  # I-1: type: ignore hotspots
+  - issue: High concentration of # type: ignore in dashboard UI
+    file: src/bot/ui/views/config/dashboard.py
+    line_or_location: various (10+ instances)
+    severity: low
+    description: >
+      10+ `# type: ignore[index]` comments on `interaction.data.get("values", [])`.
+      Masks potential None issue on `interaction.data`.
+    suggestion: >
+      Create a typed `_safe_get_data(interaction, key, default) -> list` helper.
+
+  - issue: Bare # type: ignore without error code
+    file: src/bot/ui/embeds.py
+    line_or_location: 156
+    severity: low
+    description: >
+      `# type: ignore` without specifying an error code suppresses ALL type
+      errors on that line, potentially masking unrelated issues.
+    suggestion: >
+      Specify error code: `# type: ignore[arg-type]`.
+
+  - issue: SQLModel type suppressions (systemic issue)
+    file: src/bot/database/controllers/case.py
+    line_or_location: various (12+ instances)
+    severity: low
+    description: >
+      Pervasive `# type: ignore[attr-defined]` on SQLModel column references.
+      This is a known SQLModel stub limitation.
+    suggestion: >
+      Investigate SQLModel-specific mypy plugin or typed helper functions.
+
+  # I-2: Any-heavy code
+  - issue: Database filter type erasure — Any used throughout
+    file: src/bot/database/controllers/base/filters.py
+    line_or_location: 9, 38
+    severity: low
+    description: >
+      `filters: dict[str, Any] | Any` and `def build_filters(filters: Any) -> Any`
+      erase all type information for filter expressions.
+    suggestion: >
+      Create a `FilterType: TypeAlias = dict[str, Any] | FilterExpression | None`.
+
+  - issue: Any in sentry tracing spans
+    file: src/bot/services/sentry/tracing.py
+    line_or_location: various (15+ instances)
+    severity: low
+    description: >
+      15+ functions use `Any` for Sentry span/transaction objects instead of
+      proper types from sentry_sdk.
+    suggestion: >
+      Type as `sentry_sdk.Span | sentry_sdk.Transaction` where possible.
+
+  - issue: Unparametrized TTLCache
+    file: src/bot/cache/ttl.py
+    line_or_location: all
+    severity: low
+    description: >
+      `TTLCache` uses `dict[Any, tuple[Any, float]]` with no type parameters
+      despite being inherently generic.
+    suggestion: >
+      Parametrize with TypeVars: `class TTLCache[K, V]:` with `dict[K, tuple[V, float]]`.
+
+  - issue: AsyncCacheBackend protocol returns Any
+    file: src/bot/cache/backend.py
+    line_or_location: 33
+    severity: low
+    description: >
+      `async def get(self, key: str) -> Any | None` in the protocol loses
+      type information for cached values.
+    suggestion: >
+      If feasible, parametrize the protocol with a value TypeVar.
+
+  - issue: UserLike protocol uses Any for avatar
+    file: src/bot/modules/moderation/cases.py
+    line_or_location: 74, 80
+    severity: low
+    description: >
+      `class UserLike(Protocol): avatar: Any` types the avatar as Any when
+      it should be `discord.Asset | None`.
+    suggestion: >
+      Use `avatar: discord.Asset | None`.
+
+  # I-3: Docstring issues
+  - issue: Functions missing Returns section despite non-None return
+    file: src/bot/main.py
+    line_or_location: 6
+    severity: low
+    description: >
+      `run()` returns `int` but docstring has no `Returns` section.
+    suggestion: >
+      Add NumPy-style Returns section.
+
+  - issue: Functions missing Returns section
+    file: src/bot/core/bot.py
+    line_or_location: 127, 218
+    severity: low
+    description: >
+      `is_jailed` returns `bool`, `get_prefix_cache_stats` returns `dict[str, int]`
+      but neither has Returns in docstring.
+    suggestion: >
+      Add Returns sections per project NumPy docstring convention.
+
+  - issue: Functions missing full docstrings entirely
+    file: src/bot/modules/info/formatting.py
+    line_or_location: 10, 15, 27, 37, 46, 58, 71, 81, 90, 100, 107, 116, 132
+    severity: low
+    description: >
+      All 13 formatting helper functions have single-sentence docstrings
+      with no Parameters or Returns sections despite having parameters
+      and non-None return types. Inconsistent with project NumPy standard.
+    suggestion: >
+      Add Parameters and Returns sections per project convention.
+
+  - issue: Inconsistent docstring depth within same file
+    file: src/bot/modules/utility/__init__.py
+    line_or_location: 41 vs 71
+    severity: low
+    description: >
+      `add_afk` (line 41) has a one-line docstring with no Parameters section
+      despite having 7 parameters, while `del_afk` (line 71) right next to
+      it has proper NumPy-style docstring with Parameters.
+    suggestion: >
+      Update `add_afk` docstring to match `del_afk` style.
+
+  - issue: Short class docstrings in config models
+    file: src/bot/shared/config/models.py
+    line_or_location: 34, 135, 156, 198, 235, 296, 317
+    severity: low
+    description: >
+      Several Pydantic model classes have single-sentence docstrings while
+      others in the same file (TempVC, BotIntents, DatabaseConfig) have
+      proper multi-line ones.
+    suggestion: >
+      Consistently document all config model classes.
+
+  - issue: setup() function missing return type
+    file: src/bot/plugins/atl/rolecount.py
+    line_or_location: 392
+    severity: low
+    description: >
+      `async def setup(bot: Bot):` missing `-> None`. Every other setup()
+      function in the project has it.
+    suggestion: >
+      Add `-> None`.
+
+  # I-4: Module-level naming conventions
+  - issue: Module-level variables that should be UPPER_CASE constants
+    file: src/bot/services/wrappers/godbolt.py
+    line_or_location: 62
+    severity: low
+    description: >
+      `url = "https://godbolt.org"` — module-level string literal in lowercase.
+    suggestion: >
+      Rename to `GODBOLT_URL` or import from shared/constants.py.
+
+  - issue: Module-level variable should be constant
+    file: src/bot/services/wrappers/wandbox.py
+    line_or_location: 20
+    severity: low
+    description: >
+      `url = "https://wandbox.org/api/compile.json"` in lowercase despite
+      `WANDBOX_API_URL` existing in constants.
+    suggestion: >
+      Import and use the constant.
+
+  - issue: Module-level dicts should be constants
+    file: src/bot/modules/utility/timezones.py
+    line_or_location: 22, 91
+    severity: low
+    description: >
+      `timezones` and `continent_emojis` are module-level dict literals
+      that should be UPPER_CASE constants.
+    suggestion: >
+      Rename to `TIMEZONES` and `CONTINENT_EMOJIS`.
+
+  - issue: Module-level dicts should be constants in rolecount
+    file: src/bot/plugins/atl/rolecount.py
+    line_or_location: 25, 52, 83, 116, 130, 142
+    severity: low
+    description: >
+      6 module-level dicts (des_ids, distro_ids, lang_ids, editor_ids,
+      shell_ids, vanity_ids) should be UPPER_CASE constants.
+    suggestion: >
+      Rename to UPPER_CASE.
+
+  - issue: setup function name collision (sync vs async)
+    file: src/bot/services/sentry/config.py
+    line_or_location: 23
+    severity: low
+    description: >
+      `def setup() -> None:` is a synchronous function that initializes the
+      Sentry SDK, but shares the name `setup` with 68 async cog registration
+      functions. This could cause confusion.
+    suggestion: >
+      Rename to `setup_sentry()`.
+
+  - issue: Database naming_convention as lowercase module var
+    file: src/bot/database/migrations/env.py
+    line_or_location: 86
+    severity: low
+    description: >
+      `naming_convention` is a module-level dict literal used as constant.
+    suggestion: >
+      Rename to `NAMING_CONVENTION`.
+
+  # I-5: TODO markers representing tech debt
+  - issue: TODO marker for incomplete MediaGallery feature
+    file: src/bot/modules/info/builders.py
+    line_or_location: 143, 236, 302
+    severity: low
+    description: >
+      Three TODO comments about fixing avatar and banner display in
+      MediaGallery when implementation is ready.
+    suggestion: >
+      Either implement or create a tracking issue.
+
+  - issue: TODO for poll input UX improvement
+    file: src/bot/modules/utility/poll.py
+    line_or_location: 17
+    severity: low
+    description: >
+      TODO to create dedicated option inputs instead of comma-separated strings.
+    suggestion: >
+      Create a modal with individual option fields.
+
+  - issue: TODO for hardcoded role IDs in rolecount
+    file: src/bot/plugins/atl/rolecount.py
+    line_or_location: 168
+    severity: low
+    description: >
+      TODO about making rolecount work without hardcoded IDs and icons.
+    suggestion: >
+      This is planned work — consider creating a config mechanism.
+
+  - issue: TODO for configurable embed icons
+    file: src/bot/ui/embeds.py
+    line_or_location: 230
+    severity: low
+    description: >
+      TODO to make embed icons configurable with the new config system.
+    suggestion: >
+      Integrate with the config system.
+
+  - issue: HACKBAN enum value
+    file: src/bot/database/models/enums.py
+    line_or_location: 39
+    severity: low
+    description: >
+      Enum value `"HACKBAN"` in CaseType — verify this is intentional and
+      not a misspelling of `"HACKBAN"` (Discord's term).
+    suggestion: >
+      Confirm naming convention, consider renaming to `"HACKBAN"`.
+
+  # I-6: Architecural / structural issues
+  - issue: ConfigDashboard god class (2670 lines, 56 methods)
+    file: src/bot/ui/views/config/dashboard.py
+    line_or_location: 72
+    severity: low
+    description: >
+      ConfigDashboard handles 6 different UI modes (overview, ranks, roles,
+      commands, logs, jail) with all the same template pattern. Each
+      `build_*_mode` method is 80-192 lines.
+    suggestion: >
+      Split into mode-specific view classes composed via a router.
+
+  - issue: 12 near-identical moderation command cogs
+    file: src/bot/modules/moderation/ban.py, kick.py, warn.py, pollban.py, pollunban.py, snippetban.py, snippetunban.py, timeout.py, untimeout.py, unban.py, unjail.py, tempban.py
+    line_or_location: all
+    severity: low
+    description: >
+      Each file follows the exact same ~80-100 line template with only
+      ~15 lines of variation (command name, aliases, flags type, case_type,
+      dm_action, actions lambda). ~900 total lines of boilerplate.
+    suggestion: >
+      Use a declarative configuration or metaclass to generate these cogs
+      from a data structure.
+
+  - issue: 7 near-identical snippet command files
+    file: src/bot/modules/snippets/create_snippet.py, delete_snippet.py, edit_snippet.py, get_snippet.py, get_snippet_info.py, list_snippets.py, toggle_snippet_lock.py
+    line_or_location: all
+    severity: low
+    description: >
+      Each file has identical __init__ + setup boilerplate. Could be
+      consolidated into a single snippets cog with multiple commands.
+    suggestion: >
+      Consolidate into a single `snippets.py` cog file.
+
+  - issue: 10 files bypass shared create_embed wrapper
+    file: src/bot/help/components.py, navigation.py, renderer.py, modules/admin/dev.py, modules/moderation/cases.py, plugins/v0_1_db_migrate/plugin.py, services/handlers/error/formatter.py, services/handlers/error/suggestions.py, services/hot_reload/service.py, services/moderation/communication_service.py
+    line_or_location: various
+    severity: low
+    description: >
+      These files create `discord.Embed(...)` directly instead of using the
+      shared `create_embed()` from ui/embeds.py, leading to inconsistent
+      embed styling.
+    suggestion: >
+      Use the shared `create_embed()` wrapper for consistent styling.
+
+  - issue: High cyclomatic complexity in parse_flags
+    file: src/bot/core/flags.py
+    line_or_location: 61
+    severity: low
+    description: >
+      `parse_flags` has cyclomatic complexity of 20 with 12 if-branches and
+      duplicated try/except KeyError patterns at lines 145-150 and 172-177.
+    suggestion: >
+      Extract the "store value in result" logic into a helper function.
+
+  - issue: migrate_table has cyclomatic complexity of 40
+    file: src/bot/plugins/v0_1_db_migrate/migrator.py
+    line_or_location: 202
+    severity: low
+    description: >
+      `migrate_table` has complexity 40 with 370 lines and 14 levels of
+      nesting. This is in the migration plugin (legacy code).
+    suggestion: >
+      If still actively used, refactor into smaller functions. If one-time
+      use, archive the plugin to reduce maintenance burden.
+
+  - issue: Sentry tracing module is overly complex
+    file: src/bot/services/sentry/tracing.py
+    line_or_location: 652
+    severity: low
+    description: >
+      `instrument_bot_commands` has 141 lines with cyclic complexity 16.
+      Contains repeated wrapper-creation logic.
+    suggestion: >
+      Template the wrapper-creation logic to reduce duplication.
+
+  - issue: Deep nesting in jail role removal
+    file: src/bot/modules/moderation/jail.py
+    line_or_location: 88-100
+    severity: low
+    description: >
+      7 levels of nesting: try-inside-for-inside-try-inside-try for
+      individual role removal with fallback. Hard to follow and maintain.
+    suggestion: >
+      Extract the role removal into a utility function with batching.
+
+  - issue: function docstring_parameter erases function type
+    file: src/bot/shared/functions.py
+    line_or_location: 401, 415
+    severity: low
+    description: >
+      The `docstring_parameter` decorator uses `-> Any` return type which
+      erases the wrapped function's type signature.
+    suggestion: >
+      Use TypeVar to preserve the callable type:
+      `F = TypeVar('F', bound=Callable[..., Any])` and
+      `def docstring_parameter(*sub: str) -> Callable[[F], F]`.
+
+  - issue: ConfigManager naming inconsistency
+    file: src/bot/modules/config/overview.py
+    line_or_location: 15
+    severity: low
+    description: >
+      `ConfigOverview` doesn't follow the `*Manager` pattern used by every
+      other config module (RankManager, RoleManager, JailManager, etc.).
+    suggestion: >
+      Rename to `OverviewManager` for consistency.

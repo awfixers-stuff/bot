@@ -1,0 +1,160 @@
+name: Dependencies
+version: 2
+description: Full dependency inventory grouped by category with minimum versions
+
+runtime:
+  - name: discord.py
+    spec: discord-py>=2.6.0
+    purpose: Discord API wrapper (hybrid commands, app interactions, cogs)
+  - name: SQLModel
+    spec: sqlmodel>=0.0.24
+    purpose: ORM models combining SQLAlchemy + Pydantic
+  - name: SQLAlchemy
+    spec: sqlalchemy>=2.0.14
+    purpose: Async database engine, session, and query building
+  - name: Alembic
+    spec: alembic>=1.16.5
+    purpose: Database schema migrations
+  - name: psycopg
+    spec: psycopg>=3.2.9
+    purpose: PostgreSQL async driver (psycopg 3)
+  - name: httpx
+    spec: httpx>=0.28.0
+    purpose: Async HTTP client for external API calls
+  - name: Pydantic
+    spec: pydantic>=2.11.7
+    purpose: Data validation, settings, and view models
+  - name: Pydantic Settings
+    spec: pydantic-settings>=2.10.1
+    purpose: Environment-based configuration management
+  - name: valkey-py
+    spec: valkey>=6.1.1
+    purpose: Valkey/Redis client for caching and pub/sub
+  - name: Loguru
+    spec: loguru>=0.7.2
+    purpose: Structured logging with context binding
+  - name: Sentry SDK
+    spec: sentry-sdk>=2.7.0
+    purpose: Error tracking and performance monitoring
+  - name: Pillow
+    spec: pillow>=10.2.0
+    purpose: Image processing for banners and avatars
+  - name: Jishaku
+    spec: jishaku>=2.5.2
+    purpose: Developer/debug commands for bot operators
+  - name: reactionmenu
+    spec: reactionmenu>=3.1.7
+    purpose: Paginated Discord UI menus
+  - name: Rich
+    spec: rich>=14.0.0
+    purpose: Terminal formatting (logs, CLI output, tracebacks)
+  - name: Typer
+    spec: typer>=0.17.3
+    purpose: CLI entry-point framework
+  - name: Jinja2
+    spec: jinja2>=3.1.6
+    purpose: Template rendering for logs and messages
+  - name: aiofiles
+    spec: aiofiles>=24.1.0
+    purpose: Async file I/O
+  - name: githubkit
+    spec: githubkit>=0.12.0
+    purpose: GitHub API client (async)
+  - name: Arrow
+    spec: arrow>=1.3.0
+    purpose: Human-friendly datetime handling
+  - name: psutil
+    spec: psutil>=7.1.0
+    purpose: System resource monitoring
+  - name: PyNaCl
+    spec: pynacl>=1.5.0
+    purpose: Discord voice support
+  - name: PyYAML
+    spec: pyyaml>=6.0.3
+    purpose: YAML parsing for config files
+  - name: tomlkit
+    spec: tomlkit>=0.13.3
+    purpose: TOML parsing/writing
+  - name: watchdog
+    spec: watchdog>=6.0.0
+    purpose: File-system watching for hot-reload
+  - name: CairoSVG
+    spec: cairosvg>=2.7.1
+    purpose: SVG-to-PNG rendering for banners
+  - name: aiocache
+    spec: aiocache>=0.12.3
+    purpose: Async cache decorators and backends
+  - name: aiohttp
+    spec: aiohttp>=3.9.1
+    purpose: Async HTTP (discord.py peer dependency)
+
+dev:
+  - name: pre-commit
+    spec: pre-commit>=4.3.0
+    purpose: Git hook framework for quality gates
+  - name: basedpyright
+    spec: basedpyright==1.39.2
+    purpose: Strict static type checking
+  - name: Ruff
+    spec: ruff>=0.12.4
+    purpose: Fast linter and formatter
+  - name: yamllint
+    spec: yamllint>=1.37.1
+    purpose: YAML file linting
+  - name: pydoclint
+    spec: pydoclint>=0.7.3
+    purpose: Docstring style enforcement (NumPy)
+
+test:
+  - name: pytest
+    spec: pytest>=8.4.2
+    purpose: Test framework
+  - name: pytest-asyncio
+    spec: pytest-asyncio>=1.2.0
+    purpose: async test support (asyncio_mode=auto)
+  - name: pytest-mock
+    spec: pytest-mock>=3.15.1
+    purpose: Mocking fixtures
+  - name: pytest-cov
+    spec: pytest-cov>=7.0.0
+    purpose: Coverage reporting
+  - name: pytest-randomly
+    spec: pytest-randomly>=4.0.1
+    purpose: Randomized test ordering
+  - name: pytest-timeout
+    spec: pytest-timeout>=2.4.0
+    purpose: Test timeout enforcement
+  - name: pytest-httpx
+    spec: pytest-httpx>=0.35.0
+    purpose: HTTPX request mocking
+  - name: pytest-alembic
+    spec: pytest-alembic>=0.12.1
+    purpose: Migration testing framework
+  - name: py-pglite
+    spec: py-pglite>=0.5.3
+    purpose: Embedded PostgreSQL for CI testing
+  - name: pytest-xdist
+    spec: pytest-xdist>=3.8.0
+    purpose: Parallel test execution
+  - name: pytest-socket
+    spec: pytest-socket>=0.7.0
+    purpose: Network access control in tests
+
+docs:
+  - name: zensical
+    spec: "*"
+    purpose: Documentation generation
+
+types:
+  - name: types-pytz
+    spec: "*"
+    purpose: Timezone type stubs
+  - name: types-click
+    spec: "*"
+    purpose: Click type stubs (Typer dependency)
+  - name: types-psutil
+    spec: "*"
+    purpose: psutil type stubs
+  - name: types-pillow
+    spec: "*"
+    purpose: Pillow type stubs

@@ -1,0 +1,99 @@
+name: Tech Stack
+version: 2
+description: Full technology stack of the AWFixer Discord bot
+
+runtime:
+  language: Python
+  version: "3.13"
+  notes: Project requires Python 3.13.2+; uses new type and match-statement features
+
+package_manager:
+  tool: uv
+  notes: uv sync for installs, uv run for commands, uv lock for pinning
+
+build_system:
+  tool: Hatchling
+  config: pyproject.toml
+  notes: Hatchling backend; version managed by hatch-vcs from git tags
+
+discord_framework:
+  library: discord.py
+  version: 2.6+
+  async_native: true
+  features:
+    - Hybrid commands (slash + prefix)
+    - App commands / interactions
+    - Cogs for modularity
+
+database:
+  engine: PostgreSQL
+  version: "17"
+  orm: SQLModel 0.0.24+
+  sqlalchemy: SQLAlchemy 2.0+ (async)
+  migration: Alembic 1.16.5+
+  driver: psycopg 3.2.9+
+  pool: async SQLAlchemy engine with asyncpg-compatible psycopg
+  notes: SQLModel models double as Pydantic validators; Alembic for schema migration in CI/CD
+
+cache:
+  engine: Valkey
+  version: 9.x
+  client: valkey-py 6.1.1
+  fallback: In-memory dict backend for development
+
+config:
+  library: Pydantic Settings
+  version: 2.10.1+
+  notes: Global CONFIG singleton via pydantic-settings BaseSettings; .env / env vars
+
+cli:
+  library: Typer
+  version: 0.17.3+
+  notes: scripts/ directory CLI; uv run commands
+
+logging:
+  library: Loguru
+  version: 0.7.2+
+  pattern: from loguru import logger; logger.debug/info/warning/error/exception/bind
+  notes: Intercept sink captures stdlib logging; per-module context via logger.bind()
+
+error_tracking:
+  provider: Sentry
+  sdk: sentry-sdk
+  version: 2.7.0+
+  notes: Initialized in BotApp.startup; captures unhandled exceptions and performance traces
+
+testing:
+  framework: pytest
+  version: 8.4+
+  plugins:
+    - pytest-asyncio (asyncio_mode=auto)
+    - pytest-cov
+    - pytest-mock
+    - pytest-httpx
+    - pytest-alembic
+    - pytest-randomly
+    - pytest-timeout
+    - pytest-xdist
+    - pytest-socket
+    - py-pglite
+  notes: Domain-based test directories; fixtures in tests/fixtures/; markers for categorization
+
+ci_cd:
+  provider: GitHub Actions
+  notes: Lint, type-check, test, build, push on push/PR; Docker multi-stage compose
+
+container:
+  docker: Multi-stage Dockerfile
+  compose: docker-compose.yml for dev environment (PostgreSQL, Valkey, bot)
+  notes: Dev overrides for hot-reload; production tag via CI
+
+quality:
+  formatter: Ruff (line-length 88)
+  type_checker: basedpyright (strict mode for src/)
+  docstring: pydoclint (NumPy style)
+  hooks: pre-commit 4.3.0+
+
+docs:
+  tool: Zensical
+  notes: Documentation generation and hosting

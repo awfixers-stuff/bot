@@ -1,0 +1,794 @@
+# Domain Glossary — Bot (Discord Bot for AWFixer)
+# Generated from codebase analysis at src/bot/
+
+meta:
+  project: "Bot — All-in-one open source Discord bot"
+  language: Python 3.13.2+
+  framework: discord.py 2.6+, SQLModel, SQLAlchemy 2.0 async
+  database: PostgreSQL 17
+  cache: Valkey 9.x (Redis-compatible), optional
+  last_updated: 2026-05-15
+
+# =============================================================================
+# CORE ENTITIES — Primary domain objects with database persistence
+# =============================================================================
+core_entities:
+
+  - name: Guild
+    description: >
+      A Discord server the bot operates in. Single-guild mode is the default
+      (enforced via BOT_INFO.GUILD_ID). All domain data is scoped to a guild
+      except where noted. Guilds are not stored as a persistent model — they
+      are discovered dynamically via Discord gateway events and tracked in
+      memory on the Bot instance. Some configuration (prefix, permissions)
+      is per-guild.
+    attributes:
+      - id: int — Discord snowflake ID
+      - name: str — Guild name (runtime, from Discord)
+      - prefix: str — Custom command prefix (stored in DB, managed by PrefixManager)
+      - onboarding_stage: OnboardingStage — Tracked via config/permissions
+      - owner_id: int — Discord ID of guild owner (special rank 7)
+    related_entities:
+      - Member, Case, AFK, Levels, Snippet, Reminder, Starboard, PermissionRank, PermissionAssignment, PermissionCommand
+    persistence: Implicit; guild_id appears as FK column on every scoped model.
+
+  - name: Member
+    description: >
+      A Discord user in a specific guild context. Not stored as a persistent
+      model; derived from Discord gateway events. Used for permission checking,
+      leveling, AFK tracking, and moderation targeting.
+    attributes:
+      - id: int — Discord snowflake ID
+      - guild_id: int — Guild snowflake ID
+      - roles: list[int] — Role IDs for permission lookups
+      - nickname: str — Guild-specific display name
+    persistence: Runtime only (Discord API). AFK, Levels, and Case models reference member_id.
+
+  - name: User
+    description: >
+      A Discord user (cross-guild identity). Not stored as a persistent model;
+      referenced by Discord snowflake ID in all models. The bot distinguishes
+      User (cross-guild) from Member (guild-scoped) for DM vs guild contexts.
+    attributes:
+      - id: int — Discord snowflake ID (global)
+      - bot: bool — Whether this user is another bot
+    persistence: Runtime only. Referenced via *_user_id, member_id fields.
+
+  - name: Case
+    description: >
+      Record of a single moderation action (warn, kick, ban, timeout, jail,
+      etc.) taken against a user. Supports temporary actions with expiration,
+      soft-voiding (case_status=False), and sequential auto-numbering.
+      The central audit trail for all moderation activity.
+    attributes:
+      - id: int (PK, auto-generated, BigInteger)
+      - case_number: int | None — Sequential case number (unique)
+      - case_type: CaseType — Type of action (BAN, KICK, WARN, JAIL, TIMEOUT, etc.)
+      - case_status: bool — True=valid, False=voided
+      - case_processed: bool — Whether expiration has been processed
+      - case_reason: str — Reason for the action
+      - case_moderator_id: int — Discord ID of the moderator
+      - case_user_id: int — Discord ID of the target user
+      - case_user_roles: list[int] — User's role IDs at time of action
+      - case_expires_at: datetime | None — Expiry for temp actions
+      - case_metadata: dict | None — Extra context (JSON)
+      - mod_log_message_id: int | None — Discord message ID in mod log channel
+      - created_at: datetime — When case was created
+      - updated_at: datetime — Last modified
+    persistence: Table `cases`. Managed by CaseController via CaseService.
+    indexes:
+      - idx_case_user, idx_case_moderator, idx_case_type
+      - idx_case_expires_at, idx_case_unprocessed_expiring (partial)
+      - idx_case_expired_tempbans, idx_case_jail_unjail (partial)
+
+  - name: AFK (Away From Keyboard)
+    description: >
+      Tracks when a user sets themselves as AFK with an optional reason.
+      Supports permanent AFK, scheduled AFK with expiry, and mod-enforced
+      AFK that the user cannot self-remove. The bot prefixes the user's
+      nickname with [AFK] while active.
+    attributes:
+      - member_id: int (PK) — Discord user ID
+      - nickname: str — User's display name when they went AFK
+      - reason: str — Reason for being AFK
+      - since: datetime — When AFK started
+      - until: datetime | None — Optional expiry timestamp
+      - enforced: bool — Mod-enforced (user cannot self-remove)
+      - perm_afk: bool — Permanent AFK status
+    persistence: Table `afk`. Managed by AfkController.
+
+  - name: Levels (XP/Leveling)
+    description: >
+      Tracks user experience points and level progression per guild. XP is
+      earned by sending messages, subject to a cooldown. The level is derived
+      from accumulated XP. Users can be blacklisted from gaining XP.
+    attributes:
+      - member_id: int (PK) — Discord user ID
+      - xp: float — Accumulated experience points
+      - level: int — Current level (derived from XP)
+      - blacklisted: bool — Whether XP gain is blocked
+      - last_message: datetime — Timestamp for XP cooldown
+    persistence: Table `levels`. Managed by LevelsController.
+
+  - name: Snippet
+    description: >
+      User-defined custom command that returns pre-configured text content.
+      Snippets can be triggered by name, have usage tracking, and can be
+      locked to prevent editing. Supports optional aliases. Users can be
+      snippet-banned (prevented from creating snippets) via SNIPPETBAN cases.
+    attributes:
+      - id: int (PK, BigInteger) — Auto-generated
+      - snippet_name: str — Command name (unique)
+      - snippet_content: str | None — Response text (up to 4000 chars)
+      - snippet_user_id: int — Creator's Discord ID
+      - uses: int — Usage counter (popularity tracking)
+      - locked: bool — Prevents editing/deletion
+      - alias: str | None — Alternative trigger name
+      - created_at: datetime
+      - updated_at: datetime
+    persistence: Table `snippet`. Managed by SnippetController.
+
+  - name: Reminder
+    description: >
+      A scheduled notification that a user sets for a specific time. When the
+      expiry time is reached, the bot sends the reminder content to the
+      specified channel. Supports pending/ sent status tracking.
+    attributes:
+      - id: int (PK, BigInteger) — Auto-generated
+      - reminder_content: str — Message to send
+      - reminder_expires_at: datetime — When to trigger
+      - reminder_channel_id: int — Target channel
+      - reminder_user_id: int — Creator's Discord ID
+      - reminder_sent: bool — Delivery status
+      - created_at: datetime
+      - updated_at: datetime
+    persistence: Table `reminder`. Managed by ReminderController.
+
+  - name: Starboard
+    description: >
+      Configuration for the starboard feature — messages that receive enough
+      reactions with a configured emoji are reposted to a dedicated channel.
+      Single-row configuration table (guild-scoped).
+    attributes:
+      - id: int (PK, BigInteger) — Config ID
+      - starboard_channel_id: int — Channel for starred messages
+      - starboard_emoji: str — Starring emoji (unicode or custom)
+      - starboard_threshold: int — Reactions needed (default: 1)
+      - created_at: datetime
+      - updated_at: datetime
+    persistence: Table `starboard`. Managed by StarboardController.
+
+  - name: StarboardMessage
+    description: >
+      Tracks individual messages that have been posted to the starboard.
+      Stores the original message content, channel, author, current star
+      count, and the starboard post message ID.
+    attributes:
+      - id: int (PK, BigInteger) — Original Discord message ID
+      - message_content: str — Original message text
+      - message_expires_at: datetime — When entry expires
+      - message_channel_id: int — Original channel ID
+      - message_user_id: int — Author's Discord ID
+      - star_count: int — Current star reaction count
+      - starboard_message_id: int — Starboard post message ID
+    persistence: Table `starboard_message`. Managed by StarboardMessageController.
+
+  - name: PermissionRank
+    description: >
+      Defines a hierarchical permission level (0-10) with a human-readable
+      name and description. Ranks are guild-wide and can be customized.
+      Default ranks 0-7 are created during guild initialization.
+    attributes:
+      - id: int (PK, BigInteger) — Auto-generated
+      - rank: int — Numeric level (0-10, unique, higher = more permissions)
+      - name: str — Human-readable name (e.g., "Moderator", "Admin")
+      - description: str | None — Purpose explanation
+      - created_at: datetime
+      - updated_at: datetime
+    constraints:
+      - CHECK rank >= 0 AND rank <= 10
+      - UNIQUE(name)
+    relationships:
+      - assignments: list[PermissionAssignment] — Cascade delete
+    persistence: Table `permission_ranks`.
+
+  - name: PermissionAssignment
+    description: >
+      Maps a Discord role to a PermissionRank, granting all members with that
+      role the associated permission level. Multiple roles can map to the same
+      rank; each role can only have one rank.
+    attributes:
+      - id: int (PK, BigInteger) — Auto-generated
+      - permission_rank_id: int (FK → permission_ranks.id, CASCADE)
+      - role_id: int (UNIQUE) — Discord role snowflake ID
+    relationships:
+      - permission_rank: PermissionRank — Back-populates assignments
+    persistence: Table `permission_assignments`.
+
+  - name: PermissionCommand
+    description: >
+      Overrides the minimum permission rank required for a specific command
+      (or command group). Supports parent fallback — if "config ranks init"
+      is not configured, the system checks "config ranks", then "config".
+    attributes:
+      - id: int (PK, BigInteger) — Auto-generated
+      - command_name: str — Command name (unique, e.g. "ban", "config ranks")
+      - required_rank: int — Minimum rank (0-10)
+      - description: str | None — Command description
+      - created_at: datetime
+      - updated_at: datetime
+    constraints:
+      - CHECK required_rank >= 0 AND required_rank <= 10
+    persistence: Table `permission_commands`.
+
+# =============================================================================
+# DOMAIN EVENTS — Significant occurrences in the system
+# =============================================================================
+domain_events:
+
+  - name: ModerationAction
+    description: >
+      A moderation action executed against a user. Always results in a Case
+      record. The flow is: DM user → Execute Discord action → Create Case →
+      Send response embed → Post to mod log channel.
+    variants:
+      - BAN: Permanent ban from guild
+      - TEMPBAN: Temporary ban with case_expires_at
+      - HACKBAN: Ban a user not in the guild (by ID)
+      - UNBAN: Lift a ban
+      - KICK: Remove user from guild
+      - TIMEOUT: Mute user for a duration (discord timeout)
+      - UNTIMEOUT: Remove timeout
+      - WARN: Issue a formal warning (no Discord action, just case record)
+      - JAIL: Restrict user to specific channels (role-based)
+      - UNJAIL: Remove jail restrictions
+      - SNIPPETBAN: Prevent user from creating/editing snippets
+      - SNIPPETUNBAN: Restore snippet access
+      - POLLBAN: Prevent user from creating polls
+      - POLLUNBAN: Restore poll access
+    produced_by: ModerationCoordinator
+
+  - name: GuildRegistered
+    description: >
+      Fires during on_ready when a guild is first seen. Triggers permission
+      rank initialization, prefix loading, and cache pre-warming.
+      Other cogs wait on guilds_registered asyncio.Event before doing
+      guild-dependent work.
+    affects: PermissionSystem, PrefixManager, CacheService
+
+  - name: MessageReceived
+    description: >
+      A message is received from Discord gateway. Triggers XP gain (Levels),
+      AFK return detection (removes AFK status when user sends a message),
+      snippet command resolution, and prefix-based command dispatch.
+    handlers:
+      - LevelsController (XP grant with cooldown)
+      - AFK system (auto-remove on message)
+      - Snippet system (custom command resolution)
+
+  - name: BotStartup
+    description: >
+      Multi-phase startup: configure logging → init Sentry → register signal
+      handlers → create Bot instance → login → connect → setup_hook (DB
+      connect, cog loader, cache init, permission init, prefix init) →
+      on_ready (banner, stats, Sentry instrumentation).
+    orchestrated_by: BotApp → BotSetupOrchestrator
+
+  - name: BotShutdown
+    description: >
+      Three-phase graceful shutdown: (1) Cancel startup task, (2) Clean up
+      background tasks via TaskMonitor, (3) Close Discord gateway, DB pool,
+      Valkey cache, and HTTP client. Idempotent.
+    orchestrated_by: Bot.shutdown()
+
+  - name: StarboardTriggered
+    description: >
+      When a message receives enough star emoji reactions (≥ threshold),
+      the message content is reposted to the configured starboard channel
+      and a StarboardMessage record is created.
+    config: Starboard (channel, emoji, threshold)
+
+  - name: ReminderFired
+    description: >
+      A scheduled reminder reaches its expiry time. The bot sends the
+      reminder content to the configured channel and marks it as sent.
+    checked_by: Background periodic task
+
+  - name: PermissionChanged
+    description: >
+      Any modification to PermissionRank, PermissionAssignment, or
+      PermissionCommand. Invalidates relevant caches (2-hour TTL fallback
+      for command permissions).
+    triggers: Cache invalidation, potentially re-pre-warming
+
+# =============================================================================
+# DOMAIN SERVICES — Core application services and coordinators
+# =============================================================================
+domain_services:
+
+  - name: BotApp
+    description: >
+      Application lifecycle manager. Synchronous entry point that owns the
+      asyncio event loop, registers SIGTERM/SIGINT handlers for graceful
+      shutdown, configures logging and Sentry, creates the Bot instance,
+      and handles login/connect lifecycle. Returns exit codes (0=success,
+      130=user shutdown, 1=error).
+    location: src/bot/core/app.py
+    key_methods:
+      - run() — Synchronous entry point
+      - start() — Async lifecycle (logging → Sentry → signals → bot → login → connect)
+      - shutdown() — Graceful cleanup, flush Sentry
+      - _setup_signals() — SIGTERM/SIGINT handlers
+
+  - name: Bot
+    description: >
+      Main bot class extending discord.py's commands.Bot. Owns all service
+      instances (DatabaseService, CacheService, TaskMonitor, PrefixManager,
+      EmojiManager). Manages setup_hook (orchestrated by BotSetupOrchestrator),
+      maintenance mode checks, jail status lookups, post-ready startup tasks,
+      and three-phase shutdown. Published as `bot` on all cogs.
+    location: src/bot/core/bot.py
+    managed_services:
+      - db_service: DatabaseService
+      - cache_service: CacheService | None
+      - db: DatabaseCoordinator (lazy property)
+      - prefix_manager: PrefixManager | None
+      - task_monitor: TaskMonitor
+      - emoji_manager: EmojiManager
+      - sentry_manager: SentryManager
+    state_flags:
+      - is_shutting_down: bool
+      - setup_complete: bool
+      - first_ready: bool
+      - maintenance_mode: bool (from CONFIG)
+
+  - name: BaseCog
+    description: >
+      Foundation for all Discord command cogs. Provides convenient access
+      to the database coordinator (`self.db`), config values
+      (`self.get_config("KEY")`), automatic command usage string generation
+      from function signatures, permission check injection, and helpers for
+      deferred responses and conditional cog unloading.
+    location: src/bot/core/base_cog.py
+    key_methods:
+      - db (property) — DatabaseCoordinator
+      - get_config(key, default) — Nested config access
+      - send_after_defer(ctx, ...) — Post-defer response (slash/prefix)
+      - unload_if_missing_config(condition, config_name) — Graceful unload
+      - is_snippetbanned(guild_id, user_id) — Snippet ban check
+
+  - name: CogLoader
+    description: >
+      Priority-based, concurrent cog loading system. Cogs are grouped by
+      priority (services=90, config=85, admin=80, levels=70, moderation=60,
+      snippets=50, guild=40, utility=30, info=20, fun=10, tools=5, plugins=1)
+      and loaded concurrently within each group via asyncio.gather.
+      Uses AST pre-validation to skip non-cog files.
+    location: src/bot/core/cog_loader.py
+
+  - name: PermissionSystem
+    description: >
+      Central permission checking service. Manages guild-specific permission
+      ranks (0-10), role-to-rank assignments, command permission overrides
+      with parent fallback, and config file loading. Commands are denied by
+      default (safe mode). Caches with Valkey/in-memory (2-hour TTL).
+      The @requires_command_permission() decorator delegates here.
+    location: src/bot/core/permission_system.py
+    key_methods:
+      - initialize_guild(guild_id) — Create default ranks 0-7
+      - get_user_permission_rank(ctx) — Highest rank for user
+      - get_command_permission(guild_id, command_name) — With parent fallback
+      - set_command_permission(guild_id, command_name, rank) — Override
+      - assign_permission_rank(guild_id, rank, role_id) — Role→rank mapping
+      - prewarm_cache_for_guild(guild_id) — Cold-start optimization
+      - load_from_config(guild_id, config) — Config file support
+
+  - name: DatabaseService
+    description: >
+      Async PostgreSQL connection pool manager using SQLAlchemy 2.0 async
+      with psycopg. Provides connection management with retry logic,
+      automatic reconnection, health checks, and session factory.
+      Pool size, overflow, and timeout are configurable.
+    location: src/bot/database/service.py
+    key_methods:
+      - connect(database_url) — Create engine + pool
+      - disconnect() — Close pool gracefully
+      - session() — Async context manager for sessions
+      - health_check() — Verify connection
+
+  - name: DatabaseCoordinator
+    description: >
+      Lazy-loaded facade over all domain-specific controllers. Provides a
+      single entry point (`bot.db`) for all database operations. Controllers
+      are created on first access. Available controllers: afk, levels,
+      snippet, case, starboard, starboard_message, reminder,
+      permission_ranks, permission_assignments, command_permissions.
+    location: src/bot/database/controllers/__init__.py
+    controller_list:
+      - afk → AfkController
+      - levels → LevelsController
+      - snippet → SnippetController
+      - case → CaseController
+      - starboard → StarboardController
+      - starboard_message → StarboardMessageController
+      - reminder → ReminderController
+      - permission_ranks → PermissionRankController
+      - permission_assignments → PermissionAssignmentController
+      - command_permissions → PermissionCommandController
+
+  - name: CacheService
+    description: >
+      Async cache service for Valkey (Redis-compatible) operations.
+      Optional — when VALKEY_URL is empty or connection fails, the bot runs
+      without Valkey and consumers fall back to in-memory caches.
+      Uses exponential backoff retry for transient failures.
+    location: src/bot/cache/service.py
+
+  - name: ModerationCoordinator
+    description: >
+      Orchestrates the full moderation workflow: DM user → execute Discord
+      action (with retry/circuit breaker) → create Case record → send
+      response embed → post to mod log. Composes CaseService,
+      CommunicationService, and ExecutionService.
+    location: src/bot/services/moderation/moderation_coordinator.py
+    composed_services:
+      - case_service: CaseService
+      - communication: CommunicationService
+      - execution: ExecutionService
+
+  - name: CaseService
+    description: >
+      Wraps CaseController with clean methods for case creation, retrieval,
+      and management. Used by ModerationCoordinator.
+    location: src/bot/services/moderation/case_service.py
+
+  - name: CommunicationService
+    description: >
+      Handles DM sending, embed creation, and user communication for
+      moderation actions. Manages pre-action DMs (for removal actions like
+      ban/kick), silent mode suppression, and error handling.
+    location: src/bot/services/moderation/communication_service.py
+
+  - name: ExecutionService
+    description: >
+      Executes Discord API moderation actions with retry logic, exponential
+      backoff, and circuit breaker pattern (shared singleton). Prevents
+      cascading failures when Discord API is unavailable.
+    location: src/bot/services/moderation/execution_service.py
+
+  - name: PrefixManager
+    description: >
+      Manages per-guild custom command prefixes with in-memory caching.
+      Falls back to the configured default prefix.
+    location: src/bot/core/prefix_manager.py
+
+  - name: TaskMonitor
+    description: >
+      Manages background periodic tasks (reminder checker, expired tempban
+      processor, etc.) and coordinates cleanup during shutdown.
+    location: src/bot/core/task_monitor.py
+
+  - name: EmojiManager
+    description: >
+      Loads and manages custom emojis for consistent embed icons across
+      the bot. Initialized during setup_hook.
+    location: src/bot/services/emoji_manager.py
+
+  - name: BotSetupOrchestrator
+    description: >
+      Coordinates the startup sequence: database setup → cache setup →
+      cog loading → permission initialization → prefix initialization.
+      Called by Bot.setup_hook().
+    location: src/bot/core/setup/orchestrator.py
+
+  - name: ConfigDashboard
+    description: >
+      Interactive Discord UI (Components V2) for managing guild
+      configuration: permission ranks, role assignments, command permissions,
+      and log channels. Uses paginated sections with ActionRow limits
+      (3 ranks/page, 4 roles/page, 2 commands/page, 5 logs/page).
+      Times out after 5 minutes.
+    location: src/bot/modules/config/, src/bot/ui/views/config/
+    sections:
+      - ranks — Permission rank management
+      - roles — Role-to-rank assignments
+      - commands — Command permission overrides
+      - logs — Log channel configuration
+      - overview — Unified dashboard view
+
+  - name: HelpSystem
+    description: >
+      Custom help command with permission-filtered command listing,
+      category-based navigation, and rich embed rendering. Replaces
+      discord.py's default help command.
+    location: src/bot/help/
+
+  - name: JailStatusCache
+    description: >
+      Singleton cache manager for jail status (guild_id, user_id → bool).
+      Supports optional Valkey backend with 1-hour TTL. Invalidated on
+      jail/unjail operations. Used by the moderation system for
+      efficient jail checks.
+    location: src/bot/cache/managers.py
+
+# =============================================================================
+# VALUE OBJECTS — Enums, typed dicts, and constant collections
+# =============================================================================
+value_objects:
+
+  - name: CaseType (StrEnum)
+    description: >
+      Enum of all possible moderation action types. Stored as PostgreSQL
+      enum (`case_type_enum`). Values are uppercase strings.
+      Mutually paired types: BAN/UNBAN, JAIL/UNJAIL, TIMEOUT/UNTIMEOUT,
+      SNIPPETBAN/SNIPPETUNBAN, POLLBAN/POLLUNBAN, plus standalone KICK,
+      WARN, HACKBAN, TEMPBAN.
+    values:
+      - BAN
+      - UNBAN
+      - HACKBAN
+      - TEMPBAN
+      - KICK
+      - TIMEOUT
+      - UNTIMEOUT
+      - WARN
+      - JAIL
+      - UNJAIL
+      - SNIPPETBAN
+      - SNIPPETUNBAN
+      - POLLBAN
+      - POLLUNBAN
+    location: src/bot/database/models/enums.py
+
+  - name: PermissionType (StrEnum)
+    description: >
+      Enum of permission scopes that can be configured.
+    values:
+      - MEMBER
+      - CHANNEL
+      - CATEGORY
+      - ROLE
+      - COMMAND
+      - MODULE
+    location: src/bot/database/models/enums.py
+
+  - name: OnboardingStage (StrEnum)
+    description: >
+      Enum tracking the guild onboarding/initialization progress.
+    values:
+      - NOT_STARTED
+      - DISCOVERED
+      - INITIALIZED
+      - CONFIGURED
+      - COMPLETED
+    location: src/bot/database/models/enums.py
+
+  - name: RankDefinition (TypedDict)
+    description: >
+      Type definition for permission rank configuration.
+    fields:
+      - name: str
+      - description: str
+    location: src/bot/core/permission_system.py
+
+  - name: CogPriorities (constant dict)
+    description: >
+      Priority values for cog loading order. Higher values = loaded first.
+      Within same priority, cogs load concurrently.
+    values:
+      services: 90
+      config: 85
+      admin: 80
+      levels: 70
+      moderation: 60
+      snippets: 50
+      guild: 40
+      utility: 30
+      info: 20
+      fun: 10
+      tools: 5
+      plugins: 1
+    location: src/bot/shared/constants.py
+
+  - name: EmbedColors (constant dict)
+    description: >
+      Named embed color integers for consistent styling across the bot.
+    values:
+      DEFAULT: 16044058, INFO: 12634869, WARNING: 16634507
+      ERROR: 16067173, SUCCESS: 10407530, POLL: 14724968
+      CASE: 16217742, NOTE: 16752228
+    location: src/bot/shared/constants.py
+
+  - name: ConfigDashboardColors (constant dict)
+    description: >
+      Discord brand colors for config dashboard UI.
+    values:
+      BLURPLE: 0x5865F2, GREEN: 0x57F287, YELLOW: 0xFEE75C, RED: 0xED4245
+    location: src/bot/shared/constants.py
+
+  - name: DefaultRanks (constant dict)
+    description: >
+      Default permission rank hierarchy (0-7) with names and descriptions.
+      Rank 0=Member, Rank 7=Server Owner. Ranks 8-10 available for custom creation.
+    values:
+      - rank: 0 — "Member" — Regular community member
+      - rank: 1 — "Trusted" — Reliable community member
+      - rank: 2 — "Junior Moderator" — Entry-level mod
+      - rank: 3 — "Moderator" — Experienced mod
+      - rank: 4 — "Senior Moderator" — Senior mod with oversight
+      - rank: 5 — "Administrator" — Broad management
+      - rank: 6 — "Head Administrator" — Comprehensive oversight
+      - rank: 7 — "Server Owner" — Ultimate authority
+    location: src/bot/core/permission_system.py
+
+  - name: RestrictedCommands (frozenset)
+    description: >
+      Commands that can NEVER be assigned to permission ranks.
+      Owner/sysadmin only, enforced at the bot level.
+    values: {"eval", "e", "jsk", "jishaku"}
+    location: src/bot/core/permission_system.py
+
+  - name: BotError Hierarchy
+    description: >
+      Custom exception hierarchy for domain-specific error handling.
+    base: BotError
+    tree:
+      - BotConfigurationError
+      - BotCogLoadError
+      - BotDatabaseError
+        - BotDatabaseConnectionError
+      - BotPermissionDeniedError
+      - BotAPIError
+      - BotServiceError
+    location: src/bot/shared/exceptions/
+
+  - name: BaseModel Mixins
+    description: >
+      Reusable SQLModel mixins providing common patterns across all models.
+    mixins:
+      - TimestampMixin: created_at + updated_at (DB-managed defaults)
+      - SoftDeleteMixin: deleted_at + is_deleted + soft_delete() + restore()
+      - UUIDMixin: id as UUID with auto-generation
+    location: src/bot/database/models/base.py
+
+# =============================================================================
+# EXTERNAL INTEGRATIONS — Systems the bot communicates with
+# =============================================================================
+external_integrations:
+
+  - name: Discord Gateway
+    description: >
+      Real-time WebSocket connection to Discord for receiving events
+      (messages, interactions, guild/channel changes) and sending commands.
+      Uses discord.py library with configurable intents.
+    protocol: WebSocket (discord.py 2.6+)
+    config: BOT_TOKEN, BOT_INTENTS
+
+  - name: Discord REST API
+    description: >
+      HTTP API for Discord operations (ban, kick, timeout, channel management,
+      role management, etc.). Accessed through discord.py internally.
+      HTTP client is tuned for high-latency environments.
+    config: http_config.py tuning
+
+  - name: PostgreSQL Database
+    description: >
+      Primary data store for all persistent domain objects. Async access via
+      SQLAlchemy 2.0 + psycopg with connection pooling.
+      Alembic for schema migrations.
+    config: POSTGRES_* env vars, connection pool settings
+
+  - name: Valkey (Redis-compatible Cache)
+    description: >
+      Optional in-memory cache for permission lookups, jail status, and
+      command permission fallbacks. Falls back gracefully to Python
+      in-memory dicts when unavailable.
+    config: VALKEY_URL, optional
+
+  - name: Sentry
+    description: >
+      Error tracking, performance monitoring, and distributed tracing.
+      Captures exceptions, records bot statistics, instruments commands,
+      and provides span/transaction-based tracing for startup and shutdown.
+    config: SENTRY_DSN, SENTRY_ENVIRONMENT
+    features:
+      - capture_exception_safe — Report errors
+      - capture_database_error — DB-specific error reporting
+      - start_span / start_transaction — Performance tracing
+      - instrument_bot_commands — Auto-instrument command handlers
+      - set_context / set_tag — Enrich events with bot state
+
+  - name: GitHub API (githubkit)
+    description: >
+      GitHub App authentication and repository interaction.
+      Optional — cog unloads if token is not configured.
+    config: GITHUB_TOKEN, GITHUB_APP_*
+
+  - name: Mailcow API
+    description: >
+      Email management for the AWFixer community. Optional integration.
+    config: MAILCOW_* env vars
+
+  - name: Wolfram Alpha
+    description: >
+      Computational knowledge queries (fun/info commands). Optional.
+    config: WOLFRAM_APP_ID
+
+  - name: Godbolt / Compiler Explorer
+    description: >
+      Code compilation queries. Optional.
+    config: GODBOLT_* settings
+
+  - name: Wandbox
+    description: >
+      Code execution in multiple languages. Optional.
+    config: WANDBOX_API_URL
+
+  - name: Wikipedia / Arch Wiki
+    description: >
+      Information lookup for wiki commands. Uses public APIs.
+
+# =============================================================================
+# CROSS-CUTTING CONCEPTS
+# =============================================================================
+cross_cutting:
+
+  - name: Maintenance Mode
+    description: >
+      When enabled (via CONFIG.MAINTENANCE_MODE), blocks all non-owner
+      commands. Bot owners and sysadmins are still allowed through.
+      Users see a maintenance message. Set before startup or via env var.
+
+  - name: Graceful Shutdown
+    description: >
+      Three-phase shutdown: (1) cancel startup task, (2) cleanup background
+      tasks via TaskMonitor, (3) close Discord → DB → Cache → HTTP connections.
+      Idempotent — safe to call multiple times. All phases traced in Sentry.
+
+  - name: Permission Decorator (@requires_command_permission)
+    description: >
+      Database-driven, zero-argument decorator for all commands.
+      Read the required rank from PermissionCommand table per guild.
+      Uses parent fallback for subcommands. Deny-by-default (safe mode).
+      Optional: allow_unconfigured, allow_self_use_for_param.
+
+  - name: Silent Moderation
+    description: >
+      Flag on moderation commands that suppresses the DM to the target user.
+      Useful for stealth moderation actions.
+
+  - name: Pagination System
+    description: >
+      Handles Discord's 5 ActionRow / 40 component limits in UI views.
+      Config dashboard uses paginated sections with per-page limits:
+      3 ranks, 4 roles, 2 commands, 5 logs per page.
+
+  - name: Controller Pattern
+    description: >
+      Each domain entity has a dedicated Controller class (e.g., CaseController,
+      AfkController) that encapsulates all CRUD operations. Controllers extend
+      BaseController with reusable mixins: CRUD, bulk operations, upsert,
+      query building, filtering, and transaction management.
+    location: src/bot/database/controllers/base/
+
+  - name: Cog Priority Loading
+    description: >
+      Cogs are loaded in priority groups to ensure service dependencies are
+      available before feature cogs. Services (90) load first, then config
+      (85), admin (80), levels (70), moderation (60), snippets (50),
+      guild (40), utility (30), info (20), fun (10), tools (5), plugins (1).
+
+  - name: Snippet Commands Module
+    description: >
+      The snippets module is organized as individual files per command:
+      create_snippet, delete_snippet, edit_snippet, get_snippet,
+      get_snippet_info, list_snippets, toggle_snippet_lock.
+      Each command exposes both prefix and slash hybrid invocation.
+
+  - name: Moderation Module Organization
+    description: >
+      Each moderation action type has its own cog file:
+      ban.py, kick.py, warn.py, jail.py, unjail.py, timeout.py,
+      untimeout.py, tempban.py, unban.py, snippetban.py, snippetunban.py,
+      pollban.py, pollunban.py, purge.py, slowmode.py, cases.py,
+      report.py, clearafk.py.
