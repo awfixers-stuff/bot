@@ -8,13 +8,13 @@ icon: lucide/sliders-horizontal
 
 # Self-Host Management
 
-Essential information for ongoing maintenance and operations of your Tux self-hosted instance.
+Essential information for ongoing maintenance and operations of your Bot self-hosted instance.
 
 ## Management Guides
 
 ### [Database Management](database.md)
 
-Comprehensive guide for managing your Tux database:
+Comprehensive guide for managing your Bot database:
 
 - **Backups** - Manual and automated backup strategies
 - **Migrations** - Managing database schema changes
@@ -34,7 +34,7 @@ Detailed guide for managing Docker containers:
 
 ### [System Operations](operations.md)
 
-Monitor, maintain, and optimize your Tux installation:
+Monitor, maintain, and optimize your Bot installation:
 
 - **Monitoring** - Health checks and metrics
 - **Performance** - Optimization strategies
@@ -51,25 +51,25 @@ Monitor, maintain, and optimize your Tux installation:
 uv run db health
 
 # Bot status (Docker)
-docker compose ps tux
+docker compose ps bot
 
 # Bot status (systemd)
-sudo systemctl status tux
+sudo systemctl status bot
 ```
 
 ### Common Tasks
 
 ```bash
 # View logs
-docker compose logs -f tux          # Docker
-sudo journalctl -u tux -f          # systemd
+docker compose logs -f bot          # Docker
+sudo journalctl -u bot -f          # systemd
 
 # Restart services
-docker compose restart tux          # Docker
-sudo systemctl restart tux          # systemd
+docker compose restart bot          # Docker
+sudo systemctl restart bot          # systemd
 
 # Database backup
-docker compose exec tux-postgres pg_dump -U tuxuser tuxdb > backup.sql
+docker compose exec bot-postgres pg_dump -U botuser botdb > backup.sql
 
 # Fix sequences
 uv run db fix-sequences

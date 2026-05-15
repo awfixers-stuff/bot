@@ -9,7 +9,7 @@ icon: lucide/container
 
 # Docker Operations
 
-Detailed guide for managing and operating Tux Docker containers.
+Detailed guide for managing and operating Bot Docker containers.
 
 ## Service Management
 
@@ -19,17 +19,17 @@ Detailed guide for managing and operating Tux Docker containers.
 # Follow all logs
 docker compose logs -f
 
-# Follow Tux logs only
-docker compose logs -f tux
+# Follow Bot logs only
+docker compose logs -f bot
 
 # Last 100 lines
-docker compose logs --tail=100 tux
+docker compose logs --tail=100 bot
 
 # Since timestamp
-docker compose logs --since "1 hour ago" tux
+docker compose logs --since "1 hour ago" bot
 
 # Filter logs
-docker compose logs tux | grep -i "error\|warning"
+docker compose logs bot | grep -i "error\|warning"
 ```
 
 ### Start Services
@@ -39,7 +39,7 @@ docker compose logs tux | grep -i "error\|warning"
 docker compose --profile dev up -d
 
 # Start specific service (use --profile dev or --profile production)
-docker compose --profile dev up -d tux
+docker compose --profile dev up -d bot
 
 # Start with build
 docker compose --profile dev up -d --build
@@ -65,10 +65,10 @@ docker compose down -v
 docker compose restart
 
 # Restart specific service
-docker compose restart tux
+docker compose restart bot
 
 # Restart with recreation (use --profile dev or --profile production)
-docker compose --profile dev up -d --force-recreate tux
+docker compose --profile dev up -d --force-recreate bot
 ```
 
 ### Check Status
@@ -84,7 +84,7 @@ docker compose ps -a
 docker compose ps --format json | jq '.[] | {name: .Name, status: .State, health: .Health}'
 
 # View resource usage
-docker stats tux tux-postgres
+docker stats bot bot-postgres
 ```
 
 ## Adminer (Database Management)
@@ -96,10 +96,10 @@ Adminer provides a web-based database management interface for PostgreSQL.
 Access Adminer at `http://localhost:8080`:
 
 - **System**: PostgreSQL
-- **Server**: `tux-postgres`
-- **Username**: Value from `POSTGRES_USER` (default: `tuxuser`)
+- **Server**: `bot-postgres`
+- **Username**: Value from `POSTGRES_USER` (default: `botuser`)
 - **Password**: Value from `POSTGRES_PASSWORD`
-- **Database**: Value from `POSTGRES_DB` (default: `tuxdb`)
+- **Database**: Value from `POSTGRES_DB` (default: `botdb`)
 
 ### Configuration
 
@@ -133,13 +133,13 @@ docker compose --profile dev --profile adminer up -d
 
 ```bash
 # Create backup with timestamp
-docker compose exec tux-postgres pg_dump -U tuxuser tuxdb > backup_$(date +%Y%m%d_%H%M%S).sql
+docker compose exec bot-postgres pg_dump -U botuser botdb > backup_$(date +%Y%m%d_%H%M%S).sql
 
 # Create backup with custom format (smaller, faster)
-docker compose exec tux-postgres pg_dump -U tuxuser -Fc tuxdb > backup_$(date +%Y%m%d).dump
+docker compose exec bot-postgres pg_dump -U botuser -Fc botdb > backup_$(date +%Y%m%d).dump
 
 # Compressed backup
-docker compose exec tux-postgres pg_dump -U tuxuser tuxdb | gzip > backup_$(date +%Y%m%d).sql.gz
+docker compose exec bot-postgres pg_dump -U botuser botdb | gzip > backup_$(date +%Y%m%d).sql.gz
 ```
 
 **Using Adminer:**
@@ -155,16 +155,16 @@ docker compose exec tux-postgres pg_dump -U tuxuser tuxdb | gzip > backup_$(date
 
 ```bash
 # Restore from backup
-docker compose exec -T tux-postgres psql -U tuxuser -d tuxdb < backup_20240101.sql
+docker compose exec -T bot-postgres psql -U botuser -d botdb < backup_20240101.sql
 
 # Restore with error checking
-docker compose exec -T tux-postgres psql -U tuxuser -d tuxdb -v ON_ERROR_STOP=1 < backup_20240101.sql
+docker compose exec -T bot-postgres psql -U botuser -d botdb -v ON_ERROR_STOP=1 < backup_20240101.sql
 ```
 
 **From custom format:**
 
 ```bash
-docker compose exec -T tux-postgres pg_restore -U tuxuser -d tuxdb < backup_20240101.dump
+docker compose exec -T bot-postgres pg_restore -U botuser -d botdb < backup_20240101.dump
 ```
 
 **Using Adminer:**
@@ -180,7 +180,7 @@ docker compose exec -T tux-postgres pg_restore -U tuxuser -d tuxdb < backup_2024
 **List volumes:**
 
 ```bash
-docker volume ls | grep tux
+docker volume ls | grep bot
 ```
 
 **Backup volume:**
@@ -188,22 +188,22 @@ docker volume ls | grep tux
 ```bash
 # Backup PostgreSQL data volume (using lightweight utility container)
 docker run --rm \
-  -v tux_postgres_data:/data \
+  -v bot_postgres_data:/data \
   -v $(pwd):/backup \
   alpine:latest tar czf /backup/postgres_backup_$(date +%Y%m%d).tar.gz -C /data .
 
 # Backup all volumes (using lightweight utility container)
 docker run --rm \
-  -v tux_postgres_data:/data \
-  -v tux_cache:/cache \
-  -v tux_temp:/temp \
-  -v tux_user_home:/home \
+  -v bot_postgres_data:/data \
+  -v bot_cache:/cache \
+  -v bot_temp:/temp \
+  -v bot_user_home:/home \
   -v $(pwd):/backup \
   alpine:latest sh -c "tar czf /backup/volumes_backup_$(date +%Y%m%d).tar.gz /data /cache /temp /home"
 ```
 
 !!! note "Utility Container"
-    The `alpine:latest` image is used here as a lightweight utility container for running tar commands. It's not related to the Tux application image, which uses `python:3.13.11-slim` (Debian-based).
+    The `alpine:latest` image is used here as a lightweight utility container for running tar commands. It's not related to the Bot application image, which uses `python:3.13.11-slim` (Debian-based).
 
 **Restore volume:**
 
@@ -213,7 +213,7 @@ docker compose down
 
 # Restore volume (using lightweight utility container)
 docker run --rm \
-  -v tux_postgres_data:/data \
+  -v bot_postgres_data:/data \
   -v $(pwd):/backup \
   alpine:latest sh -c "cd /data && tar xzf /backup/postgres_backup_20240101.tar.gz"
 
@@ -227,7 +227,7 @@ docker compose --profile production up -d
 
 ```bash
 # Check health status
-docker inspect tux --format='{{json .State.Health}}' | jq
+docker inspect bot --format='{{json .State.Health}}' | jq
 
 # Check all health statuses
 docker compose ps --format json | jq '.[] | {name: .Name, health: .Health}'
@@ -237,11 +237,11 @@ docker compose ps --format json | jq '.[] | {name: .Name, health: .Health}'
 
 ```bash
 # Real-time stats
-docker stats tux tux-postgres
+docker stats bot bot-postgres
 
 # Container details
-docker compose exec tux ps aux
-docker compose exec tux df -h
+docker compose exec bot ps aux
+docker compose exec bot df -h
 
 # Memory usage
 docker stats --no-stream --format "table {{.Name}}\t{{.MemUsage}}\t{{.MemPerc}}"
@@ -251,16 +251,16 @@ docker stats --no-stream --format "table {{.Name}}\t{{.MemUsage}}\t{{.MemPerc}}"
 
 ```bash
 # Via CLI
-docker compose exec tux uv run db health
+docker compose exec bot uv run db health
 
 # Direct PostgreSQL check
-docker compose exec tux-postgres pg_isready -U tuxuser
+docker compose exec bot-postgres pg_isready -U botuser
 
 # Check database size
-docker compose exec tux-postgres psql -U tuxuser -d tuxdb -c "SELECT pg_size_pretty(pg_database_size('tuxdb'));"
+docker compose exec bot-postgres psql -U botuser -d botdb -c "SELECT pg_size_pretty(pg_database_size('botdb'));"
 
 # Check table sizes
-docker compose exec tux-postgres psql -U tuxuser -d tuxdb -c "SELECT schemaname, tablename, pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS size FROM pg_tables WHERE schemaname = 'public' ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;"
+docker compose exec bot-postgres psql -U botuser -d botdb -c "SELECT schemaname, tablename, pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS size FROM pg_tables WHERE schemaname = 'public' ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;"
 ```
 
 ## Maintenance
@@ -291,24 +291,24 @@ docker compose pull
 docker compose --profile dev up -d --build
 
 # Update specific service
-docker compose pull tux
-docker compose --profile dev up -d tux
+docker compose pull bot
+docker compose --profile dev up -d bot
 ```
 
 ### View Container Information
 
 ```bash
 # Inspect container
-docker inspect tux
+docker inspect bot
 
 # View container logs location
-docker inspect tux --format='{{.LogPath}}'
+docker inspect bot --format='{{.LogPath}}'
 
 # View network configuration
-docker network inspect tux_default
+docker network inspect bot_default
 
 # View volume details
-docker volume inspect tux_postgres_data
+docker volume inspect bot_postgres_data
 ```
 
 ## Related Documentation

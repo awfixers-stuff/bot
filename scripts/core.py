@@ -16,7 +16,7 @@ from typer import Typer
 # BOOTSTRAP
 # ============================================================================
 
-# Ensure the 'src' directory is in the Python path so scripts can import 'tux'
+# Ensure the 'src' directory is in the Python path so scripts can import 'bot'
 ROOT = Path(__file__).parent.parent
 SRC = ROOT / "src"
 

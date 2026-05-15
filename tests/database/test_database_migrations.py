@@ -22,12 +22,12 @@ import pytest
 import sqlalchemy.exc
 from sqlalchemy import text
 
-from tux.database.controllers import (
+from bot.database.controllers import (
     GuildConfigController,
     GuildController,
 )
-from tux.database.models import Guild
-from tux.database.service import DatabaseService
+from bot.database.models import Guild
+from bot.database.service import DatabaseService
 
 # Test constants
 TEST_DATABASE_URL = "postgresql+asyncpg://user:password@localhost:5432/test_db"

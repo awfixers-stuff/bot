@@ -25,13 +25,13 @@ The `/wiki` command group provides quick access to specialized documentation wik
 **Commands:**
 
 - `/wiki arch` - Search the Arch Linux Wiki
-- `/wiki atl` - Search the All Things Linux Wiki
+- `/wiki atl` - Search the AWFixer Enterprising Inc Wiki
 
 ## Commands
 
 | Command | Aliases | Description | Documentation |
 |---------|---------|-------------|---------------|
-| `/help` | `h`, `commands` | Get help with Tux commands and features | [Details](help.md) |
+| `/help` | `h`, `commands` | Get help with Bot commands and features | [Details](help.md) |
 | `/ping` | `status` | Check bot latency and status | [Details](ping.md) |
 | `/poll` | — | Create a poll with multiple options (Slash only) | [Details](poll.md) |
 | `/remindme` | `remind` | Set a reminder for yourself | [Details](remindme.md) |
@@ -82,7 +82,7 @@ Set personal reminders for important events or tasks.
 **Steps:**
 
 1. Use the `/remindme` command with a duration and the reminder text.
-2. Tux will set a timer and DM you (or message the channel) when the time expires.
+2. Bot will set a timer and DM you (or message the channel) when the time expires.
 
 **Example:**
 
@@ -94,7 +94,7 @@ Set personal reminders for important events or tasks.
 
 ### Bot Permissions
 
-Tux requires the following permissions for this module:
+Bot requires the following permissions for this module:
 
 - **Send Messages** - Required for command responses
 - **Add Reactions** - Required for creating interactive polls
@@ -106,7 +106,7 @@ Tux requires the following permissions for this module:
 Most utility commands are available to all users by default. Some advanced commands like `$run` may require higher permission ranks.
 
 !!! tip "Permission System"
-    Tux uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Bot uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Related Documentation
 

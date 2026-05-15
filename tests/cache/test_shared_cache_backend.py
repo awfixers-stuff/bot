@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from tux.cache import GuildConfigCacheManager, JailStatusCache
-from tux.cache.backend import InMemoryBackend
+from bot.cache import GuildConfigCacheManager, JailStatusCache
+from bot.cache.backend import InMemoryBackend
 
 
 @pytest.mark.unit

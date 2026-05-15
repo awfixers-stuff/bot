@@ -10,20 +10,20 @@ icon: lucide/arrow-up-down
 
 # Creating Your First Migration
 
-This tutorial walks you through creating your first database migration in Tux. You'll learn how to modify models and generate migrations that safely update your database schema.
+This tutorial walks you through creating your first database migration in Bot. You'll learn how to modify models and generate migrations that safely update your database schema.
 
 ## Prerequisites
 
 Before starting, ensure you have:
 
-- Tux repository cloned locally
+- Bot repository cloned locally
 - Development environment set up ([Development Setup](development-setup.md))
 - Database running (Docker Compose or local PostgreSQL)
 - Basic understanding of SQLModel models
 
 ## Step 1: Understand the Migration Workflow
 
-Tux uses **Alembic** for database migrations. The workflow is:
+Bot uses **Alembic** for database migrations. The workflow is:
 
 1. **Modify models** - Change your SQLModel classes
 2. **Generate migration** - Create migration file from model changes
@@ -39,10 +39,10 @@ Tux uses **Alembic** for database migrations. The workflow is:
 
 ```bash
 # Start PostgreSQL
-docker compose up -d tux-postgres
+docker compose up -d bot-postgres
 
 # Wait for database to be ready
-docker compose exec tux-postgres pg_isready -U tuxuser
+docker compose exec bot-postgres pg_isready -U botuser
 ```
 
 **Using Local PostgreSQL:**
@@ -64,11 +64,11 @@ Create `compose.override.yaml`:
 
 ```yaml
 services:
-  tux:
+  bot:
     volumes:
       # Mount migrations for faster development/customization iteration
       # Without this, migrations come from the Docker image (production behavior)
-      - ./src/tux/database/migrations:/app/src/tux/database/migrations:ro
+      - ./src/bot/database/migrations:/app/src/bot/database/migrations:ro
 ```
 
 This allows you to test migrations without rebuilding the Docker image.
@@ -78,9 +78,9 @@ This allows you to test migrations without rebuilding the Docker image.
 Let's add a new field to an existing model. For this example, we'll add an `email` field to a hypothetical `User` model:
 
 ```python
-# src/tux/database/models/user.py
+# src/bot/database/models/user.py
 from sqlmodel import Field
-from tux.database.models.base import BaseModel
+from bot.database.models.base import BaseModel
 
 class User(BaseModel, table=True):
     id: int = Field(primary_key=True)
@@ -89,7 +89,7 @@ class User(BaseModel, table=True):
     active: bool = Field(default=True)
 ```
 
-**Important:** Only modify models in `src/tux/database/models/`. Don't edit migration files directly.
+**Important:** Only modify models in `src/bot/database/models/`. Don't edit migration files directly.
 
 ## Step 4: Generate Migration
 
@@ -107,13 +107,13 @@ uv run db dev --name "add email to user"
 
 1. Alembic compares current models to database schema
 2. Detects the new `email` field
-3. Generates migration file in `src/tux/database/migrations/versions/`
+3. Generates migration file in `src/bot/database/migrations/versions/`
 4. Applies migration to your database automatically
 
 **Migration file created:**
 
 ```text
-src/tux/database/migrations/versions/2025_01_15_1430-abc123def456_add_email_to_user.py
+src/bot/database/migrations/versions/2025_01_15_1430-abc123def456_add_email_to_user.py
 ```
 
 ## Step 5: Review Generated Migration
@@ -125,7 +125,7 @@ Always review the generated migration before committing:
 uv run db show head
 
 # Or read the file directly
-cat src/tux/database/migrations/versions/2025_01_15_1430-abc123def456_add_email_to_user.py
+cat src/bot/database/migrations/versions/2025_01_15_1430-abc123def456_add_email_to_user.py
 ```
 
 **Example migration content:**
@@ -182,10 +182,10 @@ Start the bot and verify it works with the new schema:
 
 ```bash
 # Start bot (if using Docker, use --profile dev or --profile production)
-docker compose --profile dev up -d tux
+docker compose --profile dev up -d bot
 
 # Or run locally
-uv run tux start --debug
+uv run bot start --debug
 ```
 
 ### Test Rollback (Optional)
@@ -266,7 +266,7 @@ Once you've reviewed and tested:
 
 ```bash
 # Stage migration file
-git add src/tux/database/migrations/versions/
+git add src/bot/database/migrations/versions/
 
 # Commit with descriptive message
 git commit -m "feat(database): add email field to user model"
@@ -289,13 +289,13 @@ git commit -m "feat(database): add email field to user model"
 
 ```bash
 # Check if models are imported
-# Ensure models are registered in src/tux/database/models/__init__.py
+# Ensure models are registered in src/bot/database/models/__init__.py
 
 # Try with explicit name
 uv run db dev --name "add email field"
 
 # Check for syntax errors in models
-uv run basedpyright src/tux/database/models/
+uv run basedpyright src/bot/database/models/
 ```
 
 ### "Migration file already exists"
@@ -309,7 +309,7 @@ uv run basedpyright src/tux/database/models/
 uv run db status
 
 # If migration not applied, delete file and regenerate
-rm src/tux/database/migrations/versions/conflicting_file.py
+rm src/bot/database/migrations/versions/conflicting_file.py
 uv run db dev --name "add email field"
 ```
 

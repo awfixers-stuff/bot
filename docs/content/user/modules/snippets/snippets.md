@@ -55,7 +55,7 @@ $snippets python
 
 ## Response Format
 
-When executed, Tux returns a paginated embed showing:
+When executed, Bot returns a paginated embed showing:
 
 - **Snippet name** - The unique identifier for the snippet
 - **Usage count** - How many times the snippet has been invoked

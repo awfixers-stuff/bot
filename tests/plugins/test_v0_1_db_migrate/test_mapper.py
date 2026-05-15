@@ -4,8 +4,8 @@ from datetime import datetime
 
 import pytest
 
-from tux.database.models import AFK, Case, Guild, GuildConfig
-from tux.plugins.v0_1_db_migrate.mapper import (
+from bot.database.models import AFK, Case, Guild, GuildConfig
+from bot.plugins.v0_1_db_migrate.mapper import (
     ModelMapper,
 )
 

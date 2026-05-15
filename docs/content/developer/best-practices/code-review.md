@@ -1,6 +1,6 @@
 ---
 title: Code Review Best Practices
-description: Code review best practices for Tux development, including effective review techniques, common patterns, and collaboration guidelines.
+description: Code review best practices for Bot development, including effective review techniques, common patterns, and collaboration guidelines.
 tags:
   - developer-guide
   - best-practices
@@ -15,7 +15,7 @@ icon: lucide/message-square-code
 
 ## Why Code Reviews Matter
 
-Code reviews are essential for maintaining code quality, catching bugs early, sharing knowledge, and ensuring consistency across the Tux codebase.
+Code reviews are essential for maintaining code quality, catching bugs early, sharing knowledge, and ensuring consistency across the Bot codebase.
 
 ### Key Benefits
 
@@ -150,14 +150,14 @@ Approach reviews systematically and constructively:
 - "This error handling could be improved"
 
 # ✅ Provides solution
-+ "Consider using Tux's custom exceptions:
++ "Consider using Bot's custom exceptions:
   ```python
   try:
       result = api_call()
   except httpx.HTTPStatusError as e:
       if e.response.status_code == 404:
-          raise TuxAPIResourceNotFoundError("User not found") from e
-      raise TuxAPIRequestError("API request failed") from e
+          raise BotAPIResourceNotFoundError("User not found") from e
+      raise BotAPIRequestError("API request failed") from e
   ```"
 ```
 
@@ -227,10 +227,10 @@ except Exception as e:
 # ✅ Specific exception handling
 try:
     await self.process_data(data)
-except TuxDatabaseConnectionError:
+except BotDatabaseConnectionError:
     logger.warning("Database temporarily unavailable")
     await self.retry_with_backoff()
-except TuxValidationError as e:
+except BotValidationError as e:
     await ctx.reply(f"Invalid input: {e}")
     return
 except Exception as e:
@@ -250,7 +250,7 @@ except Exception:
 # ✅ Proper error handling
 try:
     result = await risky_operation()
-except TuxAPIConnectionError:
+except BotAPIConnectionError:
     logger.warning("API unavailable, using fallback")
     result = await self.get_fallback_data()
 except Exception as e:
@@ -281,14 +281,14 @@ async def get_user_by_name(self, name: str):
 ```python
 # ❌ Missing permission check
 @commands.command()
-async def delete_server(self, ctx: commands.Context[Tux]):
+async def delete_server(self, ctx: commands.Context[Bot]):
     # Anyone can run this!
     await ctx.guild.delete()
 
 # ✅ Proper permission validation
 @commands.command()
 @commands.has_permissions(administrator=True)
-async def delete_server(self, ctx: commands.Context[Tux]):
+async def delete_server(self, ctx: commands.Context[Bot]):
     # Only administrators can run this
     confirm_embed = EmbedCreator.create_embed(
         embed_type=EmbedCreator.WARNING,
@@ -437,7 +437,7 @@ This would address the performance concerns while maintaining the caching benefi
 
 ### Automated Checks
 
-Tux uses comprehensive automation to catch common issues:
+Bot uses comprehensive automation to catch common issues:
 
 #### Pre-commit Hooks
 
@@ -482,8 +482,8 @@ uv run test all
 uv run dev all
 
 # Check specific files
-uv run basedpyright src/tux/modules/feature.py
-uv run ruff check src/tux/modules/feature.py
+uv run basedpyright src/bot/modules/feature.py
+uv run ruff check src/bot/modules/feature.py
 ```
 
 ## Cultural Aspects

@@ -7,8 +7,8 @@ role-to-rank assignments, and command permission requirements.
 
 import pytest
 
-from tux.core.permission_system import RESTRICTED_COMMANDS, PermissionSystem
-from tux.database.controllers import (
+from bot.core.permission_system import RESTRICTED_COMMANDS, PermissionSystem
+from bot.database.controllers import (
     GuildController,
     PermissionAssignmentController,
     PermissionCommandController,

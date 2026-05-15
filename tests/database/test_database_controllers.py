@@ -2,7 +2,7 @@
 
 import pytest
 
-from tux.database.controllers import (
+from bot.database.controllers import (
     GuildConfigController,
     GuildController,
 )

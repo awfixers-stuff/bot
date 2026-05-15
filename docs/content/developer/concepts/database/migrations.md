@@ -10,7 +10,7 @@ icon: lucide/arrow-left-right
 
 # Database Migrations
 
-Tux uses **Alembic** for database schema migrations, providing version control for PostgreSQL schema changes. Migrations enable safe, incremental database evolution while maintaining data integrity across environments.
+Bot uses **Alembic** for database schema migrations, providing version control for PostgreSQL schema changes. Migrations enable safe, incremental database evolution while maintaining data integrity across environments.
 
 ## Overview
 
@@ -50,7 +50,7 @@ Alembic supports two execution modes:
 
 ### Database CLI Integration
 
-Tux provides a comprehensive database CLI (`uv run db`) that wraps Alembic commands with:
+Bot provides a comprehensive database CLI (`uv run db`) that wraps Alembic commands with:
 
 - Workflow optimization
 - Safety features
@@ -96,7 +96,7 @@ Alembic automatically detects:
 
 ## Workflow by Role
 
-### 👨‍💻 Developers (Contributing to Tux)
+### 👨‍💻 Developers (Contributing to Bot)
 
 #### Understanding Migration Workflow
 
@@ -117,7 +117,7 @@ Alembic automatically detects:
 ```bash
 # 1. Clone and setup
 git clone <repo>
-cd tux
+cd bot
 uv sync
 
 # 2. Apply existing migrations (migrations are already in repo)
@@ -147,7 +147,7 @@ uv run db init
 ##### Step 1: Modify Models
 
 ```python
-# src/tux/database/models/models.py
+# src/bot/database/models/models.py
 class User(BaseModel, table=True):
     id: int = Field(primary_key=True)
     name: str
@@ -171,7 +171,7 @@ uv run db dev --create-only --name "add email to user"
 uv run db show head
 
 # Or manually review:
-cat src/tux/database/migrations/versions/YYYY_MM_DD_HHMM-<revision>_add_email_to_user.py
+cat src/bot/database/migrations/versions/YYYY_MM_DD_HHMM-<revision>_add_email_to_user.py
 ```
 
 ##### Step 4: Apply Migration (if created only)
@@ -183,7 +183,7 @@ uv run db push
 ##### Step 5: Commit Migration File
 
 ```bash
-git add src/tux/database/migrations/versions/
+git add src/bot/database/migrations/versions/
 git commit -m "feat(database): add email field to user model"
 ```
 
@@ -231,7 +231,7 @@ uv run db downgrade -1          # Rollback one migration
 - Skip reviewing auto-generated migrations
 - Commit empty migrations (auto-prevented by system)
 
-### 🏠 Self-Hosters (Running Tux)
+### 🏠 Self-Hosters (Running Bot)
 
 #### First-Time Setup
 
@@ -243,7 +243,7 @@ docker compose --profile production up -d
 
 # 2. Bot automatically runs migrations on first startup
 # Bot will NOT start if migrations fail - check logs:
-docker compose logs tux | grep -i -E "(migration|error|failed)"
+docker compose logs bot | grep -i -E "(migration|error|failed)"
 
 # If migrations fail, bot exits with error. Fix issues and restart.
 ```
@@ -252,25 +252,25 @@ docker compose logs tux | grep -i -E "(migration|error|failed)"
 
 ```bash
 # 1. Start database only
-docker compose up -d tux-postgres
+docker compose up -d bot-postgres
 
 # 2. Wait for DB to be ready
-docker compose exec tux-postgres pg_isready -U tuxuser
+docker compose exec bot-postgres pg_isready -U botuser
 
 # 3. Run migrations manually (use --profile dev or --profile production)
-docker compose --profile dev exec tux uv run db push
+docker compose --profile dev exec bot uv run db push
 
 # 4. Start bot
-docker compose --profile dev up -d tux
+docker compose --profile dev up -d bot
 ```
 
-#### Updating Tux (Applying New Migrations)
+#### Updating Bot (Applying New Migrations)
 
 **Standard Update Workflow:**
 
 ```bash
 # 1. Backup database (IMPORTANT!)
-docker compose exec tux-postgres pg_dump -U tuxuser tuxdb > backup_$(date +%Y%m%d).sql
+docker compose exec bot-postgres pg_dump -U botuser botdb > backup_$(date +%Y%m%d).sql
 
 # 2. Pull latest code
 git pull origin main  # or your branch
@@ -282,23 +282,23 @@ uv sync
 uv run db push
 
 # 5. Restart bot
-docker compose restart tux
+docker compose restart bot
 ```
 
 **Or Let Bot Auto-Migrate:**
 
 ```bash
 # 1. Backup database
-docker compose exec tux-postgres pg_dump -U tuxuser tuxdb > backup.sql
+docker compose exec bot-postgres pg_dump -U botuser botdb > backup.sql
 
 # 2. Pull and restart
 git pull origin main
 uv sync
-docker compose restart tux
+docker compose restart bot
 
 # Bot will auto-apply migrations on startup
 # Bot will NOT start if migrations fail - check logs:
-docker compose logs -f tux | grep -i -E "(migration|error|failed)"
+docker compose logs -f bot | grep -i -E "(migration|error|failed)"
 
 # If migrations fail, bot exits. Fix issues and restart.
 ```
@@ -324,7 +324,7 @@ docker compose logs -f tux | grep -i -E "(migration|error|failed)"
 
 ### Docker Compose Override Pattern
 
-Tux uses the **Docker Compose override pattern** - a standard approach used by Django, Rails, and other major projects. This ensures production deployments work out-of-the-box while providing flexibility for developers and customizers.
+Bot uses the **Docker Compose override pattern** - a standard approach used by Django, Rails, and other major projects. This ensures production deployments work out-of-the-box while providing flexibility for developers and customizers.
 
 ### How It Works
 
@@ -358,7 +358,7 @@ Tux uses the **Docker Compose override pattern** - a standard approach used by D
 
 ```bash
 # Download compose.yaml
-curl -O https://raw.githubusercontent.com/allthingslinux/tux/main/compose.yaml
+curl -O https://raw.githubusercontent.com/awfixers-stuff/bot/main/compose.yaml
 
 # Start services - migrations come from image (use --profile production)
 docker compose --profile production up -d
@@ -372,19 +372,19 @@ docker compose --profile production up -d
 
 ```bash
 # Clone repository
-git clone https://github.com/allthingslinux/tux.git
-cd tux
+git clone https://github.com/awfixers-stuff/bot.git
+cd bot
 ```
 
 Create `compose.override.yaml`:
 
 ```yaml
 services:
-  tux:
+  bot:
     volumes:
       # Mount migrations for faster development/customization iteration
       # Without this, migrations come from the Docker image (production behavior)
-      - ./src/tux/database/migrations:/app/src/tux/database/migrations:ro
+      - ./src/bot/database/migrations:/app/src/bot/database/migrations:ro
 ```
 
 ```bash
@@ -404,8 +404,8 @@ docker compose --profile dev up -d
 
 ```bash
 # Fork repository, add custom models
-git clone https://github.com/yourusername/tux.git
-cd tux
+git clone https://github.com/yourusername/bot.git
+cd bot
 
 # Create custom migrations
 uv run db dev --name "add custom features"
@@ -422,11 +422,11 @@ docker compose --profile dev up -d
 
 ```yaml
 services:
-  tux:
+  bot:
     volumes:
       # Mount migrations for faster development/customization iteration
       # Without this, migrations come from the Docker image (production behavior)
-      - ./src/tux/database/migrations:/app/src/tux/database/migrations:ro
+      - ./src/bot/database/migrations:/app/src/bot/database/migrations:ro
 ```
 
 ### Migration File Resolution
@@ -473,7 +473,7 @@ This pattern is used by:
 rm compose.override.yaml
 
 # Restart services
-docker compose restart tux
+docker compose restart bot
 ```
 
 #### Using Wrong Migrations
@@ -482,14 +482,14 @@ docker compose restart tux
 
 ```bash
 # Check what migrations are being used
-docker compose exec tux ls -la /app/src/tux/database/migrations/versions/
+docker compose exec bot ls -la /app/src/bot/database/migrations/versions/
 
 # If empty or wrong, check override file
 cat compose.override.yaml
 
 # Remove override to use image migrations
 rm compose.override.yaml
-docker compose restart tux
+docker compose restart bot
 ```
 
 #### Development Changes Not Reflecting
@@ -500,7 +500,7 @@ docker compose restart tux
 # Create compose.override.yaml if missing (see override file contents above)
 
 # Restart services
-docker compose restart tux
+docker compose restart bot
 ```
 
 ## Troubleshooting
@@ -509,34 +509,34 @@ docker compose restart tux
 
 ```bash
 # 1. Bot exits if migrations fail - check logs for error
-docker compose logs tux | grep -i -E "(migration|error|failed)"
+docker compose logs bot | grep -i -E "(migration|error|failed)"
 
 # 2. Check migration status manually
-docker compose exec tux uv run db status
+docker compose exec bot uv run db status
 
 # 3. View migration history
-docker compose exec tux uv run db history
+docker compose exec bot uv run db history
 
 # 4. Try running migrations manually
-docker compose exec tux uv run db push
+docker compose exec bot uv run db push
 
 # 5. If migrations still fail, restore backup and investigate
-docker compose exec -T tux-postgres psql -U tuxuser tuxdb < backup.sql
+docker compose exec -T bot-postgres psql -U botuser botdb < backup.sql
 
 # 6. After fixing issues, restart bot
-docker compose restart tux
+docker compose restart bot
 ```
 
 ### Database Out of Sync
 
 ```bash
 # Check schema validation
-docker compose exec tux uv run db schema
+docker compose exec bot uv run db schema
 
 # If validation fails, you may need to reset (DESTRUCTIVE!)
 # Backup first!
-docker compose exec tux-postgres pg_dump -U tuxuser tuxdb > backup.sql
-docker compose exec tux uv run db reset
+docker compose exec bot-postgres pg_dump -U botuser botdb > backup.sql
+docker compose exec bot uv run db reset
 ```
 
 ### Duplicate Key Violations (Sequence Synchronization)
@@ -545,10 +545,10 @@ If you encounter duplicate key violations after restoring data from a backup or 
 
 ```bash
 # Preview what would be fixed (dry run)
-docker compose exec tux uv run db fix-sequences --dry-run
+docker compose exec bot uv run db fix-sequences --dry-run
 
 # Fix all sequences
-docker compose exec tux uv run db fix-sequences
+docker compose exec bot uv run db fix-sequences
 ```
 
 **When to use:**
@@ -574,7 +574,7 @@ uv run db push
 
 ```bash
 # Check if models changed
-git diff src/tux/database/models/
+git diff src/bot/database/models/
 
 # Try with explicit name
 uv run db dev --name "descriptive name"
@@ -619,7 +619,7 @@ The system **automatically prevents** empty migrations:
 
 ## Comparison: Prisma vs Alembic Workflow
 
-| Task | Prisma | Alembic (Tux) |
+| Task | Prisma | Alembic (Bot) |
 |------|--------|---------------|
 | Create migration | `prisma migrate dev` | `uv run db dev` |
 | Apply migrations | Auto on `migrate dev` | Auto on startup OR `uv run db push` |

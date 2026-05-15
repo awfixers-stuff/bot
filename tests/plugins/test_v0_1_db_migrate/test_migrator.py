@@ -4,18 +4,18 @@ import pytest
 from sqlalchemy import create_engine, select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from tux.database.models import Guild, PermissionAssignment, PermissionRank
-from tux.database.service import DatabaseService
-from tux.plugins.v0_1_db_migrate.config import (
+from bot.database.models import Guild, PermissionAssignment, PermissionRank
+from bot.database.service import DatabaseService
+from bot.plugins.v0_1_db_migrate.config import (
     MigrationConfig,
 )
-from tux.plugins.v0_1_db_migrate.extractor import (
+from bot.plugins.v0_1_db_migrate.extractor import (
     DataExtractor,
 )
-from tux.plugins.v0_1_db_migrate.mapper import (
+from bot.plugins.v0_1_db_migrate.mapper import (
     ModelMapper,
 )
-from tux.plugins.v0_1_db_migrate.migrator import (
+from bot.plugins.v0_1_db_migrate.migrator import (
     DatabaseMigrator,
 )
 

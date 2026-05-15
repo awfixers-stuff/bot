@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from tux.services.handlers.error.extractors import (
+from bot.services.handlers.error.extractors import (
     extract_permission_denied_details,
     extract_permissions_details,
 )

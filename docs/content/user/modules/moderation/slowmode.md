@@ -42,7 +42,7 @@ You can also use these aliases instead of `slowmode`:
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `channel` | Channel | No | The channel to modify (defaults to current). |
-| `seconds` | String | No | The delay value (e.g., `10`, `5s`, `2m`). If omitted, Tux returns the current setting. |
+| `seconds` | String | No | The delay value (e.g., `10`, `5s`, `2m`). If omitted, Bot returns the current setting. |
 
 ## Constraints
 
@@ -53,7 +53,7 @@ You can also use these aliases instead of `slowmode`:
 
 ### Bot Permissions
 
-Tux requires the following permissions:
+Bot requires the following permissions:
 
 - **Manage Channels** - Required to modify channel settings like slowmode.
 
@@ -62,7 +62,7 @@ Tux requires the following permissions:
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 
@@ -98,7 +98,7 @@ $slowmode #general 5m
 
 ## Response Format
 
-When executed successfully, Tux will:
+When executed successfully, Bot will:
 
 1. Update the channel's slowmode setting on Discord.
 2. Return a confirmation message (slash command) or send a temporary confirmation (prefix command) stating the new slowmode setting.

@@ -15,7 +15,7 @@ icon: lucide/test-tube-diagonal
 
 ## Overview
 
-Tux uses py-pglite for comprehensive database testing, providing an in-memory PostgreSQL instance that supports the full PostgreSQL feature set. This approach enables fast, isolated, and reliable database tests without external dependencies.
+Bot uses py-pglite for comprehensive database testing, providing an in-memory PostgreSQL instance that supports the full PostgreSQL feature set. This approach enables fast, isolated, and reliable database tests without external dependencies.
 
 The testing strategy focuses on complete isolation, real PostgreSQL compatibility, fast execution, type safety, and fixture-based setup with clear separation between unit and integration testing.
 
@@ -23,7 +23,7 @@ The testing strategy focuses on complete isolation, real PostgreSQL compatibilit
 
 ### PGlite Fixture Structure
 
-Tux uses a multi-layer fixture system for optimal test isolation and performance with session-scoped managers, function-scoped engines, and service instances.
+Bot uses a multi-layer fixture system for optimal test isolation and performance with session-scoped managers, function-scoped engines, and service instances.
 
 ### Session vs Function Scoped Fixtures
 

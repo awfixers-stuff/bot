@@ -1,6 +1,6 @@
 ---
 title: Components V2 Guide
-description: Complete guide to using Discord.py Components V2 in Tux, including LayoutView, modals, and all component types with practical examples.
+description: Complete guide to using Discord.py Components V2 in Bot, including LayoutView, modals, and all component types with practical examples.
 tags:
   - developer-guide
   - guides
@@ -14,7 +14,7 @@ icon: lucide/component
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-Discord.py 2.6+ introduced Components V2, a modern component system that provides enhanced layout capabilities and better organization. This guide covers how to use Components V2 in Tux.
+Discord.py 2.6+ introduced Components V2, a modern component system that provides enhanced layout capabilities and better organization. This guide covers how to use Components V2 in Bot.
 
 ## Overview
 
@@ -496,4 +496,4 @@ Pre-V2 messages:
 
 - **Discord.py Documentation**: <https://discordpy.readthedocs.io/en/stable/interactions/ui.html>
 - **Components V2 API**: <https://discord.com/developers/docs/interactions/message-components>
-- **Source Code**: `src/tux/ui/` (Tux UI components)
+- **Source Code**: `src/bot/ui/` (Bot UI components)

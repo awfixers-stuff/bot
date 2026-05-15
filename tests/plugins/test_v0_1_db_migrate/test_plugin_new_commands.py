@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from discord.ext import commands
 
-from tux.core.bot import Tux
-from tux.plugins.v0_1_db_migrate.plugin import DatabaseMigration, truncate_error_message
+from bot.core.bot import Bot
+from bot.plugins.v0_1_db_migrate.plugin import DatabaseMigration, truncate_error_message
 
 
 @pytest.mark.asyncio
@@ -17,7 +17,7 @@ class TestNewMigrationCommands:
     @pytest.fixture
     def mock_bot(self) -> MagicMock:
         """Create mock bot."""
-        bot = MagicMock(spec=Tux)
+        bot = MagicMock(spec=Bot)
         bot.user = MagicMock()
         bot.user.id = 123456789
         return bot
@@ -52,7 +52,7 @@ class TestNewMigrationCommands:
         with (
             patch.object(plugin, "schema_inspector", None),
             patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaInspector",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaInspector",
             ) as mock_inspector_class,
             patch("asyncio.get_event_loop") as mock_loop,
         ):
@@ -104,7 +104,7 @@ class TestNewMigrationCommands:
         with (
             patch.object(plugin, "schema_inspector", None),
             patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaInspector",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaInspector",
             ) as mock_inspector_class,
             patch("asyncio.get_event_loop") as mock_loop,
         ):
@@ -158,7 +158,7 @@ class TestNewMigrationCommands:
         with (
             patch.object(plugin, "schema_inspector", None),
             patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaInspector",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaInspector",
             ) as mock_inspector_class,
         ):
             mock_inspector = MagicMock()
@@ -186,7 +186,7 @@ class TestNewMigrationCommands:
         with (
             patch.object(plugin, "schema_inspector", None),
             patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaInspector",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaInspector",
             ) as mock_inspector_class,
             patch("asyncio.get_event_loop") as mock_loop,
         ):
@@ -223,7 +223,7 @@ class TestNewMigrationCommands:
         with (
             patch.object(plugin, "schema_inspector", None),
             patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaInspector",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaInspector",
             ) as mock_inspector_class,
             patch("asyncio.get_event_loop") as mock_loop,
         ):
@@ -259,11 +259,11 @@ class TestNewMigrationCommands:
         with (
             patch.object(plugin, "schema_inspector", None),
             patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaInspector",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaInspector",
             ) as mock_inspector_class,
             patch("asyncio.get_event_loop") as mock_loop,
             patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaValidator",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaValidator",
             ) as mock_validator_class,
         ):
             mock_inspector = MagicMock()
@@ -317,11 +317,11 @@ class TestNewMigrationCommands:
         with (
             patch.object(plugin, "schema_inspector", None),
             patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaInspector",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaInspector",
             ) as mock_inspector_class,
             patch("asyncio.get_event_loop") as mock_loop,
             patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaValidator",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaValidator",
             ) as mock_validator_class,
         ):
             mock_inspector = MagicMock()
@@ -400,7 +400,7 @@ class TestNewMigrationCommands:
         with (
             patch.object(plugin, "schema_inspector", None),
             patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaInspector",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaInspector",
             ) as mock_inspector_class,
             patch("asyncio.get_running_loop") as mock_get_running_loop,
         ):

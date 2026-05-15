@@ -1,7 +1,7 @@
 """
 Command: ai validate-rules.
 
-Validates Cursor rules and commands to ensure they follow Tux project standards.
+Validates Cursor rules and commands to ensure they follow Bot project standards.
 """
 
 import re
@@ -361,7 +361,7 @@ def validate_rules(
 ) -> None:
     """Validate all rules and commands.
 
-    This command validates that all rules and commands follow the Tux project
+    This command validates that all rules and commands follow the Bot project
     standards for structure, content, and metadata.
 
     Parameters

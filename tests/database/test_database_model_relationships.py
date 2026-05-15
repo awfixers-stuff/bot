@@ -9,13 +9,13 @@ import pytest
 from sqlalchemy import column
 from sqlmodel import delete as sql_delete
 
+from bot.database.models.models import Guild, GuildConfig
+from bot.database.service import DatabaseService
 from tests.fixtures import (
     TEST_CHANNEL_ID,
     TEST_GUILD_ID,
     validate_relationship_integrity,
 )
-from tux.database.models.models import Guild, GuildConfig
-from tux.database.service import DatabaseService
 
 
 class TestModelRelationships:

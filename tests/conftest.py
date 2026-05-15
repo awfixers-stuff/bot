@@ -32,7 +32,7 @@ def pytest_configure(config):
         Pytest configuration object.
     """
     # Import here to avoid circular imports during module load
-    from tux.core.logging import configure_testing_logging  # noqa: PLC0415
+    from bot.core.logging import configure_testing_logging  # noqa: PLC0415
 
     configure_testing_logging()
 

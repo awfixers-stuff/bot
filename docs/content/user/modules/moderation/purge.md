@@ -51,7 +51,7 @@ You can also use these aliases instead of `purge`:
 
 ### Bot Permissions
 
-Tux requires the following permissions:
+Bot requires the following permissions:
 
 - **Manage Messages** - Required to delete messages sent by other users.
 - **Read Message History** - Required to find the messages to delete.
@@ -61,7 +61,7 @@ Tux requires the following permissions:
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 
@@ -91,7 +91,7 @@ Deleting 100 messages from another channel.
 
 ## Response Format
 
-When executed successfully, Tux will:
+When executed successfully, Bot will:
 
 1. Delete the requested number of messages (up to 500, and only those under 14 days old).
 2. Post an ephemeral confirmation (slash command) or a temporary message (prefix command) stating exactly how many messages were removed.
@@ -115,15 +115,15 @@ The confirmation message shows the exact number of messages deleted. If fewer me
 
 #### Missing Permissions
 
-**When it occurs:** Tux does not have the "Manage Messages" permission in the target channel.
+**When it occurs:** Bot does not have the "Manage Messages" permission in the target channel.
 
 **What happens:** The bot sends an error message indicating insufficient permissions.
 
 **Solutions:**
 
-- Ensure Tux's role has the "Manage Messages" permission in that specific channel or category
+- Ensure Bot's role has the "Manage Messages" permission in that specific channel or category
 - Check channel-specific permission overrides
-- Verify Tux has "Read Message History" permission as well
+- Verify Bot has "Read Message History" permission as well
 
 #### 14-Day Limit
 

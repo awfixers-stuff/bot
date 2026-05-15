@@ -1,5 +1,5 @@
 """
-Tests for Pydantic config models in tux.shared.config.models.
+Tests for Pydantic config models in bot.shared.config.models.
 
 Covers BotInfo.ACTIVITIES validator and other model behavior.
 """
@@ -8,7 +8,7 @@ from typing import Any
 
 import pytest
 
-from tux.shared.config.models import BotInfo
+from bot.shared.config.models import BotInfo
 
 pytestmark = pytest.mark.unit
 
@@ -16,7 +16,7 @@ pytestmark = pytest.mark.unit
 def _bot_info(*, activities: Any = None, **kwargs: Any) -> BotInfo:
     """Build BotInfo with ACTIVITIES and defaulted BOT_NAME, HIDE_BOT_OWNER, PREFIX."""
     return BotInfo(
-        BOT_NAME="Tux",
+        BOT_NAME="Bot",
         HIDE_BOT_OWNER=False,
         PREFIX="$",
         ACTIVITIES=activities,

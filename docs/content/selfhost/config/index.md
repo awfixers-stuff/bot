@@ -8,11 +8,11 @@ icon: lucide/cog
 
 # Self-Host Configuration
 
-Configure your Tux self-hosted instance to match your server's needs. This section covers all configuration aspects from bot tokens to database settings.
+Configure your Bot self-hosted instance to match your server's needs. This section covers all configuration aspects from bot tokens to database settings.
 
 ## Configuration Overview
 
-Tux uses a flexible configuration system that supports multiple sources:
+Bot uses a flexible configuration system that supports multiple sources:
 
 1. **Environment Variables** - Highest priority, loaded from `.env` or system environment
 2. **JSON Configuration** - `config/config.json` or `config.json` for structured settings
@@ -25,7 +25,7 @@ See [Environment Configuration](environment.md) for details on configuration pri
 
 ### [Bot Token](bot-token.md)
 
-Configure your Discord bot token and permissions. This is required for Tux to connect to Discord.
+Configure your Discord bot token and permissions. This is required for Bot to connect to Discord.
 
 **Quick Setup:**
 
@@ -35,7 +35,7 @@ Configure your Discord bot token and permissions. This is required for Tux to co
 
 ### [Database Configuration](database.md)
 
-Configure PostgreSQL connection settings. Tux requires PostgreSQL 17+.
+Configure PostgreSQL connection settings. Bot requires PostgreSQL 17+.
 
 **Quick Setup:**
 
@@ -81,7 +81,7 @@ JSON configuration file for structured settings (bot owner, sysadmins, prefix, i
 ```json
 {
   "BOT_INFO": {
-    "BOT_NAME": "Tux",
+    "BOT_NAME": "Bot",
     "PREFIX": "$"
   },
   "BOT_INTENTS": {
@@ -167,8 +167,8 @@ All three privileged intents are required for full functionality:
 To use Valkey (Redis-compatible) for shared cache across restarts:
 
 ```env
-# With Docker (start tux-valkey with --profile valkey)
-VALKEY_HOST=tux-valkey
+# With Docker (start bot-valkey with --profile valkey)
+VALKEY_HOST=bot-valkey
 VALKEY_PORT=6379
 
 # Or use a URL
@@ -188,7 +188,7 @@ Valid levels: `TRACE`, `DEBUG`, `INFO`, `SUCCESS`, `WARNING`, `ERROR`, `CRITICAL
 
 ### Configure HTTP Client
 
-Tux automatically configures the HTTP client with optimized settings for your environment:
+Bot automatically configures the HTTP client with optimized settings for your environment:
 
 - **High-latency environments**: Automatically detects and adjusts timeouts and connection pooling
 - **Connection pooling**: Reuses connections for better performance
@@ -202,7 +202,7 @@ No manual configuration needed. The HTTP client is automatically configured base
 When using Docker Compose:
 
 - Variables in `.env` are automatically loaded
-- `compose.yaml` sets `POSTGRES_HOST=tux-postgres` automatically
+- `compose.yaml` sets `POSTGRES_HOST=bot-postgres` automatically
 - Use profiles (`--profile dev` or `--profile production`) to select deployment mode
 - See [Docker Installation](../install/docker.md) for details
 

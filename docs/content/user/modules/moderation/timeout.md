@@ -12,7 +12,7 @@ tags:
 
 The `timeout` command (also available as `mute`) allows server moderators to temporarily restrict a member's ability to send messages, add reactions, and participate in voice channels.
 
-This is an official Discord feature that temporarily restricts member interaction without removing them from the server. Tux integrates this with its moderation system, ensuring every timeout is logged as a case with its duration and reason.
+This is an official Discord feature that temporarily restricts member interaction without removing them from the server. Bot integrates this with its moderation system, ensuring every timeout is logged as a case with its duration and reason.
 
 ## Syntax
 
@@ -53,14 +53,14 @@ This command supports the following flags:
 | Flag | Aliases | Type | Default | Description |
 |------|---------|------|---------|-------------|
 | `-duration` | `-t`, `-d`, `-e` | Time | **Required** | Length of the timeout (max 28 days). |
-| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Tux will not attempt to DM the user. |
+| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Bot will not attempt to DM the user. |
 
 ### -duration
 
-The length of time the member should be restricted. Tux supports a standard time format (e.g., `1h`, `30m`).
+The length of time the member should be restricted. Bot supports a standard time format (e.g., `1h`, `30m`).
 
 !!! warning "Discord Limit"
-    Discord limits the maximum timeout duration to **28 days**. If you provide a longer duration, Tux will automatically cap it at 28 days.
+    Discord limits the maximum timeout duration to **28 days**. If you provide a longer duration, Bot will automatically cap it at 28 days.
 
 - **Format:** `[number][unit]` (e.g., `12h`, `7d`, `45m`)
 - **Aliases:** `-t`, `-d`, `-e`
@@ -77,7 +77,7 @@ Whether to suppress the DM notification to the timed-out user.
 
 ### Bot Permissions
 
-Tux requires the following permissions:
+Bot requires the following permissions:
 
 - **Moderate Members** - Required to apply the Discord timeout.
 
@@ -86,7 +86,7 @@ Tux requires the following permissions:
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 
@@ -114,7 +114,7 @@ Giving a user a 28-day timeout.
 
 ## Response Format
 
-When executed successfully, Tux will:
+When executed successfully, Bot will:
 
 1. Attempt to DM the user with the timeout duration and reason (unless `-silent` is used).
 2. Execute the official Discord timeout action.
@@ -130,19 +130,19 @@ The confirmation message includes the timed-out user's name, the duration, the r
 
 #### Missing Permissions / Higher Role
 
-**When it occurs:** Tux lacks the "Moderate Members" permission, or the target user's role is higher than Tux's role.
+**When it occurs:** Bot lacks the "Moderate Members" permission, or the target user's role is higher than Bot's role.
 
 **What happens:** The bot sends an error message indicating insufficient permissions.
 
 **Solutions:**
 
-- Ensure Tux has the "Moderate Members" permission
-- Move Tux's role higher in the hierarchy
-- Check that Tux's role has the necessary permissions in the server settings
+- Ensure Bot has the "Moderate Members" permission
+- Move Bot's role higher in the hierarchy
+- Check that Bot's role has the necessary permissions in the server settings
 
 #### Lacking Permission Rank
 
-**When it occurs:** Your internal Tux permission rank is lower than the rank required to use this command.
+**When it occurs:** Your internal Bot permission rank is lower than the rank required to use this command.
 
 **What happens:** The bot sends an error message indicating you don't have permission to use this command.
 

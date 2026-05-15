@@ -1,6 +1,6 @@
 ---
 title: Caching Best Practices
-description: Caching best practices for Tux development, including TTLCache, cache managers, optional Valkey backend, and multi-guild safety.
+description: Caching best practices for Bot development, including TTLCache, cache managers, optional Valkey backend, and multi-guild safety.
 tags:
   - developer-guide
   - best-practices
@@ -10,7 +10,7 @@ icon: lucide/database
 
 # Caching Best Practices
 
-Tux uses a TTL-based caching system to improve performance and reduce database load. All cache code lives in `src/tux/cache/`. The system supports an optional Valkey (Redis-compatible) backend for shared state across restarts; when Valkey is not configured or unavailable, in-memory backends are used.
+Bot uses a TTL-based caching system to improve performance and reduce database load. All cache code lives in `src/bot/cache/`. The system supports an optional Valkey (Redis-compatible) backend for shared state across restarts; when Valkey is not configured or unavailable, in-memory backends are used.
 
 ## Architecture
 
@@ -18,15 +18,15 @@ Tux uses a TTL-based caching system to improve performance and reduce database l
 
 | Module | Purpose |
 |--------|---------|
-| `tux.cache.ttl` | `TTLCache` — in-memory TTL cache used by backends and managers |
-| `tux.cache.backend` | `InMemoryBackend`, `ValkeyBackend`, `get_cache_backend(bot)` |
-| `tux.cache.managers` | `GuildConfigCacheManager`, `JailStatusCache` |
-| `tux.cache.service` | `CacheService` — Valkey connection lifecycle (connect, ping, close) |
+| `bot.cache.ttl` | `TTLCache` — in-memory TTL cache used by backends and managers |
+| `bot.cache.backend` | `InMemoryBackend`, `ValkeyBackend`, `get_cache_backend(bot)` |
+| `bot.cache.managers` | `GuildConfigCacheManager`, `JailStatusCache` |
+| `bot.cache.service` | `CacheService` — Valkey connection lifecycle (connect, ping, close) |
 
 ### Backends
 
 - **InMemoryBackend**: Single process, one `TTLCache` with configurable TTL and `max_size`. Used when Valkey is not configured or when `get_cache_backend(bot)` has no connected `cache_service`.
-- **ValkeyBackend**: When `VALKEY_URL` is set and the bot connects at startup, guild config, jail status, prefix, and permission caches use Valkey. Keys are prefixed with `tux:` and values are JSON-serialized.
+- **ValkeyBackend**: When `VALKEY_URL` is set and the bot connects at startup, guild config, jail status, prefix, and permission caches use Valkey. Keys are prefixed with `bot:` and values are JSON-serialized.
 
 Setup (e.g. `cache_setup.py`) connects to Valkey on startup and sets the backend on `GuildConfigCacheManager` and `JailStatusCache`; permission controllers receive the backend via the coordinator. No code changes are required in consumers — they use the same managers; the backend is injected by setup.
 
@@ -66,7 +66,7 @@ The caching system provides:
 ### Basic usage
 
 ```python
-from tux.cache import TTLCache
+from bot.cache import TTLCache
 
 # Create a cache with 5-minute TTL and max 1000 entries
 cache = TTLCache(ttl=300.0, max_size=1000)
@@ -118,11 +118,11 @@ This section documents where TTLs are defined, what values we use, and how they 
 
 | Data | Constant | Value | Defined in |
 |------|----------|-------|------------|
-| Guild config (audit log, mod log, jail role/channel IDs) | `GUILD_CONFIG_TTL_SEC` | 600 s (10 min) | `src/tux/cache/managers.py` |
-| Jail status per (guild, user) | `JAIL_STATUS_TTL_SEC` | 300 s (5 min) | `src/tux/cache/managers.py` |
-| Prefix per guild | *(none)* | No TTL | `src/tux/core/prefix_manager.py` — long-lived, `ttl_sec=None` |
-| Permission ranks, assignments, command fallbacks | `PERM_RANKS_TTL` | 600 s (10 min) | `src/tux/database/controllers/permissions.py` |
-| User permission rank (guild, user, roles) | `PERM_USER_RANK_TTL` | 300 s (5 min) | `src/tux/database/controllers/permissions.py` |
+| Guild config (audit log, mod log, jail role/channel IDs) | `GUILD_CONFIG_TTL_SEC` | 600 s (10 min) | `src/bot/cache/managers.py` |
+| Jail status per (guild, user) | `JAIL_STATUS_TTL_SEC` | 300 s (5 min) | `src/bot/cache/managers.py` |
+| Prefix per guild | *(none)* | No TTL | `src/bot/core/prefix_manager.py` — long-lived, `ttl_sec=None` |
+| Permission ranks, assignments, command fallbacks | `PERM_RANKS_TTL` | 600 s (10 min) | `src/bot/database/controllers/permissions.py` |
+| User permission rank (guild, user, roles) | `PERM_USER_RANK_TTL` | 300 s (5 min) | `src/bot/database/controllers/permissions.py` |
 
 ### Valkey vs in-memory
 
@@ -150,7 +150,7 @@ This section documents where TTLs are defined, what values we use, and how they 
 ### Usage
 
 ```python
-from tux.cache import GuildConfigCacheManager
+from bot.cache import GuildConfigCacheManager
 
 cache_manager = GuildConfigCacheManager()
 
@@ -198,7 +198,7 @@ await cache_manager.set(
 ### Usage
 
 ```python
-from tux.cache import JailStatusCache
+from bot.cache import JailStatusCache
 
 jail_cache = JailStatusCache()
 
@@ -375,7 +375,7 @@ All consumers (cache setup, permission setup, prefix manager, permission system)
 ## Performance considerations
 
 - **Memory (InMemoryBackend)**: A single `TTLCache` with `max_size` is shared across all guilds; eviction is global. Size the limit for total entries across guilds.
-- **Valkey**: When used, backend keys have a global `tux:` prefix; no per-guild key limit. TTLs are applied per key where supported.
+- **Valkey**: When used, backend keys have a global `bot:` prefix; no per-guild key limit. TTLs are applied per key where supported.
 - **TTL tuning**: Balance freshness vs. hit rate; avoid overly short TTLs that defeat caching.
 - **Invalidation**: Invalidate only when data actually changes; excessive invalidation reduces benefit.
 
@@ -408,9 +408,9 @@ If cache hit rate is low:
 
 ## Resources
 
-- **Cache package**: `src/tux/cache/` — `ttl.py`, `backend.py`, `managers.py`, `service.py`
-- **Cache setup**: `src/tux/core/setup/cache_setup.py`
-- **Permission system caching**: `src/tux/core/permission_system.py`
-- **Permission controller caching**: `src/tux/database/controllers/permissions.py`
-- **Guild config controller**: `src/tux/database/controllers/guild_config.py`
-- **Prefix caching**: `src/tux/core/prefix_manager.py`
+- **Cache package**: `src/bot/cache/` — `ttl.py`, `backend.py`, `managers.py`, `service.py`
+- **Cache setup**: `src/bot/core/setup/cache_setup.py`
+- **Permission system caching**: `src/bot/core/permission_system.py`
+- **Permission controller caching**: `src/bot/database/controllers/permissions.py`
+- **Guild config controller**: `src/bot/database/controllers/guild_config.py`
+- **Prefix caching**: `src/bot/core/prefix_manager.py`

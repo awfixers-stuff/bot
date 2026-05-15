@@ -11,7 +11,7 @@ tags:
 
 # Cases
 
-The `cases` command group is the central hub for Tux's moderation tracking system. Every moderation action taken by Tux (bans, warns, timeouts, etc.) is recorded as a "case" in the database.
+The `cases` command group is the central hub for Bot's moderation tracking system. Every moderation action taken by Bot (bans, warns, timeouts, etc.) is recorded as a "case" in the database.
 
 This command group allows moderators to review history, search for specific incidents, and update case information as situations evolve.
 
@@ -42,11 +42,11 @@ You can also use these aliases instead of `cases`:
 - `case_number` (optional) - The unique integer identifying the case
 - `user` (optional) - A user mention or ID to view cases for that user
 
-When invoked without arguments, Tux opens an interactive menu displaying all cases in descending order (newest first).
+When invoked without arguments, Bot opens an interactive menu displaying all cases in descending order (newest first).
 
-When provided with a case number, Tux displays the details of that specific case.
+When provided with a case number, Bot displays the details of that specific case.
 
-When provided with a user, Tux displays all cases for that user.
+When provided with a user, Bot displays all cases for that user.
 
 ## Subcommands
 
@@ -167,7 +167,7 @@ Checking if a user has a history of similar violations before taking action.
 
 ### Bot Permissions
 
-Tux requires the following permissions:
+Bot requires the following permissions:
 
 - **Send Messages** - To display case information.
 - **Embed Links** - To format cases into readable embeds.
@@ -208,7 +208,7 @@ The base command (without subcommand) opens an interactive dashboard showing all
 
 #### Lacking Permission Rank
 
-**When it occurs:** Your internal Tux permission rank is lower than required to view or modify cases.
+**When it occurs:** Your internal Bot permission rank is lower than required to view or modify cases.
 
 **What happens:** The bot sends an error message indicating you don't have permission to use this command.
 

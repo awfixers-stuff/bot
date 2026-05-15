@@ -1,6 +1,6 @@
 ---
 title: Async Best Practices
-description: Async programming best practices for Tux development, including concurrency patterns, Discord.py async considerations, and performance optimization.
+description: Async programming best practices for Bot development, including concurrency patterns, Discord.py async considerations, and performance optimization.
 tags:
   - developer-guide
   - best-practices
@@ -34,7 +34,7 @@ Without async programming, your bot becomes a bottleneck. One slow database quer
 
 Async programming lets your bot start multiple operations and switch between them as they wait for I/O. When one database query is waiting for a response, your bot can process another user's command. This non-blocking approach means your bot stays responsive even under heavy load.
 
-Tux uses asyncio throughout its architecture. Database operations use async SQLAlchemy with connection pooling. HTTP requests use a shared async client. All Discord interactions are async. Background tasks run concurrently without blocking command processing.
+Bot uses asyncio throughout its architecture. Database operations use async SQLAlchemy with connection pooling. HTTP requests use a shared async client. All Discord interactions are async. Background tasks run concurrently without blocking command processing.
 
 ## Understanding Async Fundamentals
 
@@ -48,7 +48,7 @@ When you await an async function, you're telling Python to pause execution here 
 
 ### The Event Loop
 
-The event loop manages all async operations. It tracks which coroutines are waiting for what, switches between them efficiently, and resumes them when their operations complete. In Tux, discord.py manages the event loop automatically—you don't need to create or manage it yourself.
+The event loop manages all async operations. It tracks which coroutines are waiting for what, switches between them efficiently, and resumes them when their operations complete. In Bot, discord.py manages the event loop automatically—you don't need to create or manage it yourself.
 
 Don't create your own event loop in Discord bot code. Let discord.py handle it. Creating multiple event loops causes conflicts and breaks the framework's assumptions about how async operations work.
 
@@ -82,7 +82,7 @@ The `discord.ext.tasks` extension provides built-in rate limiting and retry logi
 
 ### Discord.py Tasks Extension
 
-Tux uses `discord.ext.tasks` for background tasks. This extension provides automatic reconnection logic, exception handling, and scheduling that solves common issues with raw asyncio tasks.
+Bot uses `discord.ext.tasks` for background tasks. This extension provides automatic reconnection logic, exception handling, and scheduling that solves common issues with raw asyncio tasks.
 
 Tasks created with `@tasks.loop()` automatically handle reconnection on network failures. They include retry logic for transient errors. They support clean cancellation during shutdown. They provide before and after hooks for setup and cleanup.
 
@@ -136,7 +136,7 @@ For simple counters or flags, consider using atomic operations or designing your
 
 The most common mistake is using blocking I/O in async code. Synchronous file operations, HTTP requests, or database queries block the entire event loop, defeating the purpose of async programming.
 
-Use async alternatives for all I/O operations. For files, use `aiofiles`. For HTTP, use `httpx.AsyncClient` (which Tux provides as `http_client`). For databases, use async SQLAlchemy. If you must use blocking code, run it in a thread pool with `loop.run_in_executor()`.
+Use async alternatives for all I/O operations. For files, use `aiofiles`. For HTTP, use `httpx.AsyncClient` (which Bot provides as `http_client`). For databases, use async SQLAlchemy. If you must use blocking code, run it in a thread pool with `loop.run_in_executor()`.
 
 ### Forgetting to Await
 
@@ -170,7 +170,7 @@ Use `return_exceptions=True` with gather to handle partial failures gracefully. 
 
 ### Connection Pooling
 
-Reuse connections instead of creating new ones for each operation. Tux provides a shared `http_client` that pools connections automatically. Use it for all HTTP requests instead of creating new clients.
+Reuse connections instead of creating new ones for each operation. Bot provides a shared `http_client` that pools connections automatically. Use it for all HTTP requests instead of creating new clients.
 
 Database connections are pooled automatically by SQLAlchemy. The connection pool manages connections efficiently, reusing them across operations. Don't create new database engines—use the shared service.
 
@@ -218,7 +218,7 @@ Monitor operation durations and log warnings for slow operations. This helps ide
 
 Track long-running tasks to identify potential issues. Tasks that run for extended periods might indicate blocking operations or infinite loops. Monitor task lifetimes and alert on tasks that exceed expected durations.
 
-Use Tux's task monitor to track background tasks. Register your tasks with the monitor to ensure they're cleaned up properly during shutdown and to track their execution.
+Use Bot's task monitor to track background tasks. Register your tasks with the monitor to ensure they're cleaned up properly during shutdown and to track their execution.
 
 ## Best Practices Summary
 
@@ -248,7 +248,7 @@ Handle cancellation gracefully in all async functions. Catch `CancelledError` wh
 
 ### Performance
 
-Reuse connections through pooling. Use Tux's shared `http_client` and database service instead of creating new connections.
+Reuse connections through pooling. Use Bot's shared `http_client` and database service instead of creating new connections.
 
 Process large datasets in chunks to avoid memory issues. Use async generators for streaming when possible.
 

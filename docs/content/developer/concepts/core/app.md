@@ -1,6 +1,6 @@
 ---
 title: Application Layer
-description: Tux application entrypoint and lifecycle management with signal handling, configuration validation, and graceful startup/shutdown flows.
+description: Bot application entrypoint and lifecycle management with signal handling, configuration validation, and graceful startup/shutdown flows.
 tags:
   - developer-guide
   - concepts
@@ -14,22 +14,22 @@ icon: lucide/monitor-check
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-The application layer (`src/tux/core/app.py`) orchestrates Tux's complete lifecycle from startup to shutdown. It handles initialization, signal handling, configuration validation, and graceful error recovery.
+The application layer (`src/bot/core/app.py`) orchestrates Bot's complete lifecycle from startup to shutdown. It handles initialization, signal handling, configuration validation, and graceful error recovery.
 
 ## Overview
 
 The application layer manages two main responsibilities:
 
 - **Command Prefix Resolution** - Dynamic prefix system with per-guild customization and caching
-- **Bot Lifecycle Management** - Complete startup and shutdown orchestration through the `TuxApp` class
+- **Bot Lifecycle Management** - Complete startup and shutdown orchestration through the `BotApp` class
 
 ## Command Prefix Resolution
 
-Tux uses a priority-based prefix resolution system that supports per-guild customization while maintaining fast performance through caching.
+Bot uses a priority-based prefix resolution system that supports per-guild customization while maintaining fast performance through caching.
 
 ### How Prefix Resolution Works
 
-When a message arrives, Tux checks prefixes in this order:
+When a message arrives, Bot checks prefixes in this order:
 
 1. **Environment Override** - If `BOT_INFO__PREFIX` is set, all guilds use that prefix
 2. **DM Channels** - Direct messages always use the default prefix (no guild context)
@@ -47,7 +47,7 @@ The prefix manager caches guild prefixes in memory for sub-millisecond lookups. 
 
 ## Bot Lifecycle Management
 
-The `TuxApp` class manages the complete bot lifecycle with structured phases and comprehensive error handling.
+The `BotApp` class manages the complete bot lifecycle with structured phases and comprehensive error handling.
 
 ### Startup Sequence
 
@@ -71,13 +71,13 @@ graph TD
 3. **Signal Handler Registration** - Event loop signal handlers registered for graceful shutdown
 4. **Configuration Validation** - Bot token and critical settings verified before proceeding
 5. **Owner ID Resolution** - Bot owner and optional sysadmin IDs determined
-6. **Bot Instance Creation** - Tux bot instance created with proper configuration
+6. **Bot Instance Creation** - Bot bot instance created with proper configuration
 7. **Discord Login** - Performs authentication and triggers the core setup hook (database, cogs, etc.)
 8. **Discord Connection** - Establishes WebSocket connection to Discord gateway
 
 ### Signal Handling
 
-Tux handles shutdown signals gracefully using standard asynchronous patterns.
+Bot handles shutdown signals gracefully using standard asynchronous patterns.
 
 **Operation:**
 
@@ -98,7 +98,7 @@ All errors are captured by Sentry with context, and startup failures include hel
 
 ### Shutdown Sequence
 
-When shutting down, Tux performs cleanup in this order:
+When shutting down, Bot performs cleanup in this order:
 
 1. **Bot Shutdown** - Closes Discord connection via `bot.close()`, stops background tasks
 2. **Resource Cleanup** - Closes database connections, HTTP clients
@@ -109,7 +109,7 @@ Shutdown always completes cleanup, even if errors occur during the process.
 
 ## Configuration Integration
 
-The application layer integrates deeply with Tux's configuration system, reading from multiple sources:
+The application layer integrates deeply with Bot's configuration system, reading from multiple sources:
 
 - **Environment Variables** - `.env` file for secrets and overrides
 - **config.json** - Static configuration file (`config/config.json` or `config.json`)
@@ -126,16 +126,16 @@ Start the bot using the CLI command:
 
 ```bash
 # Standard startup
-uv run tux start
+uv run bot start
 
 # With debug logging
-uv run tux start --debug
+uv run bot start --debug
 
 # Check configuration first
 uv run config validate
 ```
 
-The application layer handles all lifecycle management automatically. You don't need to interact with `TuxApp` directly unless you're embedding Tux in another application.
+The application layer handles all lifecycle management automatically. You don't need to interact with `BotApp` directly unless you're embedding Bot in another application.
 
 ### Exit Codes
 
@@ -148,7 +148,7 @@ The application returns exit codes you can use in scripts and systemd services:
 Use exit codes in deployment scripts to detect startup failures:
 
 ```bash
-uv run tux start
+uv run bot start
 if [ $? -eq 1 ]; then
     echo "Bot failed to start - check logs"
     exit 1
@@ -186,7 +186,7 @@ If cogs fail to load, check:
 Enable debug logging to see detailed error messages:
 
 ```bash
-LOG_LEVEL=DEBUG uv run tux start
+LOG_LEVEL=DEBUG uv run bot start
 ```
 
 ### Shutdown Issues
@@ -197,10 +197,10 @@ If the bot doesn't shut down gracefully:
 
 ```bash
 # Send SIGTERM (graceful)
-kill -TERM $(pgrep -f "uv run tux")
+kill -TERM $(pgrep -f "uv run bot")
 
 # Send SIGKILL (force) if needed
-kill -KILL $(pgrep -f "uv run tux")
+kill -KILL $(pgrep -f "uv run bot")
 ```
 
 **Hanging Processes:**
@@ -208,7 +208,7 @@ kill -KILL $(pgrep -f "uv run tux")
 Check for hanging processes:
 
 ```bash
-ps aux | grep tux
+ps aux | grep bot
 ```
 
 ## Best Practices
@@ -219,7 +219,7 @@ Validate configuration before creating expensive resources. This prevents wasted
 
 ### Graceful Shutdown
 
-Always support SIGTERM/SIGINT for container orchestration. Tux handles these signals automatically, but ensure your custom code also handles shutdown gracefully.
+Always support SIGTERM/SIGINT for container orchestration. Bot handles these signals automatically, but ensure your custom code also handles shutdown gracefully.
 
 ### Error Recovery
 
@@ -231,7 +231,7 @@ Always clean up resources during shutdown. The application layer handles bot res
 
 ## Resources
 
-- **Source Code**: `src/tux/core/app.py`
+- **Source Code**: `src/bot/core/app.py`
 - **Bot Class**: See `bot.md` for Discord integration details
 - **Configuration**: See configuration documentation for setup
 - **Sentry Integration**: See `../../best-practices/sentry/index.md` for error tracking details

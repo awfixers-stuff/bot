@@ -1,6 +1,6 @@
 ---
 title: Cog Loader
-description: Dynamic cog loading system with priority-based ordering, telemetry, and error handling for Tux Discord bot extensions.
+description: Dynamic cog loading system with priority-based ordering, telemetry, and error handling for Bot Discord bot extensions.
 tags:
   - developer-guide
   - concepts
@@ -14,7 +14,7 @@ icon: lucide/folder-cog
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-The Cog Loader (`src/tux/core/cog_loader.py`) handles discovery, validation, and loading of Discord bot cogs with priority-based ordering, comprehensive error handling, and performance monitoring.
+The Cog Loader (`src/bot/core/cog_loader.py`) handles discovery, validation, and loading of Discord bot cogs with priority-based ordering, comprehensive error handling, and performance monitoring.
 
 ## Overview
 
@@ -161,7 +161,7 @@ For a file to be loadable as a cog, it must:
 Every cog needs a setup function:
 
 ```python
-async def setup(bot: Tux) -> None:
+async def setup(bot: Bot) -> None:
     """Cog setup function."""
     await bot.add_cog(MyCog(bot))
 ```
@@ -172,8 +172,8 @@ The setup function is called when the cog is loaded. Use it to add your cog to t
 
 The loader converts file paths to Python module paths automatically:
 
-- File: `tux/modules/admin/ban.py` → Module: `tux.modules.admin.ban`
-- File: `tux/services/handlers/error.py` → Module: `tux.services.handlers.error`
+- File: `bot/modules/admin/ban.py` → Module: `bot.modules.admin.ban`
+- File: `bot/services/handlers/error.py` → Module: `bot.services.handlers.error`
 
 You don't need to worry about path conversion—the loader handles it automatically.
 
@@ -185,7 +185,7 @@ Place cogs in the correct folder based on their purpose. Handlers go in `service
 
 ### Handle Configuration Errors
 
-If your cog requires configuration, raise `TuxConfigurationError` when configuration is missing. The loader will skip your cog gracefully instead of failing startup.
+If your cog requires configuration, raise `BotConfigurationError` when configuration is missing. The loader will skip your cog gracefully instead of failing startup.
 
 ### Keep Setup Functions Simple
 
@@ -235,7 +235,7 @@ If you see import errors:
 
 ## Resources
 
-- **Source Code**: `src/tux/core/cog_loader.py`
-- **Cog Priorities**: See `src/tux/shared/constants.py` for priority definitions
+- **Source Code**: `src/bot/core/cog_loader.py`
+- **Cog Priorities**: See `src/bot/shared/constants.py` for priority definitions
 - **Base Cog**: See `base-cog.md` for cog development
 - **Modules**: See `modules.md` for module structure

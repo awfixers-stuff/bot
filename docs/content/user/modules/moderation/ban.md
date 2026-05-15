@@ -12,7 +12,7 @@ tags:
 
 The `ban` command allows server moderators to permanently remove members from the server. Banned members cannot rejoin the server unless they are explicitly unbanned. This command is intended for severe rule violations or users who are no longer welcome in the community.
 
-When a user is banned, Tux can optionally delete their recent message history from the server, helping to quickly clean up spam or offensive content. By default, the bot will attempt to DM the user with the reason for their ban before executing the action.
+When a user is banned, Bot can optionally delete their recent message history from the server, helping to quickly clean up spam or offensive content. By default, the bot will attempt to DM the user with the reason for their ban before executing the action.
 
 ## Syntax
 
@@ -51,7 +51,7 @@ This command supports the following flags:
 | Flag | Aliases | Type | Default | Description |
 |------|---------|------|---------|-------------|
 | `-purge` | `-p` | Integer (0-7) | 0 | Number of days of message history to delete. |
-| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Tux will not attempt to DM the user. |
+| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Bot will not attempt to DM the user. |
 
 ### -purge
 
@@ -74,7 +74,7 @@ Whether to suppress the DM notification to the banned user.
 
 ### Bot Permissions
 
-Tux requires the following permissions to execute this command:
+Bot requires the following permissions to execute this command:
 
 - **Ban Members** - Required to perform the ban action on Discord.
 
@@ -83,7 +83,7 @@ Tux requires the following permissions to execute this command:
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 
@@ -125,7 +125,7 @@ $ban @user -silent Severe rule breakage
 
 ## Response Format
 
-When executed successfully, Tux will:
+When executed successfully, Bot will:
 
 1. Attempt to DM the user with the ban reason (unless `-silent` is used).
 2. Execute the ban on the Discord server.
@@ -141,19 +141,19 @@ The confirmation message includes the banned user's name, the reason, and a link
 
 #### Missing Permissions / Higher Role
 
-**When it occurs:** Tux lacks the "Ban Members" permission, or the target user's highest role is equal to or higher than Tux's highest role.
+**When it occurs:** Bot lacks the "Ban Members" permission, or the target user's highest role is equal to or higher than Bot's highest role.
 
 **What happens:** The bot sends an error message indicating insufficient permissions.
 
 **Solutions:**
 
-- Ensure Tux has the "Ban Members" permission in its role settings
-- Move the "Tux" role above the role of the person you are trying to ban in the server hierarchy
-- Check that Tux's role has the necessary permissions in the server settings
+- Ensure Bot has the "Ban Members" permission in its role settings
+- Move the "Bot" role above the role of the person you are trying to ban in the server hierarchy
+- Check that Bot's role has the necessary permissions in the server settings
 
 #### Lacking Permission Rank
 
-**When it occurs:** Your internal Tux permission rank is lower than the rank required to use the ban command in this server.
+**When it occurs:** Your internal Bot permission rank is lower than the rank required to use the ban command in this server.
 
 **What happens:** The bot sends an error message indicating you don't have permission to use this command.
 

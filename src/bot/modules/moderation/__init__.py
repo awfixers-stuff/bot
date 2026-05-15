@@ -1,0 +1,216 @@
+"""
+Moderation Module for Bot Bot.
+
+This module provides the foundation for all moderation-related functionality
+in the Bot Discord bot, including base classes for moderation cogs and
+common moderation utilities.
+"""
+
+from collections.abc import Sequence
+
+# Type annotation import
+from typing import TYPE_CHECKING, Any, ClassVar
+
+import discord
+from discord.ext import commands
+
+from bot.cache import JailStatusCache
+from bot.core.base_cog import BaseCog
+from bot.core.bot import Bot
+from bot.database.models import CaseType as DBCaseType
+from bot.services.moderation import ModerationServiceFactory
+
+if TYPE_CHECKING:
+    from bot.services.moderation import ModerationCoordinator
+
+__all__ = ["ModerationCogBase"]
+
+
+class ModerationCogBase(BaseCog):
+    """Base class for moderation cogs with centralized service management.
+
+    This class provides a foundation for moderation cogs with clean service
+    initialization using a factory pattern. Services are created once during
+    initialization and reused for all operations.
+
+    Attributes
+    ----------
+    moderation : ModerationCoordinator
+        The main service for handling moderation operations
+    """
+
+    # Actions that remove users from the server, requiring DM to be sent first
+    REMOVAL_ACTIONS: ClassVar[set[DBCaseType]] = {
+        DBCaseType.BAN,
+        DBCaseType.KICK,
+        DBCaseType.TEMPBAN,
+    }
+
+    def __init__(self, bot: Bot) -> None:
+        """Initialize the moderation cog base with services.
+
+        Parameters
+        ----------
+        bot : Bot
+            The bot instance
+        """
+        super().__init__(bot)
+
+        # Initialize moderation services using factory pattern
+        # This avoids async initialization and duplicate service creation
+        self.moderation: ModerationCoordinator = (
+            ModerationServiceFactory.create_coordinator(bot, self.db.case)
+        )
+
+    async def moderate_user(
+        self,
+        ctx: commands.Context[Bot],
+        case_type: DBCaseType,
+        user: discord.Member | discord.User,
+        reason: str,
+        silent: bool = False,
+        dm_action: str | None = None,
+        actions: Sequence[tuple[Any, type[Any]]] | None = None,
+        duration: int | None = None,
+        **kwargs: Any,
+    ) -> None:
+        """Execute moderation action using the service architecture.
+
+        Parameters
+        ----------
+        ctx : commands.Context[Bot]
+            Command context
+        case_type : DBCaseType
+            Type of moderation action
+        user : discord.Member | discord.User
+            Target user
+        reason : str
+            Reason for the action
+        silent : bool, optional
+            Whether to suppress DM to user, by default False
+        dm_action : str | None, optional
+            Custom DM action description, by default None
+        actions : Sequence[tuple[Any, type[Any]]] | None, optional
+            Discord API actions to execute, by default None
+        duration : int | None, optional
+            Duration in seconds for temporary actions, by default None
+        **kwargs : Any
+            Additional case data
+        """
+        # Role hierarchy checks: only apply when the target is a guild member
+        if (
+            ctx.guild
+            and isinstance(user, discord.Member)
+            and isinstance(ctx.author, discord.Member)
+        ):
+            # Use owner_id (always available) instead of owner (may be None if uncached)
+            if (
+                ctx.author.id != ctx.guild.owner_id
+                and user.top_role >= ctx.author.top_role
+            ):
+                await self._respond(
+                    ctx,
+                    "You cannot moderate a member with an equal or higher role than yours.",
+                )
+                return
+
+            if ctx.guild.me.top_role <= user.top_role:
+                await self._respond(
+                    ctx,
+                    "I cannot moderate this member because their role is equal to or higher than mine.",
+                )
+                return
+
+        await self.moderation.execute_moderation_action(
+            ctx=ctx,
+            case_type=case_type,
+            user=user,
+            reason=reason,
+            silent=silent,
+            dm_action=dm_action,
+            actions=actions,
+            duration=duration,
+            **kwargs,
+        )
+
+    async def is_jailed(self, guild_id: int, user_id: int) -> bool:
+        """Check if a user is jailed.
+
+        Only JAIL and UNJAIL cases are considered; other types (e.g. WARN) are
+        ignored so intervening moderation does not change jail status.
+
+        Uses cache to reduce database queries. Prevents cache stampede with
+        async locking when multiple coroutines miss the cache simultaneously.
+
+        Parameters
+        ----------
+        guild_id : int
+            Guild ID to check
+        user_id : int
+            User ID to check
+
+        Returns
+        -------
+        bool
+            True if user is jailed, False otherwise
+        """
+        cache = JailStatusCache()
+
+        async def fetch_jail_status() -> bool:
+            """Fetch jail status from database."""
+            latest = await self.db.case.get_latest_jail_or_unjail_case(
+                user_id=user_id,
+                guild_id=guild_id,
+            )
+            return bool(latest and latest.case_type == DBCaseType.JAIL)
+
+        return await cache.get_or_fetch(guild_id, user_id, fetch_jail_status)
+
+    async def is_pollbanned(self, guild_id: int, user_id: int) -> bool:
+        """Check if a user is poll banned.
+
+        Parameters
+        ----------
+        guild_id : int
+            Guild ID to check
+        user_id : int
+            User ID to check
+
+        Returns
+        -------
+        bool
+            True if user is poll banned, False otherwise
+        """
+        latest_case = await self.db.case.get_latest_case_by_user(
+            guild_id=guild_id,
+            user_id=user_id,
+        )
+        return bool(latest_case and latest_case.case_type == DBCaseType.POLLBAN)
+
+    async def get_jail_role(self, guild: discord.Guild) -> discord.Role | None:
+        """Get the jail role for the guild."""
+        jail_role_id = await self.db.guild_config.get_jail_role_id(guild.id)
+        return None if jail_role_id is None else guild.get_role(jail_role_id)
+
+    async def _respond(
+        self,
+        ctx: commands.Context[Bot],
+        message: str,
+        *,
+        ephemeral: bool = True,
+    ) -> None:
+        """Send a response message, handling both slash and prefix commands.
+
+        Parameters
+        ----------
+        ctx : commands.Context[Bot]
+            The command context.
+        message : str
+            The message content to send.
+        ephemeral : bool, optional
+            Whether the message should be ephemeral (slash commands only), by default True.
+        """
+        if ctx.interaction:
+            await ctx.interaction.followup.send(message, ephemeral=ephemeral)
+        else:
+            await ctx.reply(message, mention_author=False)

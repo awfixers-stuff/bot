@@ -16,7 +16,7 @@ tags:
 
 ## Config
 
-Main Tux configuration using Pydantic Settings (JSON-only file support).
+Main Bot configuration using Pydantic Settings (JSON-only file support).
 
 Use **.env** for BOT_TOKEN, Postgres (POSTGRES_*), DATABASE_URL, Valkey (VALKEY_*), EXTERNAL_SERVICES, DEBUG, LOG_LEVEL, MAINTENANCE_MODE; put all other settings in **config.json**.
 
@@ -34,16 +34,16 @@ Configuration is loaded from multiple sources in priority order:
 | `LOG_LEVEL` | `string` | `"INFO"` | Logging level (TRACE, DEBUG, INFO, SUCCESS, WARNING, ERROR, CRITICAL) | `"INFO"`, `"DEBUG"`, `"WARNING"` |
 | `MAINTENANCE_MODE` | `boolean` | `false` | Enable maintenance mode (blocks non-owner commands and event processing) | `false`, `true` |
 | `BOT_TOKEN` | `string` | `""` | Discord bot token | `"FakeDiscordBotTokenBecauseGitHubSecurityIsAnnoying"` |
-| `POSTGRES_HOST` | `string` | `"localhost"` | PostgreSQL host | `"localhost"`, `"tux-postgres"`, `"db.example.com"` |
+| `POSTGRES_HOST` | `string` | `"localhost"` | PostgreSQL host | `"localhost"`, `"bot-postgres"`, `"db.example.com"` |
 | `POSTGRES_PORT` | `integer` | `5432` | PostgreSQL port | `5432`, `5433` |
-| `POSTGRES_DB` | `string` | `"tuxdb"` | PostgreSQL database name | `"tuxdb"`, `"tux_production"` |
-| `POSTGRES_USER` | `string` | `"tuxuser"` | PostgreSQL username | `"tuxuser"`, `"tux_admin"` |
+| `POSTGRES_DB` | `string` | `"botdb"` | PostgreSQL database name | `"botdb"`, `"bot_production"` |
+| `POSTGRES_USER` | `string` | `"botuser"` | PostgreSQL username | `"botuser"`, `"bot_admin"` |
 | `POSTGRES_PASSWORD` | `string` | `"ChangeThisToAStrongPassword123!"` | PostgreSQL password | `"ChangeThisToAStrongPassword123!"`, `"SecurePassword456!"` |
-| `DATABASE_URL` | `string` | `""` | Custom database URL override | `"postgresql://user:password@localhost:5432/tuxdb"` |
+| `DATABASE_URL` | `string` | `""` | Custom database URL override | `"postgresql://user:password@localhost:5432/botdb"` |
 | `POOL_SIZE` | `integer` | `20` | Database connection pool size | - |
 | `MAX_OVERFLOW` | `integer` | `40` | Maximum overflow connections beyond pool_size | - |
 | `POOL_TIMEOUT` | `number` | `30.0` | Seconds to wait for connection from pool | - |
-| `VALKEY_HOST` | `string` | `""` | Valkey host (empty to disable) | `"localhost"`, `"tux-valkey"` |
+| `VALKEY_HOST` | `string` | `""` | Valkey host (empty to disable) | `"localhost"`, `"bot-valkey"` |
 | `VALKEY_PORT` | `integer` | `6379` | Valkey port | `6379` |
 | `VALKEY_DB` | `integer` | `0` | Valkey database number | `0` |
 | `VALKEY_PASSWORD` | `string` | `""` | Valkey password | - |
@@ -58,10 +58,10 @@ Bot information configuration.
 
 | Name | Type | Default | Description | Example |
 |------|------|---------|-------------|---------|
-| `BOT_INFO__BOT_NAME` | `string` | `"Tux"` | Name of the bot | `"Tux"`, `"MyBot"` |
+| `BOT_INFO__BOT_NAME` | `string` | `"Bot"` | Name of the bot | `"Bot"`, `"MyBot"` |
 | `BOT_INFO__ACTIVITIES` | `array` | `[]` | Bot activities (Playing, Streaming, etc.). Each item: type, name; streaming also needs url. | `[{"name": "with Linux", "type": "playing"}]`, `[{"name": "to commands", "type": "streaming", "url": "https://twitch.tv/example"}]` |
 | `BOT_INFO__HIDE_BOT_OWNER` | `boolean` | `false` | Hide bot owner info | `false`, `true` |
-| `BOT_INFO__PREFIX` | `string` | `"$"` | Command prefix | `"$"`, `"!"`, `"tux."` |
+| `BOT_INFO__PREFIX` | `string` | `"$"` | Command prefix | `"$"`, `"!"`, `"bot."` |
 
 ### BotIntents
 

@@ -41,15 +41,15 @@ import psycopg.errors
 import pytest
 from sqlalchemy import text
 
-from tux.database.service import DatabaseService
-from tux.shared.config import CONFIG
+from bot.database.service import DatabaseService
+from bot.shared.config import CONFIG
 
 # Database connection constants (matches defaults from compose.yaml for consistency)
 DEFAULT_POSTGRES_HOST = "localhost"
 DEFAULT_POSTGRES_PORT = 5432
-DEFAULT_POSTGRES_USER = "tuxuser"
+DEFAULT_POSTGRES_USER = "botuser"
 DEFAULT_POSTGRES_PASSWORD = "ChangeThisToAStrongPassword123!"
-DEFAULT_POSTGRES_DB = "tuxdb"
+DEFAULT_POSTGRES_DB = "botdb"
 DATABASE_CONNECT_TIMEOUT = 2
 
 
@@ -115,7 +115,7 @@ def test_db_url() -> str:
 def isolated_migration_dir(tmp_path: Path) -> Path:
     """Create an isolated migration directory for testing."""
     # Copy the real migration structure to a temp directory
-    real_migrations = Path("src/tux/database/migrations")
+    real_migrations = Path("src/bot/database/migrations")
     temp_migrations = tmp_path / "migrations"
 
     # Copy migration files but exclude __pycache__

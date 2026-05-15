@@ -23,9 +23,9 @@ from sqlalchemy import asc, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from tux.database.controllers import GuildConfigController, GuildController
-from tux.database.models.models import Guild, GuildConfig
-from tux.database.service import DatabaseService
+from bot.database.controllers import GuildConfigController, GuildController
+from bot.database.models.models import Guild, GuildConfig
+from bot.database.service import DatabaseService
 
 # =============================================================================
 # INTEGRATION TESTS - Fast SQLModel + py-pglite (Real Database)
@@ -291,7 +291,7 @@ class TestDatabaseServiceIntegration:
         assert service.is_connected() is False
 
         # Connect
-        test_db_url = "postgresql+asyncpg://tuxuser:tuxpass@localhost:5432/tuxdb"
+        test_db_url = "postgresql+asyncpg://botuser:botpass@localhost:5432/botdb"
         await service.connect(test_db_url)
         assert service.is_connected() is True
 

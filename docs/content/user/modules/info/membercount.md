@@ -60,7 +60,7 @@ When executed, the bot displays an informational embed with three main fields:
 
 ### Bot Permissions
 
-Tux requires the following permissions to execute this command:
+Bot requires the following permissions to execute this command:
 
 - **Embed Links** - To display the counts in a neat format.
 

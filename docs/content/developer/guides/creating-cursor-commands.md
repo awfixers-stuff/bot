@@ -10,7 +10,7 @@ icon: lucide/mouse-pointer-2
 
 # Guide: Creating Cursor Commands
 
-Step-by-step guide for creating new Cursor commands for the Tux project.
+Step-by-step guide for creating new Cursor commands for the Bot project.
 
 ## Quick Start
 
@@ -179,7 +179,7 @@ Troubleshooting steps.
 3. **Complete Checklist** - Verifiable items
 4. **Error Handling** - Include troubleshooting
 5. **Cross-Reference** - Link to related commands/rules
-6. **Project-Specific** - Reference Tux tools and patterns
+6. **Project-Specific** - Reference Bot tools and patterns
 
 ## Templates
 
@@ -228,7 +228,7 @@ If operation fails:
 
 ### Content Requirements
 
-- **Project-specific**: Tailored to Tux, not generic
+- **Project-specific**: Tailored to Bot, not generic
 - **Examples**: Include working code examples
 - **Error handling**: Show how to handle failures
 - **Cross-references**: Link to related commands/rules

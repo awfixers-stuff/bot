@@ -15,7 +15,7 @@ icon: lucide/wrench
 
 ## Overview
 
-Tux provides utility functions that simplify database access across the application. These utilities handle context resolution and service discovery, providing consistent patterns for accessing database services and controllers from Discord contexts.
+Bot provides utility functions that simplify database access across the application. These utilities handle context resolution and service discovery, providing consistent patterns for accessing database services and controllers from Discord contexts.
 
 The utilities serve as the bridge between Discord interactions and the database layer, providing context resolution, controller access, service resolution, type safety, and graceful error handling.
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Tux Docker Entrypoint"
+echo "Bot Docker Entrypoint"
 echo "====================="
 
 # Configuration
@@ -14,7 +14,7 @@ wait_for_db() {
     local max_attempts=30
 
     # Check if POSTGRES_HOST is set, if not use default
-    local db_host="${POSTGRES_HOST:-tux-postgres}"
+    local db_host="${POSTGRES_HOST:-bot-postgres}"
     local db_port="${POSTGRES_PORT:-5432}"
 
     echo "Waiting for database at $db_host:$db_port..."
@@ -24,7 +24,7 @@ import socket
 import sys
 import os
 try:
-    db_host = os.environ.get('POSTGRES_HOST', 'tux-postgres')
+    db_host = os.environ.get('POSTGRES_HOST', 'bot-postgres')
     db_port = int(os.environ.get('POSTGRES_PORT', 5432))
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(1)
@@ -58,7 +58,7 @@ validate_config() {
   fi
 
     # Test configuration loading
-    if ! python -c "import tux.shared.config.settings; print('Configuration loaded successfully')"; then
+    if ! python -c "import bot.shared.config.settings; print('Configuration loaded successfully')"; then
         echo "Failed to load configuration"
         return 1
   fi
@@ -69,7 +69,7 @@ validate_config() {
 
 # Function to start the bot with retry logic
 # Note: Retry logic only applies to configuration validation failures.
-# Once tux start is called successfully, it runs in foreground until stopped.
+# Once bot start is called successfully, it runs in foreground until stopped.
 start_bot_with_retry() {
     local attempts=0
 
@@ -92,10 +92,10 @@ start_bot_with_retry() {
         # Configuration validated, start the bot
         # Use exec to replace shell process for proper signal handling (SIGTERM, SIGINT)
         # This ensures signals are delivered directly to the bot process, which handles
-        # them via asyncio signal handlers in src/tux/core/app.py
+        # them via asyncio signal handlers in src/bot/core/app.py
         echo "Configuration validated. Starting bot..."
         # shellcheck disable=SC2093
-        exec tux start
+        exec bot start
   done
 }
 

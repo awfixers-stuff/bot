@@ -15,7 +15,7 @@ icon: lucide/package
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-This page provides a comprehensive list of all dependencies used in Tux, including their licenses and versions. This information is essential for software supply chain security and legal compliance.
+This page provides a comprehensive list of all dependencies used in Bot, including their licenses and versions. This information is essential for software supply chain security and legal compliance.
 
 ## Dependencies
 
@@ -34,14 +34,14 @@ The license information above is automatically generated from the project's depe
 
 ## License Compliance
 
-Tux is licensed under the **GPL-3.0-or-later** license. All dependencies listed above are compatible with this license. If you notice any license compatibility issues, please [report them](https://github.com/allthingslinux/tux/issues).
+Bot is licensed under the **GPL-3.0-or-later** license. All dependencies listed above are compatible with this license. If you notice any license compatibility issues, please [report them](https://github.com/awfixers-stuff/bot/issues).
 
 ## Security
 
 For security concerns related to dependencies:
 
-- Review [GitHub Security Advisories](https://github.com/allthingslinux/tux/security/advisories)
-- Report security issues via [GitHub Security](https://github.com/allthingslinux/tux/security)
+- Review [GitHub Security Advisories](https://github.com/awfixers-stuff/bot/security/advisories)
+- Report security issues via [GitHub Security](https://github.com/awfixers-stuff/bot/security)
 
 ## Updating Dependencies
 
@@ -55,7 +55,7 @@ Dependencies are managed using `uv` and locked in `uv.lock`. To update dependenc
     uv sync --upgrade-package <package-name>
     ```
 
-**Automated Updates**: Tux uses [Renovate](./renovate.md) to automatically create pull requests for dependency updates. This helps keep dependencies up-to-date and secure with minimal manual intervention.
+**Automated Updates**: Bot uses [Renovate](./renovate.md) to automatically create pull requests for dependency updates. This helps keep dependencies up-to-date and secure with minimal manual intervention.
 
 ## Related Documentation
 

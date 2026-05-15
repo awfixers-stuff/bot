@@ -1,7 +1,7 @@
 """Dynamic Permission System unit tests.
 
 Tests for the database-driven permission system: rank retrieval, decorator
-metadata, and TuxPermissionDeniedError behavior.
+metadata, and BotPermissionDeniedError behavior.
 """
 
 import inspect
@@ -11,12 +11,12 @@ import discord
 import pytest
 from discord.ext import commands
 
-from tux.core.bot import Tux
-from tux.core.checks import requires_command_permission
-from tux.core.permission_system import PermissionSystem
-from tux.database.controllers import DatabaseCoordinator
-from tux.database.models import PermissionCommand
-from tux.shared.exceptions import TuxPermissionDeniedError
+from bot.core.bot import Bot
+from bot.core.checks import requires_command_permission
+from bot.core.permission_system import PermissionSystem
+from bot.database.controllers import DatabaseCoordinator
+from bot.database.models import PermissionCommand
+from bot.shared.exceptions import BotPermissionDeniedError
 
 TEST_GUILD_ID = 123456789
 TEST_USER_ID = 987654321
@@ -26,9 +26,9 @@ class TestPermissionSystem:
     """Test PermissionSystem core behavior."""
 
     @pytest.fixture
-    def mock_bot(self) -> Tux:
+    def mock_bot(self) -> Bot:
         """Create a mock bot instance."""
-        return MagicMock(spec=Tux)
+        return MagicMock(spec=Bot)
 
     @pytest.fixture
     def mock_db_coordinator(self) -> MagicMock:
@@ -40,14 +40,14 @@ class TestPermissionSystem:
     @pytest.fixture
     def permission_system(
         self,
-        mock_bot: Tux,
+        mock_bot: Bot,
         mock_db_coordinator: MagicMock,
     ) -> PermissionSystem:
         """Create a PermissionSystem instance for testing."""
         return PermissionSystem(mock_bot, mock_db_coordinator)
 
     @pytest.fixture
-    def mock_ctx(self) -> commands.Context[Tux]:
+    def mock_ctx(self) -> commands.Context[Bot]:
         """Create a mock command context."""
         ctx = MagicMock(spec=commands.Context)
         ctx.guild = MagicMock(spec=discord.Guild)
@@ -55,7 +55,7 @@ class TestPermissionSystem:
         ctx.author = MagicMock(spec=discord.Member)
         ctx.author.id = TEST_USER_ID
         ctx.author.roles = []
-        ctx.bot = MagicMock(spec=Tux)
+        ctx.bot = MagicMock(spec=Bot)
         return ctx
 
     @pytest.mark.asyncio
@@ -63,7 +63,7 @@ class TestPermissionSystem:
     async def test_get_user_permission_rank_returns_zero_when_user_has_no_roles(
         self,
         permission_system: PermissionSystem,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """User with no assigned roles receives permission rank 0."""
         # Arrange
@@ -82,7 +82,7 @@ class TestPermissionSystem:
     async def test_get_user_permission_rank_returns_highest_rank_from_user_roles(
         self,
         permission_system: PermissionSystem,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """User with assigned roles receives highest rank among those roles."""
         # Arrange
@@ -106,7 +106,7 @@ class TestPermissionSystem:
     async def test_get_user_permission_rank_returns_zero_when_no_guild(
         self,
         permission_system: PermissionSystem,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """DM or non-guild context yields permission rank 0."""
         # Arrange
@@ -247,7 +247,7 @@ class TestPermissionDecorator:
 
         # Arrange & Act
         @requires_command_permission()
-        async def my_special_command(ctx: commands.Context[Tux]) -> None:
+        async def my_special_command(ctx: commands.Context[Bot]) -> None:
             """This is my special command."""  # noqa: D401, D404
 
         # Assert
@@ -260,7 +260,7 @@ class TestPermissionDecorator:
 
         # Arrange & Act
         @requires_command_permission()
-        async def test_command(ctx: commands.Context[Tux]) -> str:
+        async def test_command(ctx: commands.Context[Bot]) -> str:
             return "test"
 
         # Assert
@@ -269,7 +269,7 @@ class TestPermissionDecorator:
 
 
 class TestPermissionError:
-    """Test TuxPermissionDeniedError behavior."""
+    """Test BotPermissionDeniedError behavior."""
 
     @pytest.mark.parametrize(
         ("required_rank", "user_rank", "command_name", "expected_substrings"),
@@ -288,7 +288,7 @@ class TestPermissionError:
     ) -> None:
         """Error message includes required rank, user rank, and command name when set."""
         # Arrange
-        error = TuxPermissionDeniedError(
+        error = BotPermissionDeniedError(
             required_rank=required_rank,
             user_rank=user_rank,
             command_name=command_name,
@@ -307,7 +307,7 @@ class TestPermissionError:
     ) -> None:
         """Error exposes required_rank, user_rank, and command_name attributes."""
         # Arrange & Act
-        error = TuxPermissionDeniedError(
+        error = BotPermissionDeniedError(
             required_rank=4,
             user_rank=2,
             command_name="kick",

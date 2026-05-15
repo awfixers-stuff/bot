@@ -11,7 +11,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from tux.shared.version import VersionManager
+from bot.shared.version import VersionManager
 
 pytestmark = pytest.mark.unit
 
@@ -62,7 +62,7 @@ class TestVersionManager:
         """Test version detection from environment variable."""
         manager = VersionManager()
 
-        with patch.dict(os.environ, {"TUX_VERSION": "1.2.3-env"}):
+        with patch.dict(os.environ, {"BOT_VERSION": "1.2.3-env"}):
             version = manager._from_environment()
             assert version == "1.2.3-env"
 
@@ -70,7 +70,7 @@ class TestVersionManager:
         """Test environment variable with empty value."""
         manager = VersionManager()
 
-        with patch.dict(os.environ, {"TUX_VERSION": ""}):
+        with patch.dict(os.environ, {"BOT_VERSION": ""}):
             version = manager._from_environment()
             assert version is None
 
@@ -78,7 +78,7 @@ class TestVersionManager:
         """Test environment variable with whitespace."""
         manager = VersionManager()
 
-        with patch.dict(os.environ, {"TUX_VERSION": "  1.2.3  "}):
+        with patch.dict(os.environ, {"BOT_VERSION": "  1.2.3  "}):
             version = manager._from_environment()
             assert version == "1.2.3"
 
@@ -181,7 +181,7 @@ class TestVersionManager:
         """Test version normalization with semver available."""
         manager = VersionManager()
 
-        with patch("tux.shared.version.semver") as mock_semver:
+        with patch("bot.shared.version.semver") as mock_semver:
             mock_version = Mock()
             mock_version.__str__ = Mock(return_value="1.0.0")
             mock_semver.Version.parse.return_value = mock_version
@@ -193,7 +193,7 @@ class TestVersionManager:
         """Test version normalization without semver."""
         manager = VersionManager()
 
-        with patch("tux.shared.version.semver", None):
+        with patch("bot.shared.version.semver", None):
             result = manager._normalize_version("1.0.0")
             assert result == "1.0.0"
 
@@ -201,7 +201,7 @@ class TestVersionManager:
         """Test version normalization with invalid version."""
         manager = VersionManager()
 
-        with patch("tux.shared.version.semver") as mock_semver:
+        with patch("bot.shared.version.semver") as mock_semver:
             mock_semver.Version.parse.side_effect = ValueError("Invalid version")
 
             result = manager._normalize_version("invalid-version")
@@ -223,7 +223,7 @@ class TestVersionManager:
 
             # Test priority: env > file > git > dev
             with (
-                patch.dict(os.environ, {"TUX_VERSION": "1.0.0-env"}),
+                patch.dict(os.environ, {"BOT_VERSION": "1.0.0-env"}),
                 patch("subprocess.run") as mock_run,
             ):
                 mock_run.return_value.returncode = 0

@@ -8,10 +8,10 @@ import os
 import sys
 from subprocess import CalledProcessError
 
+from bot.shared.config import CONFIG
 from scripts.core import create_app
 from scripts.proc import run_command
 from scripts.ui import print_error, print_section, print_success, rich_print
-from tux.shared.config import CONFIG
 
 app = create_app()
 

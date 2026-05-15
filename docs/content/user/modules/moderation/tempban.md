@@ -10,7 +10,7 @@ tags:
 
 # Tempban
 
-The `tempban` command allows server moderators to ban a member from the server for a specific period of time. Once the duration expires, Tux will automatically unban the user, allowing them to rejoin the server.
+The `tempban` command allows server moderators to ban a member from the server for a specific period of time. Once the duration expires, Bot will automatically unban the user, allowing them to rejoin the server.
 
 This command is useful for "cooling off" periods or mid-level rule violations where a permanent ban is too severe but a simple kick or timeout isn't enough.
 
@@ -52,11 +52,11 @@ This command supports the following flags:
 |------|---------|------|---------|-------------|
 | `-duration` | `-t`, `-d`, `-e` | Time | **Required** | Length of the ban (e.g., `1d`, `12h`). |
 | `-purge` | `-p` | Integer (0-7) | 0 | Number of days of message history to delete. |
-| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Tux will not attempt to DM the user. |
+| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Bot will not attempt to DM the user. |
 
 ### -duration
 
-The length of time the user should be banned. Tux uses a standard time format (numbers followed by s, m, h, or d).
+The length of time the user should be banned. Bot uses a standard time format (numbers followed by s, m, h, or d).
 
 - **Type:** Time String
 - **Format:** Combined units like `1d12h` or single units like `7d`.
@@ -83,7 +83,7 @@ Whether to suppress the DM notification to the banned user.
 
 ### Bot Permissions
 
-Tux requires the following permissions:
+Bot requires the following permissions:
 
 - **Ban Members** - Required to perform the initial ban and the final unban.
 
@@ -92,7 +92,7 @@ Tux requires the following permissions:
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 
@@ -130,7 +130,7 @@ $tempban @user -duration 1h -silent
 
 ## Response Format
 
-When executed successfully, Tux will:
+When executed successfully, Bot will:
 
 1. Attempt to DM the user with the ban duration and reason (unless `-silent` is used).
 2. Execute the ban on the Discord server.
@@ -147,19 +147,19 @@ The confirmation message includes the tempbanned user's name, the duration, the 
 
 #### Missing Permissions / Higher Role
 
-**When it occurs:** Tux lacks the "Ban Members" permission, or the target user's highest role is equal to or higher than Tux's highest role.
+**When it occurs:** Bot lacks the "Ban Members" permission, or the target user's highest role is equal to or higher than Bot's highest role.
 
 **What happens:** The bot sends an error message indicating insufficient permissions.
 
 **Solutions:**
 
-- Ensure Tux has the "Ban Members" permission
-- Move the "Tux" role above the target's role in the server hierarchy
-- Check that Tux's role has the necessary permissions in the server settings
+- Ensure Bot has the "Ban Members" permission
+- Move the "Bot" role above the target's role in the server hierarchy
+- Check that Bot's role has the necessary permissions in the server settings
 
 #### Lacking Permission Rank
 
-**When it occurs:** Your internal Tux permission rank is lower than the rank required to use this command in this server.
+**When it occurs:** Your internal Bot permission rank is lower than the rank required to use this command in this server.
 
 **What happens:** The bot sends an error message indicating you don't have permission to use this command.
 

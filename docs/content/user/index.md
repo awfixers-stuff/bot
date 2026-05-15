@@ -9,7 +9,7 @@ icon: octicons/person-24
 
 # User Guide
 
-Welcome to the Tux User Guide! This guide covers everything you need to know to use Tux's commands and features on your Discord server.
+Welcome to the Bot User Guide! This guide covers everything you need to know to use Bot's commands and features on your Discord server.
 
 ## Quick Start
 
@@ -19,7 +19,7 @@ Welcome to the Tux User Guide! This guide covers everything you need to know to 
 
 ## Command Types
 
-Tux supports both modern slash commands and traditional prefix commands:
+Bot supports both modern slash commands and traditional prefix commands:
 
 - **Slash Commands** - Modern Discord slash commands (e.g., `/ping`, `/ban`)
 - **Prefix Commands** - Traditional text commands using the `$` prefix (e.g., `$ping`, `$ban`, `$help`)
@@ -28,7 +28,7 @@ Most commands support both formats, though some specialized commands may only be
 
 ## Getting Help
 
-The easiest way to learn about Tux's commands is through the interactive help system:
+The easiest way to learn about Bot's commands is through the interactive help system:
 
 ```text
 $help
@@ -45,7 +45,7 @@ See the [Help Command](modules/utility/help.md) documentation for more details.
 
 ## Command Modules
 
-Tux organizes commands into modules for easy navigation:
+Bot organizes commands into modules for easy navigation:
 
 ### [Moderation](modules/moderation/index.md)
 
@@ -120,7 +120,7 @@ Level and XP tracking system for Discord guilds, rewarding active members with l
 
 ### [Config](modules/config/index.md)
 
-Comprehensive guild configuration and management system for customizing Tux to your server's needs.
+Comprehensive guild configuration and management system for customizing Bot to your server's needs.
 
 **Key Commands:**
 
@@ -131,7 +131,7 @@ Comprehensive guild configuration and management system for customizing Tux to y
 
 ## Features
 
-Tux also includes powerful features that work automatically:
+Bot also includes powerful features that work automatically:
 
 ### [Leveling](features/leveling.md)
 
@@ -159,7 +159,7 @@ Rate limiting for GIF messages to prevent spam and maintain server quality.
 
 ## Permissions
 
-Tux uses a dynamic permission system that allows server administrators to customize who can use which commands. By default:
+Bot uses a dynamic permission system that allows server administrators to customize who can use which commands. By default:
 
 - **Utility and Fun Commands** - Available to all users
 - **Moderation Commands** - Require appropriate permission ranks

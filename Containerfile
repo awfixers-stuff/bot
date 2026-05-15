@@ -4,13 +4,13 @@
 FROM python:3.13.11-slim AS common
 
 # Common labels (shared across all final images)
-LABEL org.opencontainers.image.source="https://github.com/allthingslinux/tux" \
-    org.opencontainers.image.description="Tux - The all in one discord bot for the All Things Linux Community" \
+LABEL org.opencontainers.image.source="https://github.com/awfixers-stuff/bot" \
+    org.opencontainers.image.description="Bot - The all in one discord bot for the AWFixer Enterprising Inc Community" \
     org.opencontainers.image.licenses="GPL-3.0" \
-    org.opencontainers.image.authors="All Things Linux" \
-    org.opencontainers.image.vendor="All Things Linux" \
-    org.opencontainers.image.title="Tux" \
-    org.opencontainers.image.documentation="https://github.com/allthingslinux/tux/blob/main/README.md"
+    org.opencontainers.image.authors="AWFixer Enterprising Inc" \
+    org.opencontainers.image.vendor="AWFixer Enterprising Inc" \
+    org.opencontainers.image.title="Bot" \
+    org.opencontainers.image.documentation="https://github.com/awfixers-stuff/bot/blob/main/README.md"
 
 # Common user setup (non-root user)
 RUN groupadd --system --gid 1001 nonroot && \
@@ -79,16 +79,16 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --locked --no-install-project --no-default-groups
 
-COPY src/tux/database/migrations/ ./src/tux/database/migrations/
+COPY src/bot/database/migrations/ ./src/bot/database/migrations/
 
 # Copy source code (plugins excluded via .dockerignore)
 # Plugins are drop-in extensions that should be mounted as volumes at runtime, not in image
 COPY src/ ./src/
-RUN cp -a src/tux ./tux
+RUN cp -a src/bot ./bot
 # Ensure plugins directory exists (empty) for runtime volume mounts
 # .dockerignore excludes plugin files, but directory structure is needed for mounts
-RUN mkdir -p ./src/tux/plugins ./tux/plugins && \
-    touch ./src/tux/plugins/.gitkeep ./tux/plugins/.gitkeep
+RUN mkdir -p ./src/bot/plugins ./bot/plugins && \
+    touch ./src/bot/plugins/.gitkeep ./bot/plugins/.gitkeep
 
 COPY README.md LICENSE pyproject.toml alembic.ini ./
 COPY scripts/ ./scripts/
@@ -182,7 +182,7 @@ ENV VIRTUAL_ENV=/app/.venv \
     TLDR_CACHE_DIR=/app/.cache/tldr
 
 COPY --from=build --chown=nonroot:nonroot /app/.venv /app/.venv
-COPY --from=build --chown=nonroot:nonroot /app/tux /app/tux
+COPY --from=build --chown=nonroot:nonroot /app/bot /app/bot
 COPY --from=build --chown=nonroot:nonroot /app/src /app/src
 COPY --from=build --chown=nonroot:nonroot /app/pyproject.toml /app/pyproject.toml
 COPY --from=build --chown=nonroot:nonroot /app/VERSION /app/VERSION
@@ -190,7 +190,7 @@ COPY --from=build --chown=nonroot:nonroot /app/alembic.ini /app/alembic.ini
 COPY --from=build --chown=nonroot:nonroot /app/scripts /app/scripts
 
 RUN ln -sf /app/.venv/bin/python /usr/local/bin/python && \
-    ln -sf /app/.venv/bin/tux /usr/local/bin/tux
+    ln -sf /app/.venv/bin/bot /usr/local/bin/bot
 
 RUN set -eux; \
     mkdir -p /app/.cache/tldr /app/temp; \
@@ -217,14 +217,14 @@ RUN set -eux; \
     rm -rf /app/.venv/bin/${pkg}* 2>/dev/null || true; \
     done; \
     rm -rf /app/.venv/bin/easy_install* 2>/dev/null || true; \
-    /app/.venv/bin/python -m compileall -b -q /app/tux "${PYTHON_LIB_PATH:?}" 2>/dev/null || true
+    /app/.venv/bin/python -m compileall -b -q /app/bot "${PYTHON_LIB_PATH:?}" 2>/dev/null || true
 
 USER nonroot
 
 # Runtime config: env (incl. .env via compose env_file) and /app/config (mounted config.json).
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import tux.shared.config.settings; print('Health check passed')" || exit 1
+    CMD python -c "import bot.shared.config.settings; print('Health check passed')" || exit 1
 
 COPY --chmod=755 docker/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

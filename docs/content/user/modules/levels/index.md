@@ -87,7 +87,7 @@ This module requires the following configuration:
 
 ### Bot Permissions
 
-Tux requires the following permissions for this module:
+Bot requires the following permissions for this module:
 
 - **Send Messages** - Required for command responses
 - **Manage Roles** - Required to assign and remove level-based roles
@@ -98,7 +98,7 @@ Tux requires the following permissions for this module:
 The `/level` command is available to all users. Administrative commands under `/levels` require Moderator rank (typically rank 3-5) or higher.
 
 !!! tip "Permission System"
-    Tux uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Bot uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Related Documentation
 

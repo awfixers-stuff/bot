@@ -9,11 +9,11 @@
 
 ## Plugin System Stability
 
-- [ ] **Document Plugin APIs** - Create a clear guide showing which parts of Tux plugins can safely use
+- [ ] **Document Plugin APIs** - Create a clear guide showing which parts of Bot plugins can safely use
 - [ ] **Add Deprecation Warnings** - Set up warnings when old plugin code will be removed in future versions
 - [ ] **Check Plugin Imports** - Review what plugins import and ensure they're using safe, stable code
 - [ ] **Validate Plugins on Load** - Check plugins when they start up to catch problems early
-- [ ] **Version Compatibility** - Document which Tux versions work with plugins and how to upgrade between versions
+- [ ] **Version Compatibility** - Document which Bot versions work with plugins and how to upgrade between versions
 - [ ] **Plugin Error Handling** - Document how plugins should handle errors and exceptions
 - [ ] **Plugin Examples** - Create simple step-by-step guides for building plugins
 - [ ] **Test Plugin Compatibility** - Add tests to ensure plugins work correctly with the bot

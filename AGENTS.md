@@ -1,6 +1,6 @@
 # AGENTS.md
 
-**Tux** is an all-in-one open source Discord bot for the [All Things Linux](https://allthingslinux.org) community.
+**Bot** is an all-in-one open source Discord bot for the [AWFixer Enterprising Inc](https://github.com/awfixers-stuff/bot) community.
 
 **Stack:** Python 3.13.2+ • discord.py • PostgreSQL • SQLModel • uv • Docker
 
@@ -13,7 +13,7 @@
 | DB + migrate | `uv run db init` / `uv run db dev` |
 | Quality | `uv run dev all` |
 | Tests | `uv run test quick` / `uv run test all` |
-| Run bot | `uv run tux start` |
+| Run bot | `uv run bot start` |
 | Validate Cursor content | `uv run ai validate-rules` |
 
 ## Cursor rules and commands
@@ -42,7 +42,7 @@ uv run ai validate-rules
 
 ## Resources
 
-- **Docs:** <https://tux.atl.dev>
-- **Issues:** <https://github.com/allthingslinux/tux/issues>
+- **Docs:** <https://github.com/awfixers-stuff/bot
+- **Issues:** <https://github.com/awfixers-stuff/bot/issues>
 - **Discord:** <https://discord.gg/gpmSjcjQxg>
-- **Repo:** <https://github.com/allthingslinux/tux>
+- **Repo:** <https://github.com/awfixers-stuff/bot>

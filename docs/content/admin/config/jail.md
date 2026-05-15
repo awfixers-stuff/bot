@@ -34,7 +34,7 @@ To clear a setting, open the dropdown and deselect the current value (or choose 
 5. Use `/config jail` to set the **Jail channel** and **Jail role** to those.
 
 !!! tip "New channels"
-    When a new channel is created, Tux automatically denies the jail role access to it. You only need to manually allow the jail role on the jail channel.
+    When a new channel is created, Bot automatically denies the jail role access to it. You only need to manually allow the jail role on the jail channel.
 
 ## See also
 

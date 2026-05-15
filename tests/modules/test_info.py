@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 import discord
 import pytest
 
-from tux.modules.info.helpers import (
+from bot.modules.info.helpers import (
     chunks,
     extract_invite_code,
     format_bool,

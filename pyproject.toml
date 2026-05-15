@@ -3,20 +3,19 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "tux"
+name = "bot"
 version = "0.1.0"
 requires-python = ">=3.13.2,<3.14"
-description = "Tux is an all in one bot for the All Things Linux discord server."
+description = "Bot is an all in one bot for the AWFixer Enterprising Inc discord server."
 readme = "README.md"
 license = "GPL-3.0-or-later"
-authors = [{ name = "All Things Linux", email = "tux@allthingslinux.org" }]
+authors = [{ name = "AWFixer Enterprising Inc", email = "github@awfixers-stuff.github.io" }]
 
 dependencies = [
     "aiocache>=0.12.3",
     "aiofiles>=24.1.0",
     "cairosvg>=2.7.1",
     "discord-py>=2.6.0",
-    "influxdb-client>=1.48.0",
     "githubkit[auth-app]>=0.12.0",
     "httpx>=0.28.0",
     "jishaku>=2.5.2",
@@ -54,11 +53,11 @@ dependencies = [
 ]
 
 [project.urls]
-repository = "https://github.com/allthingslinux/tux"
+repository = "https://github.com/awfixers-stuff/bot"
 
 [project.scripts]
 cli = "scripts:main"
-tux = "scripts.tux:main"
+bot = "scripts.bot:main"
 db = "scripts.db:main"
 dev = "scripts.dev:main"
 test = "scripts.test:main"
@@ -135,7 +134,6 @@ types = [
     "types-psutil>=7.0.0.20250401",
     "types-pillow>=10.2.0.20240822",
     "types-aiofiles>=24.1.0.20250326",
-    "types-influxdb-client>=1.45.0.20241221",
     "types-jinja2>=2.11.9",
     "annotated-types>=0.7.0",
     "asyncpg-stubs>=0.30.2",
@@ -147,10 +145,10 @@ types = [
 default-groups = ["dev", "test", "docs", "types"]
 
 [tool.hatch.build.targets.sdist]
-packages = ["src/tux", "scripts"]
+packages = ["src/bot", "scripts"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/tux", "scripts"]
+packages = ["src/bot", "scripts"]
 
 [tool.pydoclint]
 style = "numpy"
@@ -208,7 +206,7 @@ exclude = [
     "examples",
     "node_modules",
     "site-packages",
-    "src/tux/database/migrations/versions/**",
+    "src/bot/database/migrations/versions/**",
     # Exclude all Python files in tests, but allow conftest.py to be linted
     "tests/fixtures/**",
     "tests/e2e/**",
@@ -292,7 +290,7 @@ exclude = [
     "examples",
     "site",
     ".archive",
-    "src/tux/database/migrations/**",
+    "src/bot/database/migrations/**",
 ]
 include = ["src", "scripts", "tests"]
 stubPath = "typings"
@@ -328,7 +326,7 @@ reportUnknownArgumentType = "none"
 reportUnknownParameterType = "none"
 
 [tool.coverage.run]
-source = ["src/tux"]
+source = ["src/bot"]
 branch = true
 parallel = true
 relative_files = true
@@ -418,7 +416,7 @@ addopts = [
     "--disable-socket",
     "--allow-unix-socket",
     # Coverage
-    "--cov=src/tux",
+    "--cov=src/bot",
     "--cov-report=term-missing",
     "--cov-report=xml",
     "--cov-report=json",
@@ -530,14 +528,14 @@ junit_logging = "no"
 
 # pytest-alembic configuration
 [tool.pytest-alembic]
-script_location = "src/tux/database/migrations"
-version_locations = ["src/tux/database/migrations/versions"]
+script_location = "src/bot/database/migrations"
+version_locations = ["src/bot/database/migrations/versions"]
 
 # Note: pytest-xdist options are configured via command-line arguments
 # (e.g., -n auto, --dist=loadfile) or in addopts, not as a separate config section
 
 # Legacy MkDocs plugin entry points (kept for reference, may not be used with Zensical)
 [project.entry-points."mkdocs.plugins"]
-tux = "docs.plugins.mkdocs_tux_plugin:TuxPlugin"
+bot = "docs.plugins.mkdocs_bot_plugin:BotPlugin"
 mkdocs_sbom = "docs.plugins.mkdocs_sbom:SbomPlugin"
 mkdocs_auto_index = "docs.plugins.mkdocs_auto_index:IndexGeneratorPlugin"

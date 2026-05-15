@@ -1,5 +1,5 @@
 {
-  description = "Tux";
+  description = "Bot";
 
   inputs = {
     nixpkgs = {
@@ -33,8 +33,8 @@
 
       perSystem = { pkgs, self', system, ... }: {
         devShells = {
-          default = self'.devShells.tux;
-          tux = pkgs.callPackage ./shell.nix { inherit pkgs self; };
+          default = self'.devShells.bot;
+          bot = pkgs.callPackage ./shell.nix { inherit pkgs self; };
         };
 
         apps.envrc = {

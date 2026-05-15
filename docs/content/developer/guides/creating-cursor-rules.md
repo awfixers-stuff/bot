@@ -12,7 +12,7 @@ icon: lucide/mouse-pointer-2
 
 # Guide: Creating Cursor Rules
 
-Step-by-step guide for creating new Cursor rules for the Tux project.
+Step-by-step guide for creating new Cursor rules for the Bot project.
 
 ## Quick Start
 
@@ -51,7 +51,7 @@ Copy and customize frontmatter:
 ```yaml
 ---
 description: Brief description (60-120 chars) with domain keywords
-globs: src/tux/database/**/*.py  # Optional, comma-separated for file-scoped
+globs: src/bot/database/**/*.py  # Optional, comma-separated for file-scoped
 alwaysApply: false  # true for always-apply rules
 ---
 ```
@@ -80,7 +80,7 @@ Include working code examples:
 
 ```python
 # ✅ GOOD: Show correct pattern
-from tux.database.models import BaseModel
+from bot.database.models import BaseModel
 
 class MyModel(BaseModel, table=True):
     """Model description."""
@@ -123,8 +123,8 @@ Check:
 3. **Metadata**:
 
    ```yaml
-   description: SQLModel database model patterns for Tux
-   globs: src/tux/database/models/**/*.py
+   description: SQLModel database model patterns for Bot
+   globs: src/bot/database/models/**/*.py
    alwaysApply: false
    ```
 
@@ -138,7 +138,7 @@ Check:
 ```yaml
 ---
 description: Patterns for specific file type
-globs: src/tux/modules/**/*.py
+globs: src/bot/modules/**/*.py
 alwaysApply: false
 ---
 ```
@@ -163,7 +163,7 @@ alwaysApply: false
 
 ## Best Practices
 
-1. **Be Specific** - Tailor to Tux project, not generic
+1. **Be Specific** - Tailor to Bot project, not generic
 2. **Include Examples** - Show working code
 3. **Show Anti-Patterns** - What NOT to do
 4. **Cross-Reference** - Link to related rules
@@ -225,7 +225,7 @@ Brief description of the rule's purpose and scope.
 
 ### Content Requirements
 
-- **Project-specific**: Tailored to Tux, not generic
+- **Project-specific**: Tailored to Bot, not generic
 - **Examples**: Include working code examples
 - **Anti-patterns**: Show what NOT to do
 - **Cross-references**: Link to related rules/commands

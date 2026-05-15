@@ -3,7 +3,7 @@
 import pytest
 from typing import Any
 
-from tux.database.controllers import GuildConfigController, GuildController
+from bot.database.controllers import GuildConfigController, GuildController
 
 # Import constants from separate module to avoid assertion rewriting issues
 from tests.constants import (

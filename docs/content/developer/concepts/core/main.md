@@ -1,6 +1,6 @@
 ---
 title: Main Entry Point
-description: Tux Discord bot main entry point with error handling, logging configuration, and application lifecycle management.
+description: Bot Discord bot main entry point with error handling, logging configuration, and application lifecycle management.
 tags:
   - developer-guide
   - concepts
@@ -13,7 +13,7 @@ icon: lucide/cpu
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-The main entry point (`src/tux/main.py`) serves as Tux's primary application entry point, handling error management, logging configuration, and providing the synchronous interface to the asynchronous bot application.
+The main entry point (`src/bot/main.py`) serves as Bot's primary application entry point, handling error management, logging configuration, and providing the synchronous interface to the asynchronous bot application.
 
 ## Overview
 
@@ -25,21 +25,21 @@ The main module provides a clean separation between the command-line interface a
 
 ```python
 def run() -> int:
-    """Instantiate and run the Tux application."""
+    """Instantiate and run the Bot application."""
     # The debug flag is currently used for logging info if needed,
     # but actual logging is configured by the CLI script.
-    app = TuxApp()
+    app = BotApp()
     return app.run()
 ```
 
 ### Error Handling Strategy
 
-The application layer handles the lifecycle, and the entry point delegates execution to `TuxApp`. Most error handling and logging now occur at the appropriate service or orchestrator level.
+The application layer handles the lifecycle, and the entry point delegates execution to `BotApp`. Most error handling and logging now occur at the appropriate service or orchestrator level.
 
 **Database Errors:**
 
 ```python
-if isinstance(e, TuxDatabaseError):
+if isinstance(e, BotDatabaseError):
     logger.error("❌ Database connection failed")
     logger.info("💡 To start the database, run: docker compose --profile dev up -d (or --profile production)")
 ```
@@ -47,7 +47,7 @@ if isinstance(e, TuxDatabaseError):
 **Application Errors:**
 
 ```python
-elif isinstance(e, TuxError):
+elif isinstance(e, BotError):
     logger.error(f"❌ Bot startup failed: {e}")
 ```
 
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
 **Purpose:**
 
-- Allows direct execution of the module with `python -m tux.main`
+- Allows direct execution of the module with `python -m bot.main`
 - Ensures proper exit code propagation to the shell
 - Maintains compatibility with different execution methods
 
@@ -94,22 +94,22 @@ if __name__ == "__main__":
 
 ### CLI Script Delegation
 
-The main module is typically invoked through the CLI system (`scripts/tux/start.py`):
+The main module is typically invoked through the CLI system (`scripts/bot/start.py`):
 
 ```bash
 # CLI invocation (recommended)
-uv run tux start
+uv run bot start
 
 # Direct module execution (fallback)
-python -m tux.main
+python -m bot.main
 ```
 
 ### Logging Configuration
 
 **Logging Setup:**
 
-- Logging is configured in the CLI start script (`scripts/tux/start.py`) before `run()` is called
-- As a defensive fallback, logging is also configured in `TuxApp.start()` before Sentry initialization
+- Logging is configured in the CLI start script (`scripts/bot/start.py`) before `run()` is called
+- As a defensive fallback, logging is also configured in `BotApp.start()` before Sentry initialization
 - Ensures consistent log formatting across all execution methods
 - Supports different log levels via `--debug` flag, `LOG_LEVEL` environment variable, or `DEBUG=1` flag
 - The `--debug` flag has highest priority and overrides environment variables
@@ -118,10 +118,10 @@ python -m tux.main
 
 ### Application-Level Errors
 
-**Tux-Specific Errors:**
+**Bot-Specific Errors:**
 
-- `TuxDatabaseError` - Database connectivity and operations
-- `TuxError` - General application errors
+- `BotDatabaseError` - Database connectivity and operations
+- `BotError` - General application errors
 - Custom exceptions from the core application
 
 **System Errors:**
@@ -153,7 +153,7 @@ python -m tux.main
 graph TD
     A[CLI Script] --> B[Configure Logging]
     B --> C[Call run()]
-    C --> D[Create TuxApp]
+    C --> D[Create BotApp]
     D --> E[Run Application]
     E --> F{Exit Code}
     F --> G[Return to Shell]
@@ -164,7 +164,7 @@ graph TD
 1. **CLI Script** - Parse arguments and configure environment
 2. **Logging Setup** - Initialize structured logging
 3. **Entry Point** - Call `run()` function
-4. **Application Creation** - Instantiate `TuxApp`
+4. **Application Creation** - Instantiate `BotApp`
 5. **Execution** - Run the bot application
 6. **Exit Handling** - Process exit codes and errors
 
@@ -174,13 +174,13 @@ graph TD
 
 ```bash
 # Standard development startup
-uv run tux start
+uv run bot start
 
 # With debug logging
-LOG_LEVEL=DEBUG uv run tux start
+LOG_LEVEL=DEBUG uv run bot start
 
 # Direct execution for testing
-python -m tux.main
+python -m bot.main
 ```
 
 ### Error Debugging
@@ -205,14 +205,14 @@ python -m tux.main
 
 ```bash
 # Enable detailed error logging
-LOG_LEVEL=DEBUG uv run tux start 2>&1 | grep -E "(ERROR|CRITICAL|❌)"
+LOG_LEVEL=DEBUG uv run bot start 2>&1 | grep -E "(ERROR|CRITICAL|❌)"
 ```
 
 ### Testing Entry Point
 
 ```python
 import sys
-from tux.main import run
+from bot.main import run
 
 def test_entry_point():
     """Test the main entry point function."""
@@ -278,10 +278,10 @@ env | grep -E "(BOT_TOKEN|DATABASE)"
 
 ```bash
 # Check for syntax errors
-python -m py_compile src/tux/main.py
+python -m py_compile src/bot/main.py
 
 # Test import
-python -c "from tux.main import run; print('Import successful')"
+python -c "from bot.main import run; print('Import successful')"
 ```
 
 ### Exit Code Issues
@@ -290,20 +290,20 @@ python -c "from tux.main import run; print('Import successful')"
 
 ```bash
 # Capture exit code
-uv run tux start; echo "Exit code: $?"
+uv run bot start; echo "Exit code: $?"
 
 # Debug with verbose output
-uv run tux start --debug 2>&1 | tail -20
+uv run bot start --debug 2>&1 | tail -20
 ```
 
 **Signal Handling:**
 
 ```bash
 # Test SIGINT handling
-timeout 5 uv run tux start; echo "Exit code: $?"
+timeout 5 uv run bot start; echo "Exit code: $?"
 
 # Check signal processing
-uv run tux start &
+uv run bot start &
 sleep 2
 kill -INT $!
 wait $!
@@ -312,9 +312,9 @@ echo "Exit code: $?"
 
 ## Resources
 
-- **Source Code**: `src/tux/main.py`
-- **CLI System**: `scripts/tux/start.py`
-- **Application Layer**: `src/tux/core/app.py`
+- **Source Code**: `src/bot/main.py`
+- **CLI System**: `scripts/bot/start.py`
+- **Application Layer**: `src/bot/core/app.py`
 - **CLI Core**: `scripts/core.py`
 - **Error Handling**: See exception documentation
 - **Logging**: See logging configuration documentation

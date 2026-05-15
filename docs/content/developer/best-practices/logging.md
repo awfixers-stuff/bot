@@ -1,6 +1,6 @@
 ---
 title: Logging Best Practices
-description: Logging best practices for Tux development using loguru, including structured logging, third-party library interception, and debugging patterns.
+description: Logging best practices for Bot development using loguru, including structured logging, third-party library interception, and debugging patterns.
 tags:
   - developer-guide
   - best-practices
@@ -15,13 +15,13 @@ icon: lucide/logs
 
 Effective logging is essential for understanding what your bot is doing, debugging issues, and monitoring production systems. Good logs tell a story of what happened, when it happened, and why it happened. Bad logs are noise that obscures important information.
 
-## Understanding Loguru in Tux
+## Understanding Loguru in Bot
 
-Tux uses loguru for all logging, configured centrally in `src/tux/core/logging.py`. This setup provides a single global logger that's ready to use—just import and start logging. The configuration handles environment-based log levels, intercepts third-party library logs, and formats output for easy reading.
+Bot uses loguru for all logging, configured centrally in `src/bot/core/logging.py`. This setup provides a single global logger that's ready to use—just import and start logging. The configuration handles environment-based log levels, intercepts third-party library logs, and formats output for easy reading.
 
-The logger is configured automatically when Tux starts. Logging is initialized in the CLI start script (`scripts/tux/start.py`) before any other code runs, ensuring all log statements respect the configured level.
+The logger is configured automatically when Bot starts. Logging is initialized in the CLI start script (`scripts/bot/start.py`) before any other code runs, ensuring all log statements respect the configured level.
 
-As a defensive fallback, logging is also configured in `TuxApp.start()` before Sentry initialization. You don't need to configure it yourself—just import `logger` from loguru and use it.
+As a defensive fallback, logging is also configured in `BotApp.start()` before Sentry initialization. You don't need to configure it yourself—just import `logger` from loguru and use it.
 
 The configuration automatically routes logs from Discord.py, SQLAlchemy, httpx, and other libraries through loguru, giving you consistent log formatting across your entire application.
 
@@ -69,7 +69,7 @@ Reserve CRITICAL for truly critical failures. Don't use it for routine errors or
 
 ## Structured Logging
 
-Tux provides structured logging helpers through `StructuredLogger`. These helpers create consistent, queryable logs with standardized fields. Use them for performance monitoring, database operations, and API calls.
+Bot provides structured logging helpers through `StructuredLogger`. These helpers create consistent, queryable logs with standardized fields. Use them for performance monitoring, database operations, and API calls.
 
 Structured logs include consistent fields that make querying and analysis easier. Instead of parsing free-form log messages, you can query logs by operation type, duration, or other structured fields. This makes monitoring and debugging much easier.
 
@@ -77,7 +77,7 @@ Use structured logging for operations you want to monitor or analyze. Performanc
 
 ## Third-Party Library Logs
 
-Tux automatically intercepts logs from common libraries and routes them through loguru. This gives you consistent log formatting and level control for all logs, not just your application code.
+Bot automatically intercepts logs from common libraries and routes them through loguru. This gives you consistent log formatting and level control for all logs, not just your application code.
 
 For example, Discord.py logs at INFO level, SQLAlchemy at DEBUG/WARNING, and HTTP clients at WARNING level.
 
@@ -234,6 +234,6 @@ Be mindful of log volume. Log important events, not every operation. Use appropr
 ## Resources
 
 - **Loguru Documentation**: Official loguru documentation covers all features and configuration options
-- **Tux Logging Source**: See `src/tux/core/logging.py` for Tux's logging configuration
+- **Bot Logging Source**: See `src/bot/core/logging.py` for Bot's logging configuration
 - **Structured Logging Guide**: Learn about structured logging patterns and best practices
 - **Twelve-Factor App Logging**: Principles for logging in production applications

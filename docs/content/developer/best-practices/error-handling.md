@@ -1,6 +1,6 @@
 ---
 title: Error Handling Best Practices
-description: Error handling best practices for Tux development, including exception patterns, graceful degradation, and debugging techniques.
+description: Error handling best practices for Bot development, including exception patterns, graceful degradation, and debugging techniques.
 tags:
   - developer-guide
   - best-practices
@@ -31,7 +31,7 @@ print("Hello World"  # Missing closing parenthesis
 result = 10 / 0  # Raises ZeroDivisionError - can be caught
 ```
 
-In Tux, we focus on handling exceptions gracefully while preventing errors through proper code review and linting.
+In Bot, we focus on handling exceptions gracefully while preventing errors through proper code review and linting.
 
 ## Common Python Exceptions
 
@@ -111,11 +111,11 @@ Python provides built-in exception classes for different error scenarios. Unders
     They should generally be allowed to propagate for proper program shutdown.
     See the section on [The Critical Difference: `except:` vs `except Exception:`](#the-critical-difference-except-vs-except-exception) for more details.
 
-## Understanding Tux's Exception System
+## Understanding Bot's Exception System
 
-Tux uses a hierarchical exception system built on `TuxError`. This hierarchy lets you catch errors at the right level of specificity. Database errors inherit from `TuxDatabaseError`, API errors from `TuxAPIError`, and permission errors from `TuxPermissionError`.
+Bot uses a hierarchical exception system built on `BotError`. This hierarchy lets you catch errors at the right level of specificity. Database errors inherit from `BotDatabaseError`, API errors from `BotAPIError`, and permission errors from `BotPermissionError`.
 
-Use specific exception types instead of generic ones. When you raise `TuxDatabaseConnectionError`, callers can handle database connection issues specifically. They can retry, fall back to cached data, or show appropriate error messages. Generic exceptions force callers to guess what went wrong.
+Use specific exception types instead of generic ones. When you raise `BotDatabaseConnectionError`, callers can handle database connection issues specifically. They can retry, fall back to cached data, or show appropriate error messages. Generic exceptions force callers to guess what went wrong.
 
 The exception hierarchy includes:
 
@@ -135,7 +135,7 @@ User errors happen when users provide invalid input or lack permissions. These e
 
 Examples include invalid command arguments, missing permissions, rate limits, and command not found. The global error handler catches these and converts them to user-friendly messages automatically.
 
-Raise specific exceptions for user errors. Use `commands.BadArgument` for invalid input, `commands.MissingPermissions` for permission issues, and `TuxPermissionLevelError` for custom permission checks. The global handler knows how to format these for users.
+Raise specific exceptions for user errors. Use `commands.BadArgument` for invalid input, `commands.MissingPermissions` for permission issues, and `BotPermissionLevelError` for custom permission checks. The global handler knows how to format these for users.
 
 ### Infrastructure Errors
 
@@ -165,7 +165,7 @@ Use appropriate log levels. Debug for detailed execution flow. Info for normal o
 
 ### Be Specific, Not Generic
 
-Catch specific exceptions, not generic ones. When you catch `TuxDatabaseConnectionError`, you know it's a connection issue and can retry or use cached data. When you catch `Exception`, you don't know what went wrong and can't handle it appropriately.
+Catch specific exceptions, not generic ones. When you catch `BotDatabaseConnectionError`, you know it's a connection issue and can retry or use cached data. When you catch `Exception`, you don't know what went wrong and can't handle it appropriately.
 
 Handle exceptions at the right level. Catch specific exceptions where you can handle them meaningfully. Let exceptions propagate to the global handler when you can't handle them locally. Don't catch exceptions just to log them—let them propagate to handlers that can actually deal with them.
 
@@ -192,19 +192,19 @@ except Exception as e:
 # ✅ GOOD: Each operation has its own error boundary
 try:
     user = await db.get_user(user_id)
-except TuxDatabaseConnectionError as e:
+except BotDatabaseConnectionError as e:
     logger.error(f"Database connection failed: {e}")
     return None
 
 try:
     profile = await process_user_data(user)
-except TuxValidationError as e:
+except BotValidationError as e:
     logger.error(f"User data invalid: {e}")
     return None
 
 try:
     await send_notification(profile)
-except TuxAPIConnectionError as e:
+except BotAPIConnectionError as e:
     logger.error(f"Notification delivery failed: {e}")
     # Continue execution - notification failure shouldn't stop the command
 ```
@@ -254,7 +254,7 @@ BaseException
 └── Exception          # User exceptions - can be caught
     ├── ValueError
     ├── TypeError
-    ├── TuxError
+    ├── BotError
     └── ... (all other exceptions)
 ```
 
@@ -381,7 +381,7 @@ except ZeroDivisionError as e:
 try:
     content = read_file(file_path)
 except FileNotFoundError as e:
-    raise TuxAPIResourceNotFoundError(
+    raise BotAPIResourceNotFoundError(
         service_name="FileSystem",
         resource_identifier=file_path,
     ) from e
@@ -514,7 +514,7 @@ except ValueError as e:
     traceback.print_exc()  # Prints full traceback information
 ```
 
-In Tux, we use `traceback` in our error logging to provide complete context for debugging. The global error handler automatically includes tracebacks for errors sent to Sentry.
+In Bot, we use `traceback` in our error logging to provide complete context for debugging. The global error handler automatically includes tracebacks for errors sent to Sentry.
 
 ## Error Handling Patterns
 
@@ -536,10 +536,10 @@ Check HTTP status codes to determine appropriate handling. 404 means the resourc
 
 Use timeouts for all API calls. Don't let API calls hang indefinitely. Set reasonable timeouts based on expected response times. If an API call times out, log it and handle it appropriately—retry, use cached data, or fail gracefully.
 
-Convert HTTP exceptions to Tux exceptions. Use `convert_httpx_error()` to automatically convert `httpx` exceptions to `TuxAPIError` subclasses and report them to Sentry. This provides consistent error handling throughout your code and eliminates duplicated error handling logic.
+Convert HTTP exceptions to Bot exceptions. Use `convert_httpx_error()` to automatically convert `httpx` exceptions to `BotAPIError` subclasses and report them to Sentry. This provides consistent error handling throughout your code and eliminates duplicated error handling logic.
 
 ```python
-from tux.services.sentry import convert_httpx_error
+from bot.services.sentry import convert_httpx_error
 
 try:
     response = await httpx.get(endpoint)
@@ -554,15 +554,15 @@ except Exception as e:
 
 The `convert_httpx_error()` function automatically:
 
-- Converts 404 errors to `TuxAPIResourceNotFoundError`
-- Converts 403 errors to `TuxAPIPermissionError`
-- Converts other HTTP status errors to `TuxAPIRequestError`
-- Converts connection errors to `TuxAPIConnectionError`
+- Converts 404 errors to `BotAPIResourceNotFoundError`
+- Converts 403 errors to `BotAPIPermissionError`
+- Converts other HTTP status errors to `BotAPIRequestError`
+- Converts connection errors to `BotAPIConnectionError`
 - Reports all errors to Sentry with appropriate context
 
 ### File Operations
 
-File operations can fail due to permissions, disk space, or I/O errors. Handle these failures gracefully. Permission errors should be logged and raised as `TuxPermissionError`. I/O errors might be transient and worth retrying.
+File operations can fail due to permissions, disk space, or I/O errors. Handle these failures gracefully. Permission errors should be logged and raised as `BotPermissionError`. I/O errors might be transient and worth retrying.
 
 Use atomic file operations when possible. Write to temporary files first, then rename them atomically. This prevents partial writes from corrupting files. If the write fails, the original file remains intact.
 
@@ -572,9 +572,9 @@ Clean up temporary files in finally blocks. Even if operations fail, ensure temp
 
 ### Global Error Handler Integration
 
-Tux's global error handler automatically catches command errors and converts them to user-friendly messages. Focus on raising appropriate exceptions in your commands—the handler takes care of formatting and sending responses.
+Bot's global error handler automatically catches command errors and converts them to user-friendly messages. Focus on raising appropriate exceptions in your commands—the handler takes care of formatting and sending responses.
 
-The global handler categorizes errors automatically. It knows how to format Discord API errors, permission errors, validation errors, and Tux exceptions. It provides user-friendly messages, logs errors appropriately, and reports to Sentry with context.
+The global handler categorizes errors automatically. It knows how to format Discord API errors, permission errors, validation errors, and Bot exceptions. It provides user-friendly messages, logs errors appropriately, and reports to Sentry with context.
 
 Don't try to handle user-facing errors in commands. Raise appropriate exceptions and let the global handler format them. This keeps your command code focused on business logic and ensures consistent error handling across all commands.
 
@@ -582,7 +582,7 @@ For infrastructure errors in commands, handle them locally and provide fallback 
 
 ### Custom Validation Errors
 
-Create custom validation errors for complex validation logic. When validation fails, raise a `TuxValidationError` with details about what failed and why. The global handler formats these for users automatically.
+Create custom validation errors for complex validation logic. When validation fails, raise a `BotValidationError` with details about what failed and why. The global handler formats these for users automatically.
 
 Include field names and values in validation errors. This helps users understand what they entered incorrectly. Explain why validation failed—"must be at least 3 characters" is more helpful than "invalid input".
 
@@ -600,7 +600,7 @@ for user_id in users:
     try:
         user = await db.get_user(user_id)
         results.append(user)
-    except TuxAPIResourceNotFoundError:
+    except BotAPIResourceNotFoundError:
         logger.warning(f"User {user_id} not found, skipping")
         # Continue to next iteration
     except Exception as e:
@@ -648,7 +648,7 @@ When running multiple operations concurrently, handle exceptions in each task in
 
 Process results after gathering completes. Check each result to see if it's an exception or a value. Handle exceptions appropriately—log them, retry operations, or collect them for batch processing. Successful operations shouldn't be affected by failures in other operations.
 
-In Tux, prefer the shared helpers for unpacking `gather` results instead of ad-hoc checks: `tux.shared.asyncio_gather.handle_gather_result` for generic typed results, and `tux.database.gather_results.handle_case_result` for moderation case workflows. See `src/tux/shared/asyncio_gather.py` and `src/tux/database/gather_results.py`.
+In Bot, prefer the shared helpers for unpacking `gather` results instead of ad-hoc checks: `bot.shared.asyncio_gather.handle_gather_result` for generic typed results, and `bot.database.gather_results.handle_case_result` for moderation case workflows. See `src/bot/shared/asyncio_gather.py` and `src/bot/database/gather_results.py`.
 
 For batch operations, track successes and failures separately. Log summary information about how many operations succeeded and failed. This helps you understand the overall health of batch operations and identify patterns in failures.
 
@@ -673,16 +673,16 @@ async def fetch_user_data(user_id: int):
         return response.json()
     except httpx.HTTPStatusError as e:
         if e.response.status_code == 404:
-            raise TuxAPIResourceNotFoundError(
+            raise BotAPIResourceNotFoundError(
                 service_name="ExampleAPI",
                 resource_identifier=f"user_{user_id}",
             ) from e
-        raise TuxAPIRequestError(
+        raise BotAPIRequestError(
             service_name="ExampleAPI",
             status_code=e.response.status_code,
         ) from e
     except httpx.RequestError as e:
-        raise TuxAPIConnectionError(
+        raise BotAPIConnectionError(
             service_name="ExampleAPI",
             original_error=e,
         ) from e
@@ -691,9 +691,9 @@ async def main():
     try:
         user_data = await fetch_user_data(123)
         print(f"User: {user_data}")
-    except TuxAPIResourceNotFoundError:
+    except BotAPIResourceNotFoundError:
         logger.warning("User not found")
-    except TuxAPIConnectionError as e:
+    except BotAPIConnectionError as e:
         logger.error(f"Connection error: {e}")
         capture_exception_safe(e)
     except Exception as e:
@@ -866,7 +866,7 @@ When exceptions occur, error messages and stack traces may contain sensitive dat
 
 ### The Solution
 
-Tux automatically sanitizes sensitive data before sending events to Sentry. Our `before_send` handler removes or masks:
+Bot automatically sanitizes sensitive data before sending events to Sentry. Our `before_send` handler removes or masks:
 
 - Database URLs: `postgresql://user:password@host` → `postgresql://***:***@host`
 - API keys in URLs: `?api_key=xxx` → `?***`
@@ -945,7 +945,7 @@ Handle exceptions at the right level. Catch specific exceptions where you can ha
 
 ### Sentry Integration
 
-Tux provides specialized Sentry utilities for different error types:
+Bot provides specialized Sentry utilities for different error types:
 
 - `capture_database_error()` - For database failures
 - `convert_httpx_error()` - For HTTPX API failures (recommended for API wrappers)
@@ -996,7 +996,7 @@ Proper exception handling prevents sensitive information from being exposed in e
 
 Tools like `ruff` and `basedpyright` can help detect syntax and indentation issues before execution. These work similarly to a spell checker for your code, helping you catch errors early before they cause runtime issues.
 
-Tux uses:
+Bot uses:
 
 - **`ruff`**: Fast Python linter and formatter
 - **`basedpyright`**: Static type checker with strict mode
@@ -1013,7 +1013,7 @@ uv run dev all  # Runs all quality checks including linting
 
 Handle errors at the right level. Catch specific exceptions where you can handle them meaningfully. Let exceptions propagate to global handlers when you can't handle them locally. Don't catch exceptions just to log them.
 
-Use Tux-specific exceptions instead of generic ones. They provide better error categorization and let handlers format errors appropriately. Generic exceptions force handlers to guess what went wrong.
+Use Bot-specific exceptions instead of generic ones. They provide better error categorization and let handlers format errors appropriately. Generic exceptions force handlers to guess what went wrong.
 
 Chain exceptions properly with `raise ... from e`. This preserves error context and makes debugging easier. Don't lose exception chains when re-raising.
 
@@ -1039,7 +1039,7 @@ Log errors aggressively with context. Include user IDs, command names, operation
 
 ```python
 from loguru import logger
-from tux.services.sentry import capture_exception_safe
+from bot.services.sentry import capture_exception_safe
 
 async def process_command(ctx, user_id: int, data: dict) -> None:
     logger.info(f"Processing command for user {user_id}", extra={
@@ -1052,7 +1052,7 @@ async def process_command(ctx, user_id: int, data: dict) -> None:
         result = await risky_operation(user_id, data)
         logger.debug(f"Operation successful for user {user_id}")
         return result
-    except TuxValidationError as e:
+    except BotValidationError as e:
         # User error - log as warning, don't send to Sentry
         logger.warning(f"Validation failed for user {user_id}: {e}", extra={
             "user_id": user_id,
@@ -1111,9 +1111,9 @@ async def fetch_user(user_id: int) -> User:
 
     Raises
     ------
-    TuxAPIResourceNotFoundError
+    BotAPIResourceNotFoundError
         If the user does not exist.
-    TuxDatabaseConnectionError
+    BotDatabaseConnectionError
         If the database connection fails.
     """
     # Implementation...
@@ -1126,11 +1126,11 @@ Clear documentation of expected exceptions:
 - Reduces guesswork about what can go wrong
 - Improves code maintainability
 
-Use NumPy-style docstrings (as shown above) to document exceptions in the `Raises` section. This is the standard format used throughout Tux.
+Use NumPy-style docstrings (as shown above) to document exceptions in the `Raises` section. This is the standard format used throughout Bot.
 
 ## Modern Python Exception Handling Features
 
-Tux uses Python 3.13+, which includes several modern exception handling features introduced in Python 3.10 and 3.11.
+Bot uses Python 3.13+, which includes several modern exception handling features introduced in Python 3.10 and 3.11.
 
 ### Pattern Matching with `match` Statements (Python 3.10+)
 
@@ -1147,7 +1147,7 @@ except Exception as e:
         case FileNotFoundError():
             logger.warning("File not found, using defaults")
             result = get_default_data()
-        case TuxAPIResourceNotFoundError():
+        case BotAPIResourceNotFoundError():
             logger.warning(f"Resource not found: {e.resource_identifier}")
             raise
         case _:
@@ -1189,12 +1189,12 @@ try:
     if exceptions:
         raise ExceptionGroup("Multiple fetch errors", exceptions)
         
-except* TuxAPIResourceNotFoundError as eg:
+except* BotAPIResourceNotFoundError as eg:
     # Handle all resource not found errors
     for error in eg.exceptions:
         logger.warning(f"Resource not found: {error.resource_identifier}")
         
-except* TuxAPIConnectionError as eg:
+except* BotAPIConnectionError as eg:
     # Handle all connection errors
     for error in eg.exceptions:
         logger.error(f"Connection error: {error}")
@@ -1277,7 +1277,7 @@ with suppress(KeyError, AttributeError):
 !!! warning "Use Sparingly"
     Only suppress exceptions when you're certain they're safe to ignore. Suppressing exceptions can hide bugs and make debugging difficult.
 
-**Example from Tux codebase:**
+**Example from Bot codebase:**
 
 ```python
 from contextlib import suppress
@@ -1303,12 +1303,12 @@ if some_condition:
     raise CustomError("This is a custom exception!")
 ```
 
-In Tux, we use a hierarchical exception system. All custom exceptions inherit from `TuxError`:
+In Bot, we use a hierarchical exception system. All custom exceptions inherit from `BotError`:
 
 ```python
-from tux.shared.exceptions import TuxError
+from bot.shared.exceptions import BotError
 
-class MyCustomError(TuxError):
+class MyCustomError(BotError):
     """Custom error for my module."""
     pass
 ```
@@ -1319,8 +1319,8 @@ This allows the global error handler to format and handle your custom exceptions
 
 - **Python Exception Handling**: [Python's official documentation](https://docs.python.org/3/tutorial/errors.html) on exception handling
 - **Python traceback Module**: [traceback documentation](https://docs.python.org/3/library/traceback.html) for detailed error information
-- **Tux Exception Hierarchy**: See `src/tux/shared/exceptions/` for all Tux-specific exceptions (import from `tux.shared.exceptions`)
-- **`asyncio.gather` helpers**: `src/tux/shared/asyncio_gather.py` and `src/tux/database/gather_results.py`
-- **Global Error Handler**: See `src/tux/services/handlers/error/cog.py` for error handling implementation
+- **Bot Exception Hierarchy**: See `src/bot/shared/exceptions/` for all Bot-specific exceptions (import from `bot.shared.exceptions`)
+- **`asyncio.gather` helpers**: `src/bot/shared/asyncio_gather.py` and `src/bot/database/gather_results.py`
+- **Global Error Handler**: See `src/bot/services/handlers/error/cog.py` for error handling implementation
 - **Sentry Integration**: See `sentry/index.md` for error tracking and monitoring details
 - **Security Best Practices**: See our [logging best practices](logging.md) for more on protecting sensitive data

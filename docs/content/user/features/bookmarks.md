@@ -10,7 +10,7 @@ icon: lucide/bookmark
 
 # Bookmarks
 
-Save important Discord messages by reacting with 🔖. Tux automatically sends a formatted copy to your
+Save important Discord messages by reacting with 🔖. Bot automatically sends a formatted copy to your
 DMs with all attachments, images, and context, allowing you to build a personal library of valuable
 information without cluttering server channels.
 
@@ -20,9 +20,9 @@ This feature works entirely in the background, monitoring message reactions and 
 
 ### Mechanics
 
-Tux monitors reaction events across all servers where it is present. When it detects a 🔖 reaction from a user, it triggers the bookmarking process.
+Bot monitors reaction events across all servers where it is present. When it detects a 🔖 reaction from a user, it triggers the bookmarking process.
 
-- **Content Extraction:** Tux parses the original message to extract text, embeds, and metadata.
+- **Content Extraction:** Bot parses the original message to extract text, embeds, and metadata.
 - **Attachment Handling:** The bot collects up to 10 images and other attachments to include in the DM.
 - **Context Preservation:** Every bookmark includes a jump link to the original message, author information, and the original timestamp.
 
@@ -30,9 +30,9 @@ Tux monitors reaction events across all servers where it is present. When it det
 
 This feature works automatically in the background:
 
-- **Message Monitoring:** Tux listens for specific emoji reactions on all visible messages.
-- **DM Delivery:** Once a bookmark is triggered, Tux instantly formats and sends the message to your DMs.
-- **Cleanup Management:** Tux monitors reactions on the bookmark messages themselves to allow for easy removal.
+- **Message Monitoring:** Bot listens for specific emoji reactions on all visible messages.
+- **DM Delivery:** Once a bookmark is triggered, Bot instantly formats and sends the message to your DMs.
+- **Cleanup Management:** Bot monitors reactions on the bookmark messages themselves to allow for easy removal.
 
 ### Triggers
 
@@ -45,7 +45,7 @@ The feature activates when:
 
 ### What Users See
 
-When you bookmark a message, you receive a formatted DM from Tux containing:
+When you bookmark a message, you receive a formatted DM from Bot containing:
 
 - **Author Info:** The name and avatar of the person who sent the original message.
 - **Message Content:** The full text of the original message.
@@ -58,16 +58,16 @@ When you bookmark a message, you receive a formatted DM from Tux containing:
 Users interact with this feature by:
 
 1. Reacting to a message with 🔖 to save it.
-2. Checking their DMs for the formatted bookmark from Tux.
+2. Checking their DMs for the formatted bookmark from Bot.
 3. Reacting to the bookmark in their DMs with 🗑️ to remove it from their history.
 
 ## Configuration
 
-No configuration is required for individual users. The feature works automatically for anyone in a server where Tux is present.
+No configuration is required for individual users. The feature works automatically for anyone in a server where Bot is present.
 
 ### User Requirements
 
-1. **DMs Enabled:** You must allow direct messages from server members for Tux to send your bookmarks.
+1. **DMs Enabled:** You must allow direct messages from server members for Bot to send your bookmarks.
 2. **Access:** You must have permission to see the message you are trying to bookmark.
 
 !!! info "Configuration Guide"
@@ -77,7 +77,7 @@ No configuration is required for individual users. The feature works automatical
 
 ### Bot Permissions
 
-Tux requires the following permissions for this feature:
+Bot requires the following permissions for this feature:
 
 - **Read Message History** - Needed to access the content of the message being bookmarked.
 - **Read Messages** - Needed to monitor for the bookmark reaction.
@@ -99,17 +99,17 @@ None required. Users can bookmark messages in any channel they can view.
 **Symptoms:**
 
 - Reacting with 🔖 does nothing.
-- No DM is received from Tux.
+- No DM is received from Bot.
 
 **Causes:**
 
 - Discord privacy settings are blocking DMs from server members.
-- Tux does not have "Read Message History" permission in the channel.
+- Bot does not have "Read Message History" permission in the channel.
 
 **Solutions:**
 
 1. Check your Discord privacy settings and enable DMs for the server.
-2. Verify Tux is online and has access to the channel.
+2. Verify Bot is online and has access to the channel.
 
 ### Issue: Missing attachments
 

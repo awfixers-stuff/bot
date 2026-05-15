@@ -14,7 +14,7 @@ icon: lucide/key-round
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-Tux uses a database-driven permission system that lets each guild customize who can use which commands. Instead of hardcoding permissions, everything is stored in the database and configured per-guild through commands.
+Bot uses a database-driven permission system that lets each guild customize who can use which commands. Instead of hardcoding permissions, everything is stored in the database and configured per-guild through commands.
 
 ## Overview
 
@@ -56,7 +56,7 @@ Each command can require a specific permission rank. Commands without a configur
 
 ### Permission Checking
 
-When a user runs a command, Tux:
+When a user runs a command, Bot:
 
 1. Checks if they're a bot owner or sysadmin (always allowed)
 2. Checks if they're the guild owner (always allowed)
@@ -85,7 +85,7 @@ The permission system uses several performance optimizations:
 Use the `@requires_command_permission()` decorator on commands that need permission checks:
 
 ```python
-from tux.core.checks import requires_command_permission
+from bot.core.checks import requires_command_permission
 
 @commands.command()
 @requires_command_permission()
@@ -113,7 +113,7 @@ async def public_command(self, ctx):
 You can check a user's permission rank programmatically:
 
 ```python
-from tux.core.permission_system import get_permission_system
+from bot.core.permission_system import get_permission_system
 
 permission_system = get_permission_system()
 user_rank = await permission_system.get_user_permission_rank(ctx)
@@ -210,7 +210,7 @@ The permission system automatically pre-warms caches on bot startup to improve i
 For operations that need to check permissions for multiple users or commands, use batch retrieval:
 
 ```python
-from tux.core.permission_system import get_permission_system
+from bot.core.permission_system import get_permission_system
 
 permission_system = get_permission_system()
 
@@ -236,9 +236,9 @@ This reduces configuration overhead while maintaining security.
 
 ## Resources
 
-- **Source Code**: `src/tux/core/permission_system.py`
-- **Permission Decorator**: `src/tux/core/decorators.py` (also available via `tux.core.checks`)
-- **Database Controllers**: `src/tux/database/controllers/permissions.py`
-- **Database Models**: `src/tux/database/models/models.py`
-- **Config Commands**: `src/tux/modules/config/ranks.py`, `roles.py`, `commands.py`
+- **Source Code**: `src/bot/core/permission_system.py`
+- **Permission Decorator**: `src/bot/core/decorators.py` (also available via `bot.core.checks`)
+- **Database Controllers**: `src/bot/database/controllers/permissions.py`
+- **Database Models**: `src/bot/database/models/models.py`
+- **Config Commands**: `src/bot/modules/config/ranks.py`, `roles.py`, `commands.py`
 - **Caching**: See [Caching Best Practices](../../best-practices/caching.md) for cache usage details

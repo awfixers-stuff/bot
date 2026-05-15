@@ -9,14 +9,14 @@ icon: lucide/variable
 
 # Environment Configuration
 
-Configure Tux using environment variables. The **[ENV Reference](../../reference/env.md)** is auto-generated from code and lists every variable, type, default, and example—use it as the single source of truth.
+Configure Bot using environment variables. The **[ENV Reference](../../reference/env.md)** is auto-generated from code and lists every variable, type, default, and example—use it as the single source of truth.
 
 !!! tip "Configuration priority"
     Load order (highest to lowest): environment variables → `.env` → `config/config.json` or `config.json` → file secrets (`/run/secrets`) → defaults. See the [ENV Reference](../../reference/env.md) for details.
 
 ## Essential variables
 
-You must set these to run Tux:
+You must set these to run Bot:
 
 ### Bot token
 
@@ -34,12 +34,12 @@ Use either **individual PostgreSQL variables** or a **connection URL**:
 # Option A: Individual (recommended for Docker)
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
-POSTGRES_DB=tuxdb
-POSTGRES_USER=tuxuser
+POSTGRES_DB=botdb
+POSTGRES_USER=botuser
 POSTGRES_PASSWORD=your_secure_password
 
 # Option B: Override with a URL (overrides POSTGRES_*)
-# DATABASE_URL=postgresql://user:password@localhost:5432/tuxdb
+# DATABASE_URL=postgresql://user:password@localhost:5432/botdb
 ```
 
 !!! warning "Security"
@@ -49,9 +49,9 @@ See [Database Configuration](database.md) for setup.
 
 ### Optional: Valkey (cache)
 
-Valkey (Redis-compatible) is an **optional** cache backend. When configured, Tux uses it for
+Valkey (Redis-compatible) is an **optional** cache backend. When configured, Bot uses it for
 guild config, jail status, prefix, and permission caches so state can be shared across
-restarts or multiple processes. When Valkey is not set or unavailable, Tux uses an
+restarts or multiple processes. When Valkey is not set or unavailable, Bot uses an
 in-memory cache (no extra service required).
 
 Use either **VALKEY_URL** or **individual variables**:
@@ -60,8 +60,8 @@ Use either **VALKEY_URL** or **individual variables**:
 # Option A: URL (overrides VALKEY_HOST/PORT/DB/PASSWORD; use localhost for local runs)
 VALKEY_URL=valkey://localhost:6379/0
 
-# Option B: Individual (use tux-valkey when bot runs in Docker Compose)
-VALKEY_HOST=tux-valkey
+# Option B: Individual (use bot-valkey when bot runs in Docker Compose)
+VALKEY_HOST=bot-valkey
 VALKEY_PORT=6379
 VALKEY_DB=0
 VALKEY_PASSWORD=
@@ -71,14 +71,14 @@ Leave `VALKEY_URL` and `VALKEY_HOST` empty to disable Valkey. See the
 [ENV Reference](../../reference/env.md) for all Valkey variables.
 
 !!! note "When to use Valkey"
-    Use Valkey if you want cache to persist across bot restarts or run multiple Tux
+    Use Valkey if you want cache to persist across bot restarts or run multiple Bot
     processes. For a single instance that restarts rarely, in-memory cache is sufficient.
 
-!!! tip "VALKEY_HOST: localhost vs tux-valkey"
+!!! tip "VALKEY_HOST: localhost vs bot-valkey"
     Use **`VALKEY_HOST=localhost`** (or `VALKEY_URL=valkey://localhost:6379/0`) when
-    running the bot on your host (e.g. `uv run tux start`). Use **`VALKEY_HOST=tux-valkey`**
+    running the bot on your host (e.g. `uv run bot start`). Use **`VALKEY_HOST=bot-valkey`**
     when the bot runs inside Docker Compose so it can reach the Valkey container by
-    service name. If you see "Name or service not known" for `tux-valkey`, you are
+    service name. If you see "Name or service not known" for `bot-valkey`, you are
     running the bot locally—switch to `localhost` or start Valkey and point to it.
 
 ### Bot owner and sysadmins (recommended)
@@ -98,7 +98,7 @@ Enables owner-only commands and maintenance control. See [Self-Host Configuratio
 
 ## Docker
 
-With Docker Compose, put variables in `.env`; Compose loads them automatically. At minimum set `BOT_TOKEN` and database settings (e.g. `POSTGRES_PASSWORD` and, if needed, `POSTGRES_HOST=tux-postgres`). For the full set of variables, see the [ENV Reference](../../reference/env.md).
+With Docker Compose, put variables in `.env`; Compose loads them automatically. At minimum set `BOT_TOKEN` and database settings (e.g. `POSTGRES_PASSWORD` and, if needed, `POSTGRES_HOST=bot-postgres`). For the full set of variables, see the [ENV Reference](../../reference/env.md).
 
 The `compose.yaml` uses `${VARIABLE_NAME}`. See [Docker Installation](../install/docker.md) for setup.
 
@@ -107,11 +107,11 @@ The `compose.yaml` uses `${VARIABLE_NAME}`. See [Docker Installation](../install
 ```bash
 uv run config validate    # Check config and which sources are loaded
 uv run db health          # Test database connection
-uv run tux start --debug  # Run with .env loaded (good for quick tests)
+uv run bot start --debug  # Run with .env loaded (good for quick tests)
 ```
 
 !!! note "Automatic .env loading"
-    Tux loads `.env` on startup; you don't need to `source` it.
+    Bot loads `.env` on startup; you don't need to `source` it.
 
 ## Troubleshooting
 

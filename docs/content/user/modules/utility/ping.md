@@ -65,7 +65,7 @@ When executed, the bot returns an informational embed containing:
 
 ### Bot Permissions
 
-Tux requires the following permissions to execute this command:
+Bot requires the following permissions to execute this command:
 
 - **Embed Links** - To display the performance metrics in a structured format.
 

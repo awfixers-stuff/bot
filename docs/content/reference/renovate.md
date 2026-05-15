@@ -9,15 +9,15 @@ icon: lucide/refresh-cw
 
 # Renovate Configuration
 
-Renovate is an automated dependency update tool that helps keep Tux's dependencies up-to-date, secure, and maintainable. This document explains Renovate's purpose and documents Tux's actual configuration.
+Renovate is an automated dependency update tool that helps keep Bot's dependencies up-to-date, secure, and maintainable. This document explains Renovate's purpose and documents Bot's actual configuration.
 
 ## What is Renovate?
 
 Renovate automatically scans dependencies in `pyproject.toml`, `uv.lock`, Dockerfiles, GitHub Actions, and other files, monitors package registries for updates, and creates pull requests. It groups related updates together and can automatically merge PRs that pass CI checks.
 
-## Purpose in Tux
+## Purpose in Bot
 
-Renovate helps maintain Tux by:
+Renovate helps maintain Bot by:
 
 - **Security Updates**: Automatically detects OSV vulnerabilities, labels security PRs, and shows unresolved vulnerabilities in the dependency dashboard
 - **Dependency Maintenance**: Keeps dependencies current with weekly scheduled updates, grouped PRs to reduce noise, and automatic lock file maintenance
@@ -157,7 +157,7 @@ Renovate detects security updates via OSV, labels them with `deps: security`, an
 
 ### Critical Runtime Dependencies
 
-These packages are critical to Tux's core functionality. Major version updates require manual review to ensure compatibility and test breaking changes. All critical packages are grouped together in PRs.
+These packages are critical to Bot's core functionality. Major version updates require manual review to ensure compatibility and test breaking changes. All critical packages are grouped together in PRs.
 
 **Critical Packages**: `discord-py`, `sqlmodel`, `sqlalchemy`, `pydantic`, `pydantic-settings`, `alembic`, `alembic-postgresql-enum`, `alembic-utils`, `asyncpg`, `psycopg`
 
@@ -315,7 +315,7 @@ Lock file maintenance creates a PR and auto-merges when CI passes.
 
 ## Security Features
 
-Tux's Renovate configuration includes comprehensive security measures:
+Bot's Renovate configuration includes comprehensive security measures:
 
 ### Vulnerability Detection
 
@@ -371,7 +371,7 @@ The dependency dashboard issue provides:
 
 ## Noise Reduction Strategy
 
-Tux's configuration implements advanced noise reduction:
+Bot's configuration implements advanced noise reduction:
 
 ### Branch automerge (no human review)
 

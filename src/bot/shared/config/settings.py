@@ -1,0 +1,491 @@
+"""Main Bot configuration using Pydantic Settings.
+
+This module provides the main configuration class and global instance,
+using the extracted models and proper pydantic-settings for environment variable binding.
+
+Use .env for BOT_TOKEN, Postgres (POSTGRES_*), DATABASE_URL, Valkey (VALKEY_*), EXTERNAL_SERVICES, DEBUG, LOG_LEVEL, MAINTENANCE_MODE.
+Put all other settings in config.json.
+
+Configuration loading priority (highest to lowest):
+1. Init (programmatic overrides)
+2. Environment variables
+3. .env file
+4. config/config.json or config.json file
+5. File secrets (e.g. /run/secrets)
+6. Default values (implicit, applied when no source provides a value)
+"""
+
+import base64
+import os
+import warnings
+from pathlib import Path
+from typing import Annotated
+from urllib.parse import quote as urlquote
+
+from pydantic import Field, computed_field
+from pydantic_settings import (
+    BaseSettings,
+    JsonConfigSettingsSource,
+    PydanticBaseSettingsSource,
+    SettingsConfigDict,
+)
+
+from bot.shared.constants import ENCODING_UTF8
+
+from .models import (
+    IRC,
+    XP,
+    BotInfo,
+    BotIntents,
+    ExternalServices,
+    GifLimiter,
+    Snippets,
+    StatusRoles,
+    TempVC,
+    UserIds,
+)
+
+
+def validate_environment() -> None:
+    """
+    Validate critical environment variables for security and correctness.
+
+    Raises
+    ------
+    ValueError
+        If an insecure default password is used.
+    """
+    # Check database password strength - exclude known Docker passwords
+    db_password = os.getenv("POSTGRES_PASSWORD", "")
+    weak_passwords = ["password", "admin", "postgres", "123456", "qwerty"]
+
+    # Only warn for truly weak passwords, not the Docker default
+    if db_password and db_password in weak_passwords:
+        warnings.warn(
+            "⚠️  SECURITY WARNING: Using weak/default database password! Please set a strong POSTGRES_PASSWORD.",
+            UserWarning,
+            stacklevel=2,
+        )
+
+    # Don't enforce length requirement for Docker default password
+    if (
+        db_password
+        and len(db_password) < 12
+        and db_password != "ChangeThisToAStrongPassword123!"
+    ):
+        warnings.warn(
+            "⚠️  SECURITY WARNING: Database password is very short (<12 chars). "
+            "Use a longer password for better security.",
+            UserWarning,
+            stacklevel=2,
+        )
+
+    # Only block truly insecure default passwords
+    if db_password in ["botpass", "password", "admin", "postgres"]:
+        error_msg = (
+            f"❌ SECURITY ERROR: Cannot use insecure password '{db_password}'! "
+            "Please set a strong POSTGRES_PASSWORD environment variable."
+        )
+        raise ValueError(error_msg)
+
+    # Valkey cache password: warn on weak/short when set (do not block)
+    valkey_password = os.getenv("VALKEY_PASSWORD", "")
+    if valkey_password and valkey_password in weak_passwords:
+        warnings.warn(
+            "⚠️  SECURITY WARNING: Using weak Valkey cache password! "
+            "Set a strong VALKEY_PASSWORD for production.",
+            UserWarning,
+            stacklevel=2,
+        )
+    if (
+        valkey_password
+        and len(valkey_password) < 12
+        and valkey_password != "ChangeThisToAStrongPassword123!"
+    ):
+        warnings.warn(
+            "⚠️  SECURITY WARNING: Valkey password is very short (<12 chars). "
+            "Use a longer password for better security.",
+            UserWarning,
+            stacklevel=2,
+        )
+
+
+# Validate environment when module is imported
+validate_environment()
+
+
+class Config(BaseSettings):
+    """Main Bot configuration using Pydantic Settings (JSON-only file support).
+
+    Use .env for BOT_TOKEN, Postgres (POSTGRES_*), DATABASE_URL, Valkey (VALKEY_*), EXTERNAL_SERVICES, DEBUG, LOG_LEVEL, MAINTENANCE_MODE;
+    put other settings in config.json.
+
+    Configuration is loaded from multiple sources in priority order:
+    1. Init (programmatic overrides)
+    2. Environment variables
+    3. .env file
+    4. config/config.json or config.json file
+    5. File secrets (e.g. /run/secrets)
+    6. Default values (when no source provides a value)
+    """
+
+    model_config = SettingsConfigDict(
+        # Environment variables
+        env_prefix="",  # No prefix, use field names directly
+        env_nested_delimiter="__",
+        case_sensitive=False,
+        extra="ignore",
+        # Dotenv file
+        env_file=".env",
+        env_file_encoding=ENCODING_UTF8,
+        # Config file (JSON only)
+        json_file=["config/config.json", "config.json"],
+        json_file_encoding=ENCODING_UTF8,
+        # Secrets directory (use None when absent to avoid pydantic-settings warning in dev)
+        secrets_dir="/run/secrets" if Path("/run/secrets").exists() else None,
+    )
+
+    # Core configuration
+    DEBUG: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="Enable debug mode",
+            examples=[False, True],
+        ),
+    ]
+    LOG_LEVEL: Annotated[
+        str,
+        Field(
+            default="INFO",
+            description="Logging level (TRACE, DEBUG, INFO, SUCCESS, WARNING, ERROR, CRITICAL)",
+            examples=["INFO", "DEBUG", "WARNING", "ERROR"],
+        ),
+    ]
+    MAINTENANCE_MODE: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="Enable maintenance mode (blocks non-owner commands and event processing)",
+            examples=[False, True],
+        ),
+    ]
+
+    # Bot tokens
+    BOT_TOKEN: Annotated[
+        str,
+        Field(
+            default="",
+            description="Discord bot token",
+            examples=[
+                "FakeDiscordBotTokenBecauseGitHubSecurityIsAnnoying",
+            ],
+        ),
+    ]
+
+    # Database configuration (standard PostgreSQL env vars)
+    POSTGRES_HOST: Annotated[
+        str,
+        Field(
+            default="localhost",
+            description="PostgreSQL host",
+            examples=["localhost", "bot-postgres", "db.example.com"],
+        ),
+    ]
+    POSTGRES_PORT: Annotated[
+        int,
+        Field(
+            default=5432,
+            description="PostgreSQL port",
+            examples=[5432, 5433],
+        ),
+    ]
+    POSTGRES_DB: Annotated[
+        str,
+        Field(
+            default="botdb",
+            description="PostgreSQL database name",
+            examples=["botdb", "bot_production"],
+        ),
+    ]
+    POSTGRES_USER: Annotated[
+        str,
+        Field(
+            default="botuser",
+            description="PostgreSQL username",
+            examples=["botuser", "bot_admin"],
+        ),
+    ]
+    POSTGRES_PASSWORD: Annotated[
+        str,
+        Field(
+            default="ChangeThisToAStrongPassword123!",
+            description="PostgreSQL password",
+            examples=["ChangeThisToAStrongPassword123!", "SecurePassword456!"],
+        ),
+    ]
+
+    # Optional: Custom database URL override
+    DATABASE_URL: Annotated[
+        str,
+        Field(
+            default="",
+            description="Custom database URL override",
+            examples=["postgresql://user:password@localhost:5432/botdb"],
+        ),
+    ]
+
+    # Database connection pool settings
+    POOL_SIZE: Annotated[
+        int,
+        Field(
+            default=20,
+            description="Database connection pool size",
+            ge=5,
+            le=100,
+        ),
+    ]
+    MAX_OVERFLOW: Annotated[
+        int,
+        Field(
+            default=40,
+            description="Maximum overflow connections beyond pool_size",
+            ge=10,
+            le=200,
+        ),
+    ]
+    POOL_TIMEOUT: Annotated[
+        float,
+        Field(
+            default=30.0,
+            description="Seconds to wait for connection from pool",
+            ge=5.0,
+            le=120.0,
+        ),
+    ]
+
+    # Valkey (Redis-compatible cache) configuration
+    VALKEY_HOST: Annotated[
+        str,
+        Field(
+            default="",
+            description="Valkey host (empty to disable)",
+            examples=["localhost", "bot-valkey"],
+        ),
+    ] = ""
+    VALKEY_PORT: Annotated[
+        int,
+        Field(
+            default=6379,
+            description="Valkey port",
+            examples=[6379],
+        ),
+    ] = 6379
+    VALKEY_DB: Annotated[
+        int,
+        Field(
+            default=0,
+            description="Valkey database number",
+            examples=[0],
+        ),
+    ] = 0
+    VALKEY_PASSWORD: Annotated[
+        str,
+        Field(
+            default="",
+            description="Valkey password",
+        ),
+    ] = ""
+    VALKEY_URL: Annotated[
+        str,
+        Field(
+            default="",
+            description="Valkey URL override (overrides host/port/db/password)",
+        ),
+    ] = ""
+
+    # Bot info
+    BOT_INFO: BotInfo = Field(default_factory=BotInfo)  # type: ignore[arg-type]
+
+    # Bot intents
+    BOT_INTENTS: BotIntents = Field(default_factory=BotIntents)  # type: ignore[arg-type]
+
+    # User permissions
+    USER_IDS: UserIds = Field(default_factory=UserIds)  # type: ignore[arg-type]
+    ALLOW_SYSADMINS_EVAL: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="Allow sysadmins to use eval",
+            examples=[False, True],
+        ),
+    ]
+
+    # Features
+    STATUS_ROLES: StatusRoles = Field(default_factory=StatusRoles)  # type: ignore[arg-type]
+    TEMPVC: TempVC = Field(default_factory=TempVC)  # type: ignore[arg-type]
+    GIF_LIMITER: GifLimiter = Field(default_factory=GifLimiter)  # type: ignore[arg-type]
+    XP_CONFIG: XP = Field(default_factory=XP)  # type: ignore[arg-type]
+    SNIPPETS: Snippets = Field(default_factory=Snippets)  # type: ignore[arg-type]
+    IRC_CONFIG: IRC = Field(default_factory=IRC)  # type: ignore[arg-type]
+
+    # External services
+    EXTERNAL_SERVICES: ExternalServices = Field(default_factory=ExternalServices)  # type: ignore[arg-type]
+
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        """Customize settings sources to load from JSON config file.
+
+        Priority order (highest to lowest):
+        1. Init settings (programmatic overrides)
+        2. Environment variables
+        3. .env file
+        4. JSON config file (config/config.json or config.json)
+        5. File secret settings (Docker secrets, etc.)
+        Default values are applied by pydantic-settings when no source provides a value.
+        """
+        return (
+            init_settings,
+            env_settings,
+            dotenv_settings,
+            JsonConfigSettingsSource(settings_cls),
+            file_secret_settings,
+        )
+
+    @computed_field
+    @property
+    def database_url(self) -> str:
+        """Get database URL with proper host resolution.
+
+        NOTE: This is used for:
+        - Production application (DatabaseService)
+        - Integration tests (real PostgreSQL)
+        - Alembic migrations
+
+        py-pglite unit tests do NOT use this URL - they create their own.
+        """
+        # Use explicit DATABASE_URL if provided
+        if self.DATABASE_URL:
+            return self.DATABASE_URL
+
+        # Auto-resolve host for different environments
+        host = self.POSTGRES_HOST
+
+        # If running in Docker container, host should be bot-postgres
+        # If running locally, host should be localhost
+        if os.getenv("PYTEST_CURRENT_TEST"):
+            # Running integration tests - use localhost to access container
+            host = "localhost"
+        elif os.getenv("BOT_VERSION"):
+            # Running in Docker container - use service name
+            host = "bot-postgres"
+
+        return f"postgresql+psycopg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{host}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+
+    @computed_field
+    @property
+    def valkey_url(self) -> str:
+        """Get Valkey URL, building from components if not explicitly set.
+
+        Do not log or expose the return value; it may contain credentials.
+        Password is URL-encoded so special characters (@, :, /) do not break the URL.
+        """
+        if self.VALKEY_URL:
+            return self.VALKEY_URL
+        if not self.VALKEY_HOST:
+            return ""
+        host = self.VALKEY_HOST
+        if os.getenv("BOT_VERSION"):
+            host = "bot-valkey"
+        if self.VALKEY_PASSWORD:
+            encoded = urlquote(self.VALKEY_PASSWORD, safe="")
+            auth = f":{encoded}@"
+        else:
+            auth = ""
+        return f"valkey://{auth}{host}:{self.VALKEY_PORT}/{self.VALKEY_DB}"
+
+    def get_prefix(self) -> str:
+        """
+        Get command prefix for current environment.
+
+        Returns
+        -------
+        str
+            The configured command prefix.
+        """
+        return self.BOT_INFO.PREFIX
+
+    def is_prefix_override_enabled(self) -> bool:
+        """
+        Check if prefix override is enabled by environment variable.
+
+        Returns True if BOT_INFO__PREFIX was explicitly set in environment variables,
+        indicating the user wants to override all database prefix settings.
+
+        Returns
+        -------
+        bool
+            True if prefix override is enabled, False otherwise.
+        """
+        return "BOT_INFO__PREFIX" in os.environ
+
+    def is_debug_enabled(self) -> bool:
+        """
+        Check if debug mode is enabled.
+
+        Returns
+        -------
+        bool
+            True if debug mode is enabled, False otherwise.
+        """
+        return self.DEBUG
+
+    def get_cog_ignore_list(self) -> set[str]:
+        """
+        Get cog ignore list for current environment.
+
+        Returns
+        -------
+        set[str]
+            Set of cog names to ignore.
+        """
+        return {"test", "example"}
+
+    def get_database_url(self) -> str:
+        """
+        Legacy method - use database_url property instead.
+
+        Returns
+        -------
+        str
+            The database connection URL.
+        """
+        return self.database_url
+
+    def get_github_private_key(self) -> str:
+        """
+        Get the GitHub private key, handling base64 encoding if needed.
+
+        Returns
+        -------
+        str
+            The decoded GitHub private key.
+        """
+        key = self.EXTERNAL_SERVICES.GITHUB_PRIVATE_KEY
+        if key and key.startswith("-----BEGIN"):
+            return key
+        try:
+            return base64.b64decode(key).decode(ENCODING_UTF8) if key else ""
+        except Exception:
+            return key
+
+
+# Global configuration instance
+CONFIG = Config()  # type: ignore[call-arg]

@@ -12,10 +12,10 @@ import discord
 import pytest
 from discord.ext import commands
 
-from tux.core.bot import Tux
-from tux.core.permission_system import RESTRICTED_COMMANDS
-from tux.help.data import HelpData
-from tux.shared.config import CONFIG
+from bot.core.bot import Bot
+from bot.core.permission_system import RESTRICTED_COMMANDS
+from bot.help.data import HelpData
+from bot.shared.config import CONFIG
 
 BOT_OWNER_ID = 111111111
 SYSADMIN_ID = 222222222
@@ -30,7 +30,7 @@ class TestHelpPermissionFiltering:
     @pytest.fixture
     def mock_bot(self) -> MagicMock:
         """Create a mock bot instance."""
-        bot = MagicMock(spec=Tux)
+        bot = MagicMock(spec=Bot)
         bot.owner_ids = {BOT_OWNER_ID}  # Bot owner ID
         return bot
 
@@ -202,7 +202,7 @@ class TestHelpPermissionFiltering:
         mock_perm_system.get_user_permission_rank = AsyncMock(return_value=0)  # No rank
 
         with (
-            patch("tux.help.data.get_permission_system", return_value=mock_perm_system),
+            patch("bot.help.data.get_permission_system", return_value=mock_perm_system),
             patch.object(CONFIG.USER_IDS, "BOT_OWNER_ID", BOT_OWNER_ID),
             patch.object(CONFIG.USER_IDS, "SYSADMINS", []),
         ):
@@ -232,7 +232,7 @@ class TestHelpPermissionFiltering:
         mock_perm_system.get_command_permission = AsyncMock(return_value=mock_cmd_perm)
 
         with (
-            patch("tux.help.data.get_permission_system", return_value=mock_perm_system),
+            patch("bot.help.data.get_permission_system", return_value=mock_perm_system),
             patch.object(CONFIG.USER_IDS, "BOT_OWNER_ID", BOT_OWNER_ID),
             patch.object(CONFIG.USER_IDS, "SYSADMINS", []),
         ):
@@ -275,7 +275,7 @@ class TestHelpPermissionFiltering:
         mock_perm_system.get_command_permission = AsyncMock(return_value=mock_cmd_perm)
 
         with (
-            patch("tux.help.data.get_permission_system", return_value=mock_perm_system),
+            patch("bot.help.data.get_permission_system", return_value=mock_perm_system),
             patch.object(CONFIG.USER_IDS, "BOT_OWNER_ID", BOT_OWNER_ID),
             patch.object(CONFIG.USER_IDS, "SYSADMINS", []),
         ):
@@ -310,7 +310,7 @@ class TestHelpPermissionFiltering:
         # Mock cog with commands
         mock_cog = MagicMock()
         mock_cog.get_commands = lambda: [normal_cmd, restricted_cmd]
-        mock_cog.__module__ = "tux.modules.moderation.ban"
+        mock_cog.__module__ = "bot.modules.moderation.ban"
 
         mock_bot.cogs = {"Moderation": mock_cog}
 
@@ -324,7 +324,7 @@ class TestHelpPermissionFiltering:
         mock_perm_system.get_user_permission_rank = AsyncMock(return_value=0)
 
         with (
-            patch("tux.help.data.get_permission_system", return_value=mock_perm_system),
+            patch("bot.help.data.get_permission_system", return_value=mock_perm_system),
             patch.object(CONFIG.USER_IDS, "BOT_OWNER_ID", BOT_OWNER_ID),
             patch.object(CONFIG.USER_IDS, "SYSADMINS", []),
         ):

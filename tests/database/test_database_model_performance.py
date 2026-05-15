@@ -8,9 +8,9 @@ These are integration tests because they use a real PostgreSQL database.
 import pytest
 from sqlmodel import desc, select
 
+from bot.database.models.models import Guild, GuildConfig
+from bot.database.service import DatabaseService
 from tests.fixtures import TEST_GUILD_ID
-from tux.database.models.models import Guild, GuildConfig
-from tux.database.service import DatabaseService
 
 
 class TestModelPerformance:

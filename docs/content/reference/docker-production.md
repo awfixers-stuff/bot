@@ -9,13 +9,13 @@ icon: lucide/container
 
 # Docker Production Deployment
 
-Reference guide for deploying Tux in production using Docker. The project uses a single `compose.yaml`; production mode is selected with the `production` profile.
+Reference guide for deploying Bot in production using Docker. The project uses a single `compose.yaml`; production mode is selected with the `production` profile.
 
 ## Production Profile
 
 `compose.yaml` defines both development and production in one file. For production:
 
-- **tux** (profile `production`): pre-built image, no build, security hardening
+- **bot** (profile `production`): pre-built image, no build, security hardening
 - No source bindings or hot reload
 - Adminer is off unless you add `--profile adminer`
 
@@ -29,7 +29,7 @@ docker compose --profile production up -d
 COMPOSE_PROFILES=production docker compose up -d
 
 # With specific image version
-TUX_IMAGE=ghcr.io/allthingslinux/tux TUX_IMAGE_TAG=v1.0.0 \
+BOT_IMAGE=ghcr.io/awfixers-stuff/bot BOT_IMAGE_TAG=v1.0.0 \
   docker compose --profile production up -d
 
 # Add Adminer for debugging
@@ -48,7 +48,7 @@ docker compose --profile production --profile adminer up -d
 
 | Feature            | `--profile dev`          | `--profile production`   |
 |--------------------|--------------------------|---------------------------|
-| App service        | tux-dev (build from source) | tux (pre-built image)   |
+| App service        | bot-dev (build from source) | bot (pre-built image)   |
 | Source bindings    | For watch/sync           | In image only             |
 | Hot reload         | Yes with `--watch`       | No                        |
 | Adminer            | Add `--profile adminer`  | Add `--profile adminer`   |
@@ -58,28 +58,28 @@ docker compose --profile production --profile adminer up -d
 
 ## Using Pre-Built Images
 
-Tux images are published to GitHub Container Registry:
+Bot images are published to GitHub Container Registry:
 
 ```env
 # Use official image
-TUX_IMAGE=ghcr.io/allthingslinux/tux
-TUX_IMAGE_TAG=latest
+BOT_IMAGE=ghcr.io/awfixers-stuff/bot
+BOT_IMAGE_TAG=latest
 
 # Or use specific version
-TUX_IMAGE_TAG=v1.0.0
+BOT_IMAGE_TAG=v1.0.0
 ```
 
 ### Pull and verify
 
 ```bash
 # Pull latest image
-docker pull ghcr.io/allthingslinux/tux:latest
+docker pull ghcr.io/awfixers-stuff/bot:latest
 
 # Verify image
-docker images ghcr.io/allthingslinux/tux
+docker images ghcr.io/awfixers-stuff/bot
 
 # Check image details
-docker inspect ghcr.io/allthingslinux/tux:latest
+docker inspect ghcr.io/awfixers-stuff/bot:latest
 ```
 
 ## Advanced Configuration
@@ -88,12 +88,12 @@ docker inspect ghcr.io/allthingslinux/tux:latest
 
 ```env
 # Custom registry
-TUX_IMAGE=my-registry.com/tux
-TUX_IMAGE_TAG=v1.0.0
+BOT_IMAGE=my-registry.com/bot
+BOT_IMAGE_TAG=v1.0.0
 
 # Local build
-TUX_IMAGE=tux:local
-TUX_IMAGE_TAG=latest
+BOT_IMAGE=bot:local
+BOT_IMAGE_TAG=latest
 ```
 
 ### Production .env
@@ -117,18 +117,18 @@ Expose PostgreSQL port to host:
 POSTGRES_PORT=5432
 ```
 
-Access from host: `postgresql://tuxuser:password@localhost:5432/tuxdb`
+Access from host: `postgresql://botuser:password@localhost:5432/botdb`
 
 ## Security Features
 
-The `tux` service (production profile) applies:
+The `bot` service (production profile) applies:
 
 ### Non-root user
 
 The container runs as `nonroot` (UID/GID 1001):
 
 ```bash
-docker compose --profile production exec tux whoami
+docker compose --profile production exec bot whoami
 # nonroot
 ```
 

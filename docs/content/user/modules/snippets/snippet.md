@@ -55,7 +55,7 @@ $s guide
 
 ## Response Format
 
-When executed, Tux replies to your message with the snippet's content. If the snippet is an alias, Tux automatically resolves it and shows the content of the target snippet, while indicating the alias relationship.
+When executed, Bot replies to your message with the snippet's content. If the snippet is an alias, Bot automatically resolves it and shows the content of the target snippet, while indicating the alias relationship.
 
 If the content exceeds Discord's message limit, the bot provides the content in a paginated interface or splits it across multiple messages.
 

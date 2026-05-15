@@ -6,7 +6,7 @@ Tests for module-level convenience functions in the version system.
 
 import pytest
 
-from tux.shared.version import (
+from bot.shared.version import (
     bump_version,
     compare_versions,
     generate_build_metadata,

@@ -1,6 +1,6 @@
 ---
 title: For Users
-description: Frequently asked questions for Tux users.
+description: Frequently asked questions for Bot users.
 parent: FAQ
 icon: lucide/users
 ---
@@ -11,14 +11,14 @@ icon: lucide/users
 
 The default prefix is `$` (e.g. `$ping`, `$levels`).
 
-## Does Tux support slash commands?
+## Does Bot support slash commands?
 
-Yes. Tux supports both **prefix** and **slash** commands; many commands have both via support of Discord.py "Hybrid Commands".
+Yes. Bot supports both **prefix** and **slash** commands; many commands have both via support of Discord.py "Hybrid Commands".
 
-## Will Tux work in Direct Messages?
+## Will Bot work in Direct Messages?
 
 DM support is planned for a future release.
 
-## Will Tux work as a User App?
+## Will Bot work as a User App?
 
 User Apps is planned for a future release.

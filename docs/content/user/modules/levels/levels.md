@@ -112,7 +112,7 @@ $levels blacklist <member>
 
 ### Bot Permissions
 
-Tux requires the following permissions for this command group:
+Bot requires the following permissions for this command group:
 
 - **Manage Roles** - Required to update level-based roles when levels are changed.
 - **Embed Links** - To display confirmation status.

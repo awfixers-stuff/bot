@@ -10,9 +10,9 @@ tags:
 
 # Unjail
 
-The `unjail` command releases a member from isolation, removing the "Jail" role and restoring the previous roles they held before being jailed. Tux automatically tracks and stores a member's roles when they are jailed, making it easy to return them to their original state once the issue is resolved.
+The `unjail` command releases a member from isolation, removing the "Jail" role and restoring the previous roles they held before being jailed. Bot automatically tracks and stores a member's roles when they are jailed, making it easy to return them to their original state once the issue is resolved.
 
-If a jailed member leaves and rejoins the server, Tux re-jails them automatically; use `/unjail` when you intend to release them.
+If a jailed member leaves and rejoins the server, Bot re-jails them automatically; use `/unjail` when you intend to release them.
 
 ## Syntax
 
@@ -50,7 +50,7 @@ This command supports the following flags:
 
 | Flag | Aliases | Type | Default | Description |
 |------|---------|------|---------|-------------|
-| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Tux will not attempt to DM the user. |
+| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Bot will not attempt to DM the user. |
 
 ### -silent
 
@@ -64,7 +64,7 @@ Whether to suppress the DM notification to the member being unjailed.
 
 ### Bot Permissions
 
-Tux requires the following permissions:
+Bot requires the following permissions:
 
 - **Manage Roles** - Required to remove the jail role and re-add previous roles.
 
@@ -73,7 +73,7 @@ Tux requires the following permissions:
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 
@@ -99,7 +99,7 @@ $unjail @user Investigation complete, rules explained
 
 ## Response Format
 
-When executed successfully, Tux will:
+When executed successfully, Bot will:
 
 1. Locate the latest jail case for the member in the database.
 2. Remove the "Jail" role from the member.
@@ -117,19 +117,19 @@ The confirmation message includes the unjailed user's name, the reason (if provi
 
 #### Missing Permissions / Higher Role
 
-**When it occurs:** Tux lacks the "Manage Roles" permission, or the target user's highest role is equal to or higher than Tux's highest role.
+**When it occurs:** Bot lacks the "Manage Roles" permission, or the target user's highest role is equal to or higher than Bot's highest role.
 
 **What happens:** The bot sends an error message indicating insufficient permissions.
 
 **Solutions:**
 
-- Ensure Tux has the "Manage Roles" permission in the server settings
-- Move Tux's role above the target's role in the server hierarchy
-- Check that Tux's role has the necessary permissions in the server settings
+- Ensure Bot has the "Manage Roles" permission in the server settings
+- Move Bot's role above the target's role in the server hierarchy
+- Check that Bot's role has the necessary permissions in the server settings
 
 #### Lacking Permission Rank
 
-**When it occurs:** Your internal Tux permission rank is lower than required.
+**When it occurs:** Your internal Bot permission rank is lower than required.
 
 **What happens:** The bot sends an error message indicating you don't have permission to use this command.
 
@@ -163,15 +163,15 @@ The confirmation message includes the unjailed user's name, the reason (if provi
 
 #### Roles Not Restored
 
-**When it occurs:** Some roles may no longer exist, or Tux's highest role is now below those roles in the hierarchy.
+**When it occurs:** Some roles may no longer exist, or Bot's highest role is now below those roles in the hierarchy.
 
-**What happens:** The unjail succeeds, but some roles cannot be restored. Tux logs which roles could not be restored.
+**What happens:** The unjail succeeds, but some roles cannot be restored. Bot logs which roles could not be restored.
 
 **Solutions:**
 
-- Tux will log which roles could not be restored - check the moderation log channel
+- Bot will log which roles could not be restored - check the moderation log channel
 - Hand-assign any missing roles if necessary
-- Ensure Tux's role is high enough in the hierarchy to manage the roles that need to be restored
+- Ensure Bot's role is high enough in the hierarchy to manage the roles that need to be restored
 - Verify that the roles still exist in the server
 
 ## Related Commands

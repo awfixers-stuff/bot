@@ -6,14 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlmodel import SQLModel
 from loguru import logger
 
-from tux.database.controllers import (
+from bot.database.controllers import (
     GuildConfigController,
     GuildController,
     PermissionAssignmentController,
     PermissionCommandController,
     PermissionRankController,
 )
-from tux.database.service import DatabaseService
+from bot.database.service import DatabaseService
 
 
 @pytest.fixture(scope="session")
@@ -56,7 +56,7 @@ async def pglite_engine(pglite_async_manager):
 @pytest.fixture(scope="function")
 async def db_service(pglite_engine):
     """DatabaseService with fresh database per test."""
-    from tux.database.service import DatabaseService
+    from bot.database.service import DatabaseService
     service = DatabaseService(echo=False)
 
     # Manually set the engine and session factory to use our PGlite engine
@@ -92,7 +92,7 @@ async def db_session(db_service: DatabaseService):
 @pytest.fixture(scope="function")
 async def disconnected_async_db_service():
     """Database service that's not connected for testing error scenarios."""
-    from tux.database.service import DatabaseService
+    from bot.database.service import DatabaseService
     service = DatabaseService(echo=False)
     # Don't connect - leave it disconnected for error testing
     yield service
@@ -120,8 +120,8 @@ async def permission_command_controller(db_service: DatabaseService) -> Permissi
 async def permission_system(db_service: DatabaseService):
     """PermissionSystem with fresh database per test."""
     from unittest.mock import MagicMock
-    from tux.core.permission_system import PermissionSystem
-    from tux.database.controllers import DatabaseCoordinator
+    from bot.core.permission_system import PermissionSystem
+    from bot.database.controllers import DatabaseCoordinator
 
     # Create a mock bot
     mock_bot = MagicMock()

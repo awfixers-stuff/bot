@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from tux.cache.backend import (
+from bot.cache.backend import (
     KEY_PREFIX,
     InMemoryBackend,
     ValkeyBackend,
@@ -92,7 +92,7 @@ class TestValkeyBackend:
 
     @pytest.mark.asyncio
     async def test_key_prefix_prepended(self, mock_client: MagicMock) -> None:
-        """Keys are stored with tux: prefix."""
+        """Keys are stored with bot: prefix."""
         backend = ValkeyBackend(mock_client)
         await backend.set("foo", "bar")
         mock_client.set.assert_called_once()
@@ -104,11 +104,11 @@ class TestValkeyBackend:
         self,
         mock_client: MagicMock,
     ) -> None:
-        """Keys already starting with tux: are not double-prefixed."""
+        """Keys already starting with bot: are not double-prefixed."""
         backend = ValkeyBackend(mock_client)
-        await backend.set("tux:already", "v")
+        await backend.set("bot:already", "v")
         mock_client.set.assert_called_once()
-        assert mock_client.set.call_args[0][0] == "tux:already"
+        assert mock_client.set.call_args[0][0] == "bot:already"
 
     @pytest.mark.asyncio
     async def test_value_serialized_as_json(self, mock_client: MagicMock) -> None:

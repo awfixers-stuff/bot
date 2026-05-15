@@ -119,14 +119,14 @@ This module requires the following configuration:
 PERMISSIONS SECTION
 Document permission requirements for using commands in this module.
 
-Bot Permissions: List the Discord permissions Tux needs, with explanations.
+Bot Permissions: List the Discord permissions Bot needs, with explanations.
 User Permissions: Describe who can use these commands (all users, moderators only, etc.).
 Include the permission system tip as shown below.
 -->
 
 ### Bot Permissions
 
-Tux requires the following permissions for this module:
+Bot requires the following permissions for this module:
 
 - **{PERMISSION_NAME}** - {Why it's needed}
 - **{PERMISSION_NAME}** - {Why it's needed}
@@ -136,7 +136,7 @@ Tux requires the following permissions for this module:
 {Describe user permission requirements - e.g., "Users need Moderator rank (typically rank 3-5) or higher to use commands in this module" or "Commands are available to all users by default"}
 
 !!! tip "Permission System"
-    Tux uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Bot uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Related Documentation
 

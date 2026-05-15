@@ -11,7 +11,7 @@ import timeit
 
 import pytest
 
-from tux.cache import GuildConfigCacheManager, JailStatusCache, TTLCache
+from bot.cache import GuildConfigCacheManager, JailStatusCache, TTLCache
 
 
 @pytest.mark.performance

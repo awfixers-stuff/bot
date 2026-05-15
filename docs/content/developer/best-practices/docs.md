@@ -1,6 +1,6 @@
 ---
 title: Documentation Best Practices
-description: Documentation best practices for Tux development, including writing standards, structure guidelines, and quality assurance processes.
+description: Documentation best practices for Bot development, including writing standards, structure guidelines, and quality assurance processes.
 tags:
   - developer-guide
   - best-practices
@@ -17,7 +17,7 @@ icon: lucide/book-marked
 
 ### User-Centric Approach
 
-**Focus on solving user problems, not describing code features.** Every documentation decision should answer: "How does this help someone using Tux?"
+**Focus on solving user problems, not describing code features.** Every documentation decision should answer: "How does this help someone using Bot?"
 
 - **Users** need to understand how to use features
 - **Admins** need to configure and manage servers  

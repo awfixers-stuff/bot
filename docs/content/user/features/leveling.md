@@ -13,7 +13,7 @@ icon: lucide/sparkles
 
 XP & Leveling is an engagement system that rewards active community members for their
 participation. By sending messages in designated channels, users earn experience points (XP) that
-contribute to their overall level. As users reach new milestones, Tux can automatically assign them
+contribute to their overall level. As users reach new milestones, Bot can automatically assign them
 roles, creating a clear path for progression and recognition within the server.
 
 The system is designed to be fair and resistant to spam, using a cooldown mechanism and configurable exponents to control the pace of leveling. It also supports multipliers, allowing you to reward specific groups like server boosters or contributors with faster progression.
@@ -31,9 +31,9 @@ The leveling system tracks user activity and calculates levels based on total ac
 
 ### Automation
 
-Tux handles the entire lifecycle of user progression:
+Bot handles the entire lifecycle of user progression:
 
-- **Automatic Assignment:** When a user reaches a level milestone defined in the configuration, Tux instantly assigns the corresponding role.
+- **Automatic Assignment:** When a user reaches a level milestone defined in the configuration, Bot instantly assigns the corresponding role.
 - **Role Management:** The bot can be configured to manage these roles as users progress, ensuring they always have the correct rank.
 - **Background Tracking:** All XP gains and level calculations happen in real-time as users chat.
 
@@ -116,7 +116,7 @@ This feature provides the following commands for users and administrators:
 
 ### Bot Permissions
 
-Tux requires the following permissions for this feature:
+Bot requires the following permissions for this feature:
 
 - **Read Messages** - Needed to track user activity.
 - **Manage Roles** - Needed to assign roles at level milestones.
@@ -157,21 +157,21 @@ None required for basic usage. Administrator commands require appropriate permis
 
 **Causes:**
 
-- Tux is missing the "Manage Roles" permission.
-- The role to be assigned is positioned above Tux's highest role in the Discord settings.
+- Bot is missing the "Manage Roles" permission.
+- The role to be assigned is positioned above Bot's highest role in the Discord settings.
 - The `XP_ROLES` configuration has an incorrect role ID.
 
 **Solutions:**
 
-1. Ensure Tux has "Manage Roles" permission.
-2. Move Tux's role above the leveling roles in the server hierarchy.
+1. Ensure Bot has "Manage Roles" permission.
+2. Move Bot's role above the leveling roles in the server hierarchy.
 3. Double-check the role IDs in your `config.json`.
 
 ## Limitations
 
 - **Message Content:** XP is currently awarded per message, regardless of message length or content quality.
 - **One Server Focus:** Leveling data is specific to each server and does not carry over between servers.
-- **Role Hierarchy:** Tux cannot assign roles that are higher than its own role in the Discord hierarchy.
+- **Role Hierarchy:** Bot cannot assign roles that are higher than its own role in the Discord hierarchy.
 
 ## Related Documentation
 

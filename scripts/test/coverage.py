@@ -27,7 +27,7 @@ def _build_coverage_cmd(
     fail_under: int | None,
 ) -> list[str]:
     """Build the pytest coverage command."""
-    cmd = ["uv", "run", "pytest", f"--cov={specific or 'src/tux'}"]
+    cmd = ["uv", "run", "pytest", f"--cov={specific or 'src/bot'}"]
 
     if quick:
         cmd.append("--cov-report=")

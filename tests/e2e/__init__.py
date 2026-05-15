@@ -1,5 +1,5 @@
 """
-End-to-end tests for Tux database workflows.
+End-to-end tests for Bot database workflows.
 
 These tests simulate complete user journeys and real-world scenarios:
 - First-time bot setup workflows

@@ -11,7 +11,7 @@ icon: lucide/hard-drive
 
 # Bare Metal Installation
 
-This guide provides instructions for installing Tux directly on a Linux system using systemd and a manual PostgreSQL installation.
+This guide provides instructions for installing Bot directly on a Linux system using systemd and a manual PostgreSQL installation.
 
 !!! tip "Docker Recommended"
     For most users, we recommend the [Docker Installation](docker.md) as it handles dependencies and database setup automatically.
@@ -28,11 +28,11 @@ Before starting the installation, ensure your system meets the following require
 
 ## 1. Install PostgreSQL 17
 
-Tux requires PostgreSQL 17 or higher. You can either install it directly on the host or use the Docker Compose PostgreSQL service from the project.
+Bot requires PostgreSQL 17 or higher. You can either install it directly on the host or use the Docker Compose PostgreSQL service from the project.
 
 !!! tip "Use Docker for PostgreSQL only"
     If you prefer not to manage PostgreSQL yourself, you can run just the database
-    in Docker while running Tux on bare metal. Run `docker compose up -d tux-postgres`,
+    in Docker while running Bot on bare metal. Run `docker compose up -d bot-postgres`,
     then set `POSTGRES_HOST=localhost` and `POSTGRES_PORT=5432` in your `.env`
     (the compose file already exposes the port on `127.0.0.1`). Skip ahead to
     [step 2](#2-install-uv).
@@ -55,7 +55,7 @@ sudo systemctl enable --now postgresql
 
 ### Database and User Creation
 
-After installing PostgreSQL, create a database and user for Tux:
+After installing PostgreSQL, create a database and user for Bot:
 
 ```bash
 # Access PostgreSQL prompt
@@ -64,13 +64,13 @@ sudo -u postgres psql
 
 ```sql
 -- Create user
-CREATE USER tuxuser WITH PASSWORD 'your_secure_password_here';
+CREATE USER botuser WITH PASSWORD 'your_secure_password_here';
 
 -- Create database
-CREATE DATABASE tuxdb OWNER tuxuser;
+CREATE DATABASE botdb OWNER botuser;
 
 -- Grant privileges
-GRANT ALL PRIVILEGES ON DATABASE tuxdb TO tuxuser;
+GRANT ALL PRIVILEGES ON DATABASE botdb TO botuser;
 
 -- Exit
 \q
@@ -81,7 +81,7 @@ GRANT ALL PRIVILEGES ON DATABASE tuxdb TO tuxuser;
 
 ## 2. Install uv
 
-Tux uses `uv` for dependency management. Install it system-wide:
+Bot uses `uv` for dependency management. Install it system-wide:
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -90,16 +90,16 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 !!! note "Update PATH"
     Ensure `uv` is in your PATH. You may need to source your shell profile or add it to your PATH manually.
 
-## 3. Install Tux
+## 3. Install Bot
 
 ### Clone Repository
 
-Install Tux to `/opt/tux`:
+Install Bot to `/opt/bot`:
 
 ```bash
 # Clone repository
-sudo git clone https://github.com/allthingslinux/tux.git /opt/tux
-cd /opt/tux
+sudo git clone https://github.com/awfixers-stuff/bot.git /opt/bot
+cd /opt/bot
 ```
 
 ### Install Dependencies
@@ -117,10 +117,10 @@ sudo cp .env.example .env
 
 ## 4. Configuration
 
-Edit the `/opt/tux/.env` file to configure your bot token and database connection:
+Edit the `/opt/bot/.env` file to configure your bot token and database connection:
 
 ```bash
-sudo nano /opt/tux/.env
+sudo nano /opt/bot/.env
 ```
 
 **Required variables for bare metal setup:**
@@ -140,22 +140,22 @@ BOT_TOKEN=your_bot_token_here
 # PostgreSQL Configuration
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
-POSTGRES_DB=tuxdb
-POSTGRES_USER=tuxuser
+POSTGRES_DB=botdb
+POSTGRES_USER=botuser
 POSTGRES_PASSWORD=<paste the generated password here>
 ```
 
 !!! important "Match your PostgreSQL user password"
     The `POSTGRES_PASSWORD` value must match the password you set when creating
     the PostgreSQL user. If you haven't created the user yet, use this password
-    when you do: `ALTER USER tuxuser WITH PASSWORD 'your_password';`
+    when you do: `ALTER USER botuser WITH PASSWORD 'your_password';`
 
 ### Verify Database Connection
 
 Before setting up the service, test the database connection:
 
 ```bash
-cd /opt/tux
+cd /opt/bot
 sudo uv run db health
 ```
 
@@ -163,32 +163,32 @@ sudo uv run db health
 
 ### Create Service File
 
-Create the systemd service unit at `/etc/systemd/system/tux.service`:
+Create the systemd service unit at `/etc/systemd/system/bot.service`:
 
 ```bash
-sudo nano /etc/systemd/system/tux.service
+sudo nano /etc/systemd/system/bot.service
 ```
 
 Paste the following configuration:
 
 ```ini
 [Unit]
-Description=Tux Discord Bot
-Documentation=https://tux.atl.dev
+Description=Bot Discord Bot
+Documentation=https://github.com/awfixers-stuff/bot
 After=network-online.target postgresql.service
 Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/tux
-ExecStart=/usr/local/bin/uv run tux start
+WorkingDirectory=/opt/bot
+ExecStart=/usr/local/bin/uv run bot start
 Restart=always
 RestartSec=10
 
 # Logging
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=tux
+SyslogIdentifier=bot
 
 [Install]
 WantedBy=multi-user.target
@@ -204,29 +204,29 @@ WantedBy=multi-user.target
 sudo systemctl daemon-reload
 
 # Enable and start service
-sudo systemctl enable tux --now
+sudo systemctl enable bot --now
 
 # Verify status
-sudo systemctl status tux
+sudo systemctl status bot
 ```
 
 ## Maintenance
 
-### Updating Tux
+### Updating Bot
 
-To update Tux to the latest version:
+To update Bot to the latest version:
 
 ```bash
 # Stop service
-sudo systemctl stop tux
+sudo systemctl stop bot
 
 # Update code and dependencies
-cd /opt/tux
+cd /opt/bot
 sudo git pull origin main
 sudo uv sync
 
 # Restart service (migrations run automatically)
-sudo systemctl start tux
+sudo systemctl start bot
 ```
 
 ### Viewing Logs
@@ -235,10 +235,10 @@ Use `journalctl` to view the bot's logs:
 
 ```bash
 # View last 100 lines
-sudo journalctl -u tux -n 100 --no-pager
+sudo journalctl -u bot -n 100 --no-pager
 
 # Follow logs in real-time
-sudo journalctl -u tux -f
+sudo journalctl -u bot -f
 ```
 
 ## Troubleshooting
@@ -247,7 +247,7 @@ sudo journalctl -u tux -f
 
 - **Database Connection Refused**: Ensure PostgreSQL is running (`systemctl status postgresql`) and the database exists. Check PostgreSQL authentication settings in `pg_hba.conf`.
 - **uv: command not found**: Ensure the full path to `uv` is used in the service file. Check the path with `which uv`.
-- **Permission Denied**: Ensure the service has read access to `/opt/tux` and write access to any data directories.
+- **Permission Denied**: Ensure the service has read access to `/opt/bot` and write access to any data directories.
 
 ---
 

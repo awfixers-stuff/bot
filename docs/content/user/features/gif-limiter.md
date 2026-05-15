@@ -20,9 +20,9 @@ This feature works silently in the background, only intervening when specific th
 
 ### Mechanics
 
-Tux inspects all incoming messages for GIF content by checking for the word "gif" in the message body and the presence of Discord embeds.
+Bot inspects all incoming messages for GIF content by checking for the word "gif" in the message body and the presence of Discord embeds.
 
-- **Tracking:** Tux maintains a rolling timestamp of GIF messages for every user and channel.
+- **Tracking:** Bot maintains a rolling timestamp of GIF messages for every user and channel.
 - **Cleanup:** A background task runs every 20 seconds to prune expired timestamps, keeping memory usage low.
 - **Detection:** The system identifies GIFs provided through links that Discord automatically embeds.
 
@@ -30,9 +30,9 @@ Tux inspects all incoming messages for GIF content by checking for the word "gif
 
 This feature provides hands-off moderation:
 
-- **Instant Deletion:** If a user or channel exceeds the GIF limit, Tux immediately deletes the offending message.
-- **Self-Cleaning Alerts:** When a message is deleted, Tux sends a temporary notification that automatically deletes itself after 3 seconds.
-- **Pattern Matching:** Tux monitors both message content and embed metadata to accurately identify GIFs.
+- **Instant Deletion:** If a user or channel exceeds the GIF limit, Bot immediately deletes the offending message.
+- **Self-Cleaning Alerts:** When a message is deleted, Bot sends a temporary notification that automatically deletes itself after 3 seconds.
+- **Pattern Matching:** Bot monitors both message content and embed metadata to accurately identify GIFs.
 
 ### Triggers
 
@@ -92,7 +92,7 @@ The GIF Limiter is configured through the server's `config.json` file.
 
 ### Bot Permissions
 
-Tux requires the following permissions for this feature:
+Bot requires the following permissions for this feature:
 
 - **Read Messages** - Needed to monitor channel activity for GIFs.
 - **Manage Messages** - Needed to delete messages that exceed the limits.
@@ -122,23 +122,23 @@ None required. All users are subject to the limits unless the channel is exclude
 **Solutions:**
 
 1. Check if the channel is in the exclude list in your configuration.
-2. Verify that Tux has permission to view the channel and its embeds.
+2. Verify that Bot has permission to view the channel and its embeds.
 
 ### Issue: Messages not being deleted
 
 **Symptoms:**
 
-- Tux sends a notification about the limit but the original message remains.
+- Bot sends a notification about the limit but the original message remains.
 
 **Causes:**
 
-- Tux is missing the "Manage Messages" permission in that channel.
-- Tux's role is below the user's role in the hierarchy (for some Discord settings).
+- Bot is missing the "Manage Messages" permission in that channel.
+- Bot's role is below the user's role in the hierarchy (for some Discord settings).
 
 **Solutions:**
 
-1. Ensure Tux has the "Manage Messages" permission.
-2. Check that Tux's role is positioned correctly in the server's role settings.
+1. Ensure Bot has the "Manage Messages" permission.
+2. Check that Bot's role is positioned correctly in the server's role settings.
 
 ## Limitations
 

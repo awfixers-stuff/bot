@@ -9,14 +9,14 @@ from datetime import datetime
 
 import pytest
 
+from bot.database.models.models import Case, CaseType, Guild, GuildConfig
+from bot.database.service import DatabaseService
 from tests.fixtures import (
     TEST_CHANNEL_ID,
     TEST_GUILD_ID,
     validate_guild_config_structure,
     validate_guild_structure,
 )
-from tux.database.models.models import Case, CaseType, Guild, GuildConfig
-from tux.database.service import DatabaseService
 
 
 class TestModelCreation:

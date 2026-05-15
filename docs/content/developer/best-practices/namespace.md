@@ -12,7 +12,7 @@ icon: lucide/tag
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-This guide explains namespace packages and the `__all__` declaration in Python, with specific examples from the Tux codebase and best practices for maintaining clean APIs.
+This guide explains namespace packages and the `__all__` declaration in Python, with specific examples from the Bot codebase and best practices for maintaining clean APIs.
 
 ## What Are Namespace Packages?
 
@@ -134,12 +134,12 @@ __all__ = [
 ]
 ```
 
-## Examples from Tux Codebase
+## Examples from Bot Codebase
 
 ### Database Controllers (Regular Package with Full API)
 
 ```python
-# src/tux/database/controllers/__init__.py
+# src/bot/database/controllers/__init__.py
 __all__ = [
     "AfkController",
     "BaseController",
@@ -161,15 +161,15 @@ __all__ = [
 ### Modules (Namespace Package)
 
 ```python
-# src/tux/modules/__init__.py
+# src/bot/modules/__init__.py
 """
-Tux bot modules package.
+Bot bot modules package.
 
-This package contains all the feature modules for the Tux Discord bot.
+This package contains all the feature modules for the Bot Discord bot.
 Each module is a self-contained package that provides specific functionality.
 
 This is a namespace package - individual modules are imported directly
-(e.g., from tux.modules.moderation import cases) rather than through this package.
+(e.g., from bot.modules.moderation import cases) rather than through this package.
 """
 
 # Namespace package - no direct exports
@@ -179,7 +179,7 @@ __all__ = []
 ### UI Components (Comprehensive Public API)
 
 ```python
-# src/tux/ui/__init__.py
+# src/bot/ui/__init__.py
 __all__ = [
     # Embeds
     "EmbedCreator",
@@ -200,10 +200,10 @@ __all__ = [
 ### Core Utilities (Focused API)
 
 ```python
-# src/tux/core/flags.py
+# src/bot/core/flags.py
 __all__ = [
     # Base converter
-    "TuxFlagConverter",
+    "BotFlagConverter",
     # Moderation flags
     "BanFlags",
     "TempBanFlags",

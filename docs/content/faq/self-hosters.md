@@ -1,13 +1,13 @@
 ---
 title: For Self-Hosters
-description: Frequently asked questions for self-hosting Tux.
+description: Frequently asked questions for self-hosting Bot.
 parent: FAQ
 icon: lucide/server
 ---
 
 # For Self-Hosters
 
-## What do I need to self-host Tux?
+## What do I need to self-host Bot?
 
 **Required:** Python 3.13+, [PostgreSQL 17+](https://www.postgresql.org/), [uv](https://docs.astral.sh/uv/), and a [Discord bot token](../selfhost/config/bot-token.md).
 

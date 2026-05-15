@@ -225,7 +225,7 @@ Include bot permissions and any user permission requirements.
 
 ### Bot Permissions
 
-Tux requires the following permissions for this feature:
+Bot requires the following permissions for this feature:
 
 - **{PERMISSION_NAME}** - {Why it's needed}
 - **{PERMISSION_NAME}** - {Why it's needed}

@@ -50,7 +50,7 @@ This command supports the following flags:
 
 | Flag | Aliases | Type | Default | Description |
 |------|---------|------|---------|-------------|
-| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Tux will not attempt to DM the user. |
+| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Bot will not attempt to DM the user. |
 
 ### -silent
 
@@ -64,7 +64,7 @@ Whether to suppress the DM notification to the user being untimed out.
 
 ### Bot Permissions
 
-Tux requires the following permissions:
+Bot requires the following permissions:
 
 - **Moderate Members** - Required to remove the Discord timeout.
 
@@ -73,7 +73,7 @@ Tux requires the following permissions:
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 
@@ -99,7 +99,7 @@ $untimeout @user Early release after appeal
 
 ## Response Format
 
-When executed successfully, Tux will:
+When executed successfully, Bot will:
 
 1. Attempt to DM the user stating their timeout has been lifted (unless `-silent` is used).
 2. Remove the official Discord timeout restriction.
@@ -115,19 +115,19 @@ The confirmation message includes the untimed-out user's name, the reason (if pr
 
 #### Missing Permissions / Higher Role
 
-**When it occurs:** Tux lacks the "Moderate Members" permission, or the target user's role is higher than Tux's role.
+**When it occurs:** Bot lacks the "Moderate Members" permission, or the target user's role is higher than Bot's role.
 
 **What happens:** The bot sends an error message indicating insufficient permissions.
 
 **Solutions:**
 
-- Ensure Tux has the "Moderate Members" permission
-- Move Tux's role higher in the hierarchy
-- Check that Tux's role has the necessary permissions in the server settings
+- Ensure Bot has the "Moderate Members" permission
+- Move Bot's role higher in the hierarchy
+- Check that Bot's role has the necessary permissions in the server settings
 
 #### Lacking Permission Rank
 
-**When it occurs:** Your internal Tux permission rank is lower than the rank required to use this command.
+**When it occurs:** Your internal Bot permission rank is lower than the rank required to use this command.
 
 **What happens:** The bot sends an error message indicating you don't have permission to use this command.
 

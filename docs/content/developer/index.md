@@ -8,13 +8,13 @@ icon: lucide/code-2
 
 # Developer Guide
 
-Documentation for developing and contributing to Tux: setup, architecture, patterns, and tooling.
+Documentation for developing and contributing to Bot: setup, architecture, patterns, and tooling.
 
 ---
 
 ## Contributing
 
-**[Contributing to Tux](contributing.md)** — Setup, workflow, pull requests, and where to find Git, branch naming, and code review guidance.
+**[Contributing to Bot](contributing.md)** — Setup, workflow, pull requests, and where to find Git, branch naming, and code review guidance.
 
 ---
 
@@ -92,7 +92,7 @@ Documentation for developing and contributing to Tux: setup, architecture, patte
 
 | Resource | Description |
 |----------|-------------|
-| [CLI](../reference/cli.md) | `tux`, `db`, `dev`, `test`, `config`, `docs` |
+| [CLI](../reference/cli.md) | `bot`, `db`, `dev`, `test`, `config`, `docs` |
 | [Environment Variables](../reference/env.md) | `.env` and configuration |
 | [Versioning](../reference/versioning.md) | Versions and releases |
 | [Renovate](../reference/renovate.md) | Dependency updates |

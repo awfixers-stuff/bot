@@ -14,7 +14,7 @@ icon: lucide/refresh-ccw
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-The lifecycle orchestration system (`src/tux/core/setup/`) manages Tux's complete startup and shutdown sequences, coordinating database connections, permission systems, cog loading, caching, and monitoring.
+The lifecycle orchestration system (`src/bot/core/setup/`) manages Bot's complete startup and shutdown sequences, coordinating database connections, permission systems, cog loading, caching, and monitoring.
 
 ## Overview
 
@@ -31,19 +31,19 @@ The bot startup follows a carefully orchestrated sequence with multiple phases:
 
 ### Application Layer Startup
 
-The `TuxApp` class handles initial startup via `asyncio.run()`:
+The `BotApp` class handles initial startup via `asyncio.run()`:
 
 1. **Sentry Setup** - Error tracking initialized first to capture any failures
 2. **Signal Handler Registration** - Native event loop handlers for graceful shutdown
 3. **Configuration Validation** - Bot token and critical settings verified
 4. **Owner ID Resolution** - Bot owner and optional sysadmin IDs determined
-5. **Bot Instance Creation** - Tux bot instance created with proper configuration
+5. **Bot Instance Creation** - Bot bot instance created with proper configuration
 6. **Discord Login** - Performs authentication and triggers the core setup hook
 7. **Discord Connection** - Establishes WebSocket connection to Discord gateway
 
 ### Bot Core Setup
 
-The `Tux` bot class performs async setup during the `setup_hook()` phase:
+The `Bot` bot class performs async setup during the `setup_hook()` phase:
 
 **Initialization:**
 
@@ -277,8 +277,8 @@ uv run db dev
 Check for import errors or syntax issues:
 
 ```bash
-python -c "import tux.modules.moderation.ban"
-LOG_LEVEL=DEBUG uv run tux start
+python -c "import bot.modules.moderation.ban"
+LOG_LEVEL=DEBUG uv run bot start
 ```
 
 ### Slow Startup
@@ -301,7 +301,7 @@ If shutdown hangs:
 
 ## Resources
 
-- **Source Code**: `src/tux/core/setup/`
+- **Source Code**: `src/bot/core/setup/`
 - **Application Layer**: See `app.md` for startup details
 - **Bot Core**: See `bot.md` for bot lifecycle
 - **Cog Loader**: See `cog-loader.md` for extension loading

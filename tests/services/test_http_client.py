@@ -6,10 +6,10 @@ import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
-from tux.modules.info.avatar import Avatar
-from tux.modules.utility.wiki import Wiki
-from tux.services.http_client import HTTPClient, http_client
-from tux.services.wrappers import godbolt, wandbox
+from bot.modules.info.avatar import Avatar
+from bot.modules.utility.wiki import Wiki
+from bot.services.http_client import HTTPClient, http_client
+from bot.services.wrappers import godbolt, wandbox
 
 
 @pytest.mark.unit
@@ -151,8 +151,8 @@ class TestHTTPClient:
 
         request = httpx_mock.get_request()
         assert request is not None
-        assert "Tux-Bot/" in request.headers["User-Agent"]
-        assert "github.com/allthingslinux/tux" in request.headers["User-Agent"]
+        assert "Bot-Bot/" in request.headers["User-Agent"]
+        assert "github.com/awfixers-stuff/bot" in request.headers["User-Agent"]
 
 
 @pytest.mark.unit
@@ -310,7 +310,7 @@ class TestHTTPClientErrorScenarios:
         assert request is not None
         assert request.headers["Authorization"] == "Bearer token123"
         # Should still have the default User-Agent
-        assert "Tux-Bot/" in request.headers["User-Agent"]
+        assert "Bot-Bot/" in request.headers["User-Agent"]
 
 
 @pytest.mark.unit

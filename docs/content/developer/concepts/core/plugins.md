@@ -1,6 +1,6 @@
 ---
 title: Plugin System
-description: Custom plugin system for self-hosters to extend Tux with their own commands and features.
+description: Custom plugin system for self-hosters to extend Bot with their own commands and features.
 tags:
   - developer-guide
   - concepts
@@ -14,11 +14,11 @@ icon: lucide/unplug
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-The plugin system lets you extend Tux with custom commands and features. Place your custom modules in the `plugins` directory, and they're automatically discovered and loaded when the bot starts.
+The plugin system lets you extend Bot with custom commands and features. Place your custom modules in the `plugins` directory, and they're automatically discovered and loaded when the bot starts.
 
 ## Overview
 
-Plugins are custom extensions you create for your Tux instance. They work exactly like built-in modules but are loaded separately, making it easy to add custom functionality without modifying core code.
+Plugins are custom extensions you create for your Bot instance. They work exactly like built-in modules but are loaded separately, making it easy to add custom functionality without modifying core code.
 
 **Key Features:**
 
@@ -31,15 +31,15 @@ Plugins are custom extensions you create for your Tux instance. They work exactl
 
 ### Basic Structure
 
-Create a Python file in `src/tux/plugins/` with a cog class and setup function:
+Create a Python file in `src/bot/plugins/` with a cog class and setup function:
 
 ```python
 from discord.ext import commands
-from tux.core.base_cog import BaseCog
-from tux.core.bot import Tux
+from bot.core.base_cog import BaseCog
+from bot.core.bot import Bot
 
 class MyCustomPlugin(BaseCog):
-    def __init__(self, bot: Tux) -> None:
+    def __init__(self, bot: Bot) -> None:
         super().__init__(bot)
 
     @commands.command(name="hello")
@@ -47,7 +47,7 @@ class MyCustomPlugin(BaseCog):
         """Say hello!"""
         await ctx.send("Hello from my custom plugin!")
 
-async def setup(bot: Tux) -> None:
+async def setup(bot: Bot) -> None:
     await bot.add_cog(MyCustomPlugin(bot))
 ```
 
@@ -55,11 +55,11 @@ async def setup(bot: Tux) -> None:
 
 **Cog Class:**
 
-Your plugin must inherit from `BaseCog` to get database access, configuration helpers, and other Tux features. The cog class contains your commands and event handlers.
+Your plugin must inherit from `BaseCog` to get database access, configuration helpers, and other Bot features. The cog class contains your commands and event handlers.
 
 **Setup Function:**
 
-Every plugin needs an `async def setup(bot: Tux)` function. This is called when the plugin is loaded. Use it to add your cog to the bot.
+Every plugin needs an `async def setup(bot: Bot)` function. This is called when the plugin is loaded. Use it to add your cog to the bot.
 
 ### File Naming
 
@@ -93,7 +93,7 @@ Read configuration values:
 class MyPlugin(BaseCog):
     @commands.command()
     async def check_config(self, ctx):
-        bot_name = self.get_config("BOT_INFO.BOT_NAME", "Tux")
+        bot_name = self.get_config("BOT_INFO.BOT_NAME", "Bot")
         await ctx.send(f"Bot name: {bot_name}")
 ```
 
@@ -102,7 +102,7 @@ class MyPlugin(BaseCog):
 Use the permission system for access control:
 
 ```python
-from tux.core.checks import requires_command_permission
+from bot.core.checks import requires_command_permission
 
 class MyPlugin(BaseCog):
     @commands.command()
@@ -161,7 +161,7 @@ Test your plugin thoroughly before deploying. Use the hot reload system to test 
 
 If your plugin doesn't load:
 
-1. Check the file is in `src/tux/plugins/`
+1. Check the file is in `src/bot/plugins/`
 2. Verify it has a `setup()` function
 3. Check for syntax errors in logs
 4. Ensure the cog class inherits from `BaseCog`
@@ -184,7 +184,7 @@ If database access fails:
 
 ## Resources
 
-- **Plugin Directory**: `src/tux/plugins/`
-- **Example Plugin**: See `src/tux/plugins/README.md` for examples
+- **Plugin Directory**: `src/bot/plugins/`
+- **Example Plugin**: See `src/bot/plugins/README.md` for examples
 - **Base Cog**: See `base-cog.md` for available features
 - **Hot Reload**: See lifecycle documentation for reload system

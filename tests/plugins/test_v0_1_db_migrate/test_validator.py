@@ -4,12 +4,12 @@ import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from tux.database.models import Guild, GuildConfig
-from tux.database.service import DatabaseService
-from tux.plugins.v0_1_db_migrate.mapper import (
+from bot.database.models import Guild, GuildConfig
+from bot.database.service import DatabaseService
+from bot.plugins.v0_1_db_migrate.mapper import (
     ModelMapper,
 )
-from tux.plugins.v0_1_db_migrate.validator import (
+from bot.plugins.v0_1_db_migrate.validator import (
     MigrationValidator,
 )
 

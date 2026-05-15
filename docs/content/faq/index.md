@@ -1,6 +1,6 @@
 ---
 title: FAQ
-description: Frequently asked questions about Tux.
+description: Frequently asked questions about Bot.
 hide:
   - toc
 icon: lucide/circle-help
@@ -8,7 +8,7 @@ icon: lucide/circle-help
 
 # Frequently Asked Questions
 
-Quick answers to common questions about Tux, grouped by audience.
+Quick answers to common questions about Bot, grouped by audience.
 
 ## Categories
 
@@ -18,7 +18,7 @@ Quick answers to common questions about Tux, grouped by audience.
 
     ---
 
-    Inviting Tux, licensing, support, features, roadmap.
+    Inviting Bot, licensing, support, features, roadmap.
 
     [:octicons-arrow-right-24: View](general.md){ .md-button .md-button--primary }
 
@@ -65,4 +65,4 @@ Quick answers to common questions about Tux, grouped by audience.
 </div>
 
 !!! tip "More questions?"
-    We'll add more as they come up. Have a suggestion? [Open an issue](https://github.com/allthingslinux/tux/issues) or say hi in [Discord](https://discord.gg/gpmSjcjQxg).
+    We'll add more as they come up. Have a suggestion? [Open an issue](https://github.com/awfixers-stuff/bot/issues) or say hi in [Discord](https://discord.gg/gpmSjcjQxg).

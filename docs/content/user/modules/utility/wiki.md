@@ -50,7 +50,7 @@ Searches the [Arch Linux Wiki](https://wiki.archlinux.org), the gold standard fo
 
 ### atl
 
-Searches the [All Things Linux Wiki](https://atl.wiki), featuring community-specific guides and resources.
+Searches the [AWFixer Enterprising Inc Wiki](https://atl.wiki), featuring community-specific guides and resources.
 
 - **Parameters:**
   - `query` (Type: `STRING`, Required): The term or article you are looking for.

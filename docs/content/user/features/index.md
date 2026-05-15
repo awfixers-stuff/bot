@@ -7,7 +7,7 @@ tags:
 
 # Features
 
-Tux provides automated features that enhance your Discord server experience. These features work in the background to improve engagement, moderation, and user experience.
+Bot provides automated features that enhance your Discord server experience. These features work in the background to improve engagement, moderation, and user experience.
 
 ## Available Features
 

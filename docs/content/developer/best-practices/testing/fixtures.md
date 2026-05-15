@@ -12,11 +12,11 @@ icon: lucide/book-open-check
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-Tux uses pytest fixtures to provide a clean, modular, and scalable testing infrastructure. Fixtures handle test setup, teardown, and provide reusable test data and services.
+Bot uses pytest fixtures to provide a clean, modular, and scalable testing infrastructure. Fixtures handle test setup, teardown, and provide reusable test data and services.
 
 ## Overview
 
-Fixtures in Tux are organized into a dedicated package structure that automatically registers with pytest when imported. This design follows pytest's auto-discovery mechanism, where fixtures decorated with `@pytest.fixture` are automatically available to all tests.
+Fixtures in Bot are organized into a dedicated package structure that automatically registers with pytest when imported. This design follows pytest's auto-discovery mechanism, where fixtures decorated with `@pytest.fixture` are automatically available to all tests.
 
 ## Fixture Organization
 
@@ -57,7 +57,7 @@ from .data_fixtures import (
 
 ## How Fixtures Are Discovered
 
-Tux uses `pytest_plugins` to explicitly register fixture modules with pytest. This is the recommended approach for organizing fixtures in separate modules.
+Bot uses `pytest_plugins` to explicitly register fixture modules with pytest. This is the recommended approach for organizing fixtures in separate modules.
 
 ### Registration Mechanism
 
@@ -106,7 +106,7 @@ Tests can search **upward** through scopes (from test → module → package →
 
 ### conftest.py Pattern
 
-The `conftest.py` file serves as a means of providing fixtures for an entire directory. In Tux, `tests/conftest.py` uses `pytest_plugins` to register fixture modules:
+The `conftest.py` file serves as a means of providing fixtures for an entire directory. In Bot, `tests/conftest.py` uses `pytest_plugins` to register fixture modules:
 
 ```python
 # tests/conftest.py
@@ -163,7 +163,7 @@ Located in `tests/fixtures/sentry_fixtures.py`, these fixtures provide mocks for
 - **`mock_discord_channel`**: Create mock Discord channel
 - **`mock_discord_interaction`**: Create mock Discord interaction
 - **`mock_discord_context`**: Create mock Discord command context
-- **`mock_tux_bot`**: Create mock Tux bot
+- **`mock_bot_bot`**: Create mock Bot bot
 - **`mock_command_error`**: Create mock command error
 - **`mock_app_command_error`**: Create mock app command error
 - **`sentry_capture_calls`**: Track Sentry capture calls for assertions

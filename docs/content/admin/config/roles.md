@@ -9,11 +9,11 @@ icon: lucide/at-sign
 
 # Roles Configuration
 
-Role assignments connect Discord roles to permission ranks, allowing Tux to determine user permissions based on their Discord roles. This guide covers how to assign, manage, and troubleshoot role-to-rank mappings.
+Role assignments connect Discord roles to permission ranks, allowing Bot to determine user permissions based on their Discord roles. This guide covers how to assign, manage, and troubleshoot role-to-rank mappings.
 
 ## Overview
 
-Tux's permission system works by mapping Discord roles to permission ranks:
+Bot's permission system works by mapping Discord roles to permission ranks:
 
 - **Discord Roles**: The roles users have in your server
 - **Permission Ranks**: Numeric levels (0-10) that determine access rights
@@ -26,7 +26,7 @@ When a user has multiple roles, they get the **highest** permission rank among a
 ### Permission Calculation
 
 1. User joins/has roles in Discord
-2. Tux looks up which permission ranks are assigned to those roles
+2. Bot looks up which permission ranks are assigned to those roles
 3. User gets the highest rank among all their role assignments
 4. Commands check if user's rank meets the required rank
 

@@ -48,7 +48,7 @@ This command supports the following flags:
 
 | Flag | Aliases | Type | Default | Description |
 |------|---------|------|---------|-------------|
-| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Tux will not attempt to DM the user. |
+| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Bot will not attempt to DM the user. |
 
 ### -silent
 
@@ -62,7 +62,7 @@ Whether to suppress the DM notification to the kicked user.
 
 ### Bot Permissions
 
-Tux requires the following permissions:
+Bot requires the following permissions:
 
 - **Kick Members** - Required to remove the member from the server.
 
@@ -71,7 +71,7 @@ Tux requires the following permissions:
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 
@@ -105,7 +105,7 @@ Kicking a user without sending a DM notification.
 
 ## Response Format
 
-When executed successfully, Tux will:
+When executed successfully, Bot will:
 
 1. Attempt to DM the user with the kick reason (unless `-silent` is used).
 2. Execute the kick on the Discord server.
@@ -121,19 +121,19 @@ The confirmation message includes the kicked user's name, the reason, and a link
 
 #### Missing Permissions / Higher Role
 
-**When it occurs:** Tux lacks the "Kick Members" permission, or the target user's highest role is equal to or higher than Tux's highest role.
+**When it occurs:** Bot lacks the "Kick Members" permission, or the target user's highest role is equal to or higher than Bot's highest role.
 
 **What happens:** The bot sends an error message indicating insufficient permissions.
 
 **Solutions:**
 
-- Ensure Tux has the "Kick Members" permission
-- Move the "Tux" role above the target's role in the server hierarchy
-- Check that Tux's role has the necessary permissions in the server settings
+- Ensure Bot has the "Kick Members" permission
+- Move the "Bot" role above the target's role in the server hierarchy
+- Check that Bot's role has the necessary permissions in the server settings
 
 #### Lacking Permission Rank
 
-**When it occurs:** Your internal Tux permission rank is lower than the rank required to use this command in this server.
+**When it occurs:** Your internal Bot permission rank is lower than the rank required to use this command in this server.
 
 **What happens:** The bot sends an error message indicating you don't have permission to use this command.
 

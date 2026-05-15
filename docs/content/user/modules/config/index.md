@@ -11,7 +11,7 @@ icon: lucide/settings
 
 # Config
 
-The Config module is the heart of Tux's customization system, allowing administrators to tailor the bot's behavior to their server's specific needs. It provides a unified interface for managing permission ranks, role assignments, command restrictions, and logging configurations.
+The Config module is the heart of Bot's customization system, allowing administrators to tailor the bot's behavior to their server's specific needs. It provides a unified interface for managing permission ranks, role assignments, command restrictions, and logging configurations.
 
 Using a powerful dashboard-style interface and granular subcommands, administrators can quickly set up the bot and ensure that all moderation, utility, and fun features are correctly configured for their community.
 
@@ -46,7 +46,7 @@ The `/config` command group provides access to the interactive configuration das
 
 ### Initial Bot Setup
 
-Quickly initialize the basic permission system after adding Tux to a new server.
+Quickly initialize the basic permission system after adding Bot to a new server.
 
 **Steps:**
 
@@ -82,7 +82,7 @@ Restrict specific commands to certain ranks to ensure only trusted users can acc
 
 ### Bot Permissions
 
-Tux requires the following permissions for this module:
+Bot requires the following permissions for this module:
 
 - **Send Messages** - Required for command responses
 - **Embed Links** - Required for the configuration dashboard
@@ -94,7 +94,7 @@ Tux requires the following permissions for this module:
 Configuration commands are highly sensitive and are restricted to Server Owners and the highest configured permission ranks by default.
 
 !!! tip "Permission System"
-    Tux uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Bot uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Related Documentation
 

@@ -10,7 +10,7 @@ icon: lucide/wrench
 
 # Tools
 
-The Tools module provides specialized utility commands that integrate with external services and provide advanced functionality. These tools extend Tux's capabilities with features like documentation lookup and computational queries.
+The Tools module provides specialized utility commands that integrate with external services and provide advanced functionality. These tools extend Bot's capabilities with features like documentation lookup and computational queries.
 
 By offering powerful integrations, this module enhances your server's capabilities. From quick documentation lookups via TLDR pages to complex computational queries using Wolfram Alpha, these tools provide access to world-class resources directly from your Discord interface.
 
@@ -31,7 +31,7 @@ Quickly find documentation for programming languages, Linux commands, and develo
 
 1. Use the `/tldr` command with a command name (use hyphens for multi-word commands like `git-commit`).
 2. Optionally specify a platform (e.g., `linux`, `osx`, `windows`) for platform-specific examples.
-3. Tux fetches the most relevant documentation and displays it in an easy-to-read format with interactive pagination.
+3. Bot fetches the most relevant documentation and displays it in an easy-to-read format with interactive pagination.
 
 **Example:**
 
@@ -63,7 +63,7 @@ Get answers to complex computational questions, unit conversions, and mathematic
 
 ### Bot Permissions
 
-Tux requires the following permissions for this module:
+Bot requires the following permissions for this module:
 
 - **Send Messages** - Required for command responses
 - **Embed Links** - Required for detailed rich results and visualizations
@@ -73,7 +73,7 @@ Tux requires the following permissions for this module:
 Tool commands are available to all users by default.
 
 !!! tip "Permission System"
-    Tux uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Bot uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Related Documentation
 

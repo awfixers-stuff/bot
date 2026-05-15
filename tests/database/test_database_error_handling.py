@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import sqlalchemy.exc
 
-from tux.database.service import DatabaseService
+from bot.database.service import DatabaseService
 
 pytestmark = pytest.mark.integration
 
@@ -147,7 +147,7 @@ class TestDatabaseServiceErrorIntegration:
             msg = "Constraint violation"
             raise sqlalchemy.exc.IntegrityError(msg, None, Exception("test"))
 
-        with patch("tux.database.service.sentry_sdk") as mock_sentry_sdk:
+        with patch("bot.database.service.sentry_sdk") as mock_sentry_sdk:
             mock_sentry_sdk.is_initialized.return_value = True
             mock_span = MagicMock()
             mock_sentry_sdk.start_span.return_value.__enter__.return_value = mock_span

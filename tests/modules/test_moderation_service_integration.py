@@ -13,23 +13,23 @@ import pytest
 from discord.ext import commands
 from sqlmodel import select
 
-from tux.core.bot import Tux
-from tux.core.flags import CaseModifyFlags
-from tux.database.controllers import DatabaseCoordinator
-from tux.database.models import Case, CaseType
-from tux.database.models import CaseType as DBCaseType
-from tux.database.models import Guild as GuildModel
-from tux.database.service import DatabaseService
-from tux.modules.moderation.cases import Cases
-from tux.services.moderation.case_service import CaseService
-from tux.services.moderation.communication_service import CommunicationService
-from tux.services.moderation.execution_service import ExecutionService
-from tux.services.moderation.moderation_coordinator import ModerationCoordinator
+from bot.core.bot import Bot
+from bot.core.flags import CaseModifyFlags
+from bot.database.controllers import DatabaseCoordinator
+from bot.database.models import Case, CaseType
+from bot.database.models import CaseType as DBCaseType
+from bot.database.models import Guild as GuildModel
+from bot.database.service import DatabaseService
+from bot.modules.moderation.cases import Cases
+from bot.services.moderation.case_service import CaseService
+from bot.services.moderation.communication_service import CommunicationService
+from bot.services.moderation.execution_service import ExecutionService
+from bot.services.moderation.moderation_coordinator import ModerationCoordinator
 
 pytestmark = pytest.mark.asyncio
 
 
-def require_guild(ctx: commands.Context[Tux]) -> discord.Guild:
+def require_guild(ctx: commands.Context[Bot]) -> discord.Guild:
     """Return the guild for a context used in guild-only tests."""
     guild = ctx.guild
     assert guild is not None
@@ -40,9 +40,9 @@ class TestModerationCoordinatorIntegration:
     """ModerationCoordinator integration with case, communication, execution services."""
 
     @pytest.fixture
-    def mock_bot(self) -> Tux:
+    def mock_bot(self) -> Bot:
         """Create a mock Discord bot."""
-        bot = cast(Tux, MagicMock(spec=Tux))
+        bot = cast(Bot, MagicMock(spec=Bot))
         bot.emoji_manager = MagicMock()
         bot.emoji_manager.get = lambda x: f":{x}:"
         return bot
@@ -54,7 +54,7 @@ class TestModerationCoordinatorIntegration:
         return CaseService(coordinator.case)
 
     @pytest.fixture
-    def communication_service(self, mock_bot: Tux) -> CommunicationService:
+    def communication_service(self, mock_bot: Bot) -> CommunicationService:
         """Create a CommunicationService instance."""
         return CommunicationService(mock_bot)
 
@@ -80,9 +80,9 @@ class TestModerationCoordinatorIntegration:
         )
 
     @pytest.fixture
-    def mock_ctx(self) -> commands.Context[Tux]:
+    def mock_ctx(self) -> commands.Context[Bot]:
         """Create a mock command context."""
-        ctx = cast(commands.Context[Tux], MagicMock(spec=commands.Context))
+        ctx = cast(commands.Context[Bot], MagicMock(spec=commands.Context))
         guild = cast(discord.Guild, MagicMock(spec=discord.Guild))
         guild.id = 123456789
         ctx.guild = guild
@@ -107,7 +107,7 @@ class TestModerationCoordinatorIntegration:
     async def test_complete_ban_workflow_success(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
         db_service: DatabaseService,
     ) -> None:
@@ -163,7 +163,7 @@ class TestModerationCoordinatorIntegration:
     async def test_ban_workflow_with_dm_failure(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
         db_service: DatabaseService,
     ) -> None:
@@ -214,7 +214,7 @@ class TestModerationCoordinatorIntegration:
     async def test_non_removal_action_workflow(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
     ) -> None:
         """Warn workflow runs action, sends DM and response."""
@@ -259,7 +259,7 @@ class TestModerationCoordinatorIntegration:
     async def test_silent_mode_workflow(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
     ) -> None:
         """Silent mode runs action and response; send_dm is called but returns False."""
@@ -304,7 +304,7 @@ class TestModerationCoordinatorIntegration:
     async def test_database_failure_after_successful_action(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
     ) -> None:
         """DB failure after Discord action does not crash; action runs, moderator gets response."""
@@ -346,7 +346,7 @@ class TestModerationCoordinatorIntegration:
     async def test_action_execution_failure(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
         db_service: DatabaseService,
     ) -> None:
@@ -392,7 +392,7 @@ class TestModerationCoordinatorIntegration:
     async def test_multiple_actions_execution(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
     ) -> None:
         """Multiple actions run in sequence; all are executed."""
@@ -447,7 +447,7 @@ class TestModerationCoordinatorIntegration:
     async def test_workflow_with_duration_and_expires_at(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
     ) -> None:
         """Workflow with expires_at passes it to create_case and sends response."""
@@ -500,9 +500,9 @@ class TestModerationCoordinatorIntegration:
     async def test_complete_workflow_with_mod_logging_success(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
-        mock_bot: Tux,
+        mock_bot: Bot,
         db_service: DatabaseService,
     ) -> None:
         """Mod-log workflow: case in DB, mod log sent, mod_log_message_id stored, DM and response."""
@@ -540,7 +540,7 @@ class TestModerationCoordinatorIntegration:
                     new_callable=AsyncMock,
                 ) as mock_send_response,
                 patch(
-                    "tux.services.moderation.moderation_coordinator.EmbedCreator",
+                    "bot.services.moderation.moderation_coordinator.EmbedCreator",
                     autospec=True,
                 ) as mock_embed_creator,
             ):
@@ -576,9 +576,9 @@ class TestModerationCoordinatorIntegration:
     async def test_mod_log_channel_not_configured(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
-        mock_bot: Tux,
+        mock_bot: Bot,
     ) -> None:
         """Workflow succeeds when mod log channel not configured; DM, action, response sent."""
         # Arrange
@@ -625,9 +625,9 @@ class TestModerationCoordinatorIntegration:
     async def test_mod_log_channel_not_found(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
-        mock_bot: Tux,
+        mock_bot: Bot,
     ) -> None:
         """Mod log channel in config but missing in guild: workflow succeeds, DM/action/response sent."""
         # Arrange
@@ -675,9 +675,9 @@ class TestModerationCoordinatorIntegration:
     async def test_mod_log_channel_wrong_type(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
-        mock_bot: Tux,
+        mock_bot: Bot,
     ) -> None:
         """Mod log channel is voice not text: workflow succeeds, DM/action/response sent."""
         # Arrange
@@ -727,9 +727,9 @@ class TestModerationCoordinatorIntegration:
     async def test_mod_log_send_failure_permissions(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
-        mock_bot: Tux,
+        mock_bot: Bot,
     ) -> None:
         """Mod log send Forbidden: workflow succeeds, mod log attempted, DM/action/response sent."""
         # Arrange
@@ -785,9 +785,9 @@ class TestModerationCoordinatorIntegration:
     async def test_mod_log_case_update_failure(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
-        mock_bot: Tux,
+        mock_bot: Bot,
     ) -> None:
         """Mod log sent but case update fails: workflow succeeds, DM/action/response sent."""
         # Arrange
@@ -829,7 +829,7 @@ class TestModerationCoordinatorIntegration:
                     new_callable=AsyncMock,
                 ) as mock_send_response,
                 patch(
-                    "tux.services.moderation.moderation_coordinator.EmbedCreator",
+                    "bot.services.moderation.moderation_coordinator.EmbedCreator",
                     autospec=True,
                 ) as mock_embed_creator,
             ):
@@ -855,9 +855,9 @@ class TestModerationCoordinatorIntegration:
     async def test_case_creation_failure_skips_mod_log(
         self,
         moderation_coordinator: ModerationCoordinator,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         mock_member: discord.Member,
-        mock_bot: Tux,
+        mock_bot: Bot,
     ) -> None:
         """Case creation failure: action run, DM and response sent; mod log not attempted."""
         # Arrange
@@ -907,9 +907,9 @@ class TestCaseModificationAuditLogging:
     """Mod log updates when cases are modified via Cases cog."""
 
     @pytest.fixture
-    def mock_bot_with_db(self) -> Tux:
+    def mock_bot_with_db(self) -> Bot:
         """Create a mock bot with database mock."""
-        bot = cast(Tux, MagicMock(spec=Tux))
+        bot = cast(Bot, MagicMock(spec=Bot))
         bot.emoji_manager = MagicMock()
         bot.emoji_manager.get = lambda x: f":{x}:"
         bot.db = MagicMock()
@@ -918,9 +918,9 @@ class TestCaseModificationAuditLogging:
         return bot
 
     @pytest.fixture
-    def mock_ctx_with_guild(self) -> commands.Context[Tux]:
+    def mock_ctx_with_guild(self) -> commands.Context[Bot]:
         """Create a mock context with guild."""
-        ctx = cast(commands.Context[Tux], MagicMock(spec=commands.Context))
+        ctx = cast(commands.Context[Bot], MagicMock(spec=commands.Context))
         ctx.guild = MagicMock(spec=discord.Guild)
         ctx.guild.id = 123456789
         ctx.author = MagicMock(spec=discord.Member)
@@ -935,8 +935,8 @@ class TestCaseModificationAuditLogging:
     @pytest.mark.integration
     async def test_case_modify_updates_mod_log(  # noqa: PLR0915
         self,
-        mock_bot_with_db: Tux,
-        mock_ctx_with_guild: commands.Context[Tux],
+        mock_bot_with_db: Bot,
+        mock_ctx_with_guild: commands.Context[Bot],
     ) -> None:
         """Test that modifying a case updates the mod log embed."""
         # Create Cases cog instance
@@ -1012,11 +1012,11 @@ class TestCaseModificationAuditLogging:
                 new_callable=AsyncMock,
             ) as mock_send_case_embed,
             patch(
-                "tux.modules.moderation.cases.EmbedCreator",
+                "bot.modules.moderation.cases.EmbedCreator",
                 autospec=True,
             ) as mock_embed_creator,
             patch(
-                "tux.core.decorators.get_permission_system",
+                "bot.core.decorators.get_permission_system",
                 autospec=True,
             ) as mock_get_permission_system,
         ):
@@ -1065,8 +1065,8 @@ class TestCaseModificationAuditLogging:
     @pytest.mark.integration
     async def test_case_modify_no_mod_log_message_id(
         self,
-        mock_bot_with_db: Tux,
-        mock_ctx_with_guild: commands.Context[Tux],
+        mock_bot_with_db: Bot,
+        mock_ctx_with_guild: commands.Context[Bot],
     ) -> None:
         """Test that modifying a case without mod log message ID doesn't attempt update."""
         # Create Cases cog instance
@@ -1117,7 +1117,7 @@ class TestCaseModificationAuditLogging:
                 new_callable=AsyncMock,
             ) as mock_send_case_embed,
             patch(
-                "tux.core.decorators.get_permission_system",
+                "bot.core.decorators.get_permission_system",
                 autospec=True,
             ) as mock_get_permission_system,
         ):

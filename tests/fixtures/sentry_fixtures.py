@@ -5,13 +5,13 @@ from unittest.mock import MagicMock, AsyncMock, patch
 import discord
 from discord.ext import commands
 
-from tux.core.bot import Tux
+from bot.core.bot import Bot
 
 
 @pytest.fixture
 def mock_sentry_sdk():
     """Mock sentry_sdk for testing."""
-    with patch("tux.services.sentry.sentry_sdk") as mock_sdk:
+    with patch("bot.services.sentry.sentry_sdk") as mock_sdk:
         mock_sdk.is_initialized.return_value = True
         mock_scope = MagicMock()
         mock_sdk.configure_scope.return_value.__enter__.return_value = mock_scope
@@ -129,12 +129,12 @@ def mock_discord_context(mock_discord_user, mock_discord_guild, mock_discord_cha
 
 # Bot Fixtures
 @pytest.fixture
-def mock_tux_bot():
-    """Create mock Tux bot."""
-    bot = MagicMock(spec=Tux)
+def mock_bot_bot():
+    """Create mock Bot bot."""
+    bot = MagicMock(spec=Bot)
     bot.user = MagicMock()
     bot.user.id = 999888777
-    bot.user.name = "TuxBot"
+    bot.user.name = "BotBot"
 
     # Mock tree for app commands
     bot.tree = MagicMock()
@@ -165,7 +165,7 @@ def sentry_capture_calls():
     def capture_side_effect(*args, **kwargs):
         calls.append({"args": args, "kwargs": kwargs})
 
-    with patch("tux.services.sentry.capture_exception_safe", side_effect=capture_side_effect) as mock_capture:
+    with patch("bot.services.sentry.capture_exception_safe", side_effect=capture_side_effect) as mock_capture:
         yield {"calls": calls, "mock": mock_capture}
 
 
@@ -183,9 +183,9 @@ def sentry_context_calls():
     def set_user_side_effect(*args, **kwargs):
         calls["set_user"].append({"args": args, "kwargs": kwargs})
 
-    with patch("tux.services.sentry.set_context", side_effect=set_context_side_effect), \
-         patch("tux.services.sentry.set_tag", side_effect=set_tag_side_effect), \
-         patch("tux.services.sentry.set_user_context") as mock_set_user:
+    with patch("bot.services.sentry.set_context", side_effect=set_context_side_effect), \
+         patch("bot.services.sentry.set_tag", side_effect=set_tag_side_effect), \
+         patch("bot.services.sentry.set_user_context") as mock_set_user:
 
         mock_set_user.side_effect = set_user_side_effect
         yield calls

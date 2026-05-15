@@ -1,6 +1,6 @@
 ---
 title: Help
-description: Get help with Tux commands and features using the interactive help system
+description: Get help with Bot commands and features using the interactive help system
 icon: lucide/help-circle
 tags:
   - user-guide
@@ -11,7 +11,7 @@ tags:
 
 # Help
 
-The `help` command provides an interactive interface to explore all available Tux commands, organized by category. It's the best way to discover what Tux can do and learn how to use specific commands.
+The `help` command provides an interactive interface to explore all available Bot commands, organized by category. It's the best way to discover what Bot can do and learn how to use specific commands.
 
 ## Syntax
 
@@ -140,7 +140,7 @@ When viewing a specific command, you'll see:
 
 ### Bot Permissions
 
-Tux requires the following permissions to display help:
+Bot requires the following permissions to display help:
 
 - **Send Messages** - To display help information
 - **Embed Links** - For rich formatting

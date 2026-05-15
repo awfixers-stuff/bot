@@ -8,7 +8,7 @@ icon: lucide/book-open
 
 # Developer Guides
 
-This section contains guides for developers working with Tux.
+This section contains guides for developers working with Bot.
 
 ## Available Guides
 

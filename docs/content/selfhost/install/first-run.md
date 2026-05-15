@@ -9,11 +9,11 @@ icon: lucide/rocket
 
 # First Run Instructions
 
-After installing Tux, follow these steps to verify your installation and complete the initial setup.
+After installing Bot, follow these steps to verify your installation and complete the initial setup.
 
 ## Prerequisites
 
-Before running Tux for the first time, ensure you have:
+Before running Bot for the first time, ensure you have:
 
 - ✅ Bot token configured in `.env` (see [Bot Token Setup](../config/bot-token.md))
 - ✅ Database configured and accessible (see [Database Configuration](../config/database.md))
@@ -85,20 +85,20 @@ docker compose --profile dev up -d
 docker compose --profile production up -d
 
 # Check logs
-docker compose logs -f tux
+docker compose logs -f bot
 ```
 
 #### Bare Metal (systemd)
 
 ```bash
 # Start service
-sudo systemctl start tux
+sudo systemctl start bot
 
 # Check status
-sudo systemctl status tux
+sudo systemctl status bot
 
 # View logs
-sudo journalctl -u tux -f
+sudo journalctl -u bot -f
 ```
 
 #### Manual Start (Testing)
@@ -107,7 +107,7 @@ For testing or debugging:
 
 ```bash
 # Start with debug mode
-uv run tux start --debug
+uv run bot start --debug
 ```
 
 ### 5. Verify Bot is Online
@@ -115,7 +115,7 @@ uv run tux start --debug
 Check that the bot appears online in Discord:
 
 1. Open your Discord server
-2. Check the member list - Tux should appear online
+2. Check the member list - Bot should appear online
 3. The bot's status should show as active
 
 ### 6. Test Basic Commands
@@ -198,10 +198,10 @@ Set:
 
 ```bash
 # Docker
-docker compose logs tux
+docker compose logs bot
 
 # systemd
-sudo journalctl -u tux -n 50
+sudo journalctl -u bot -n 50
 ```
 
 **Common issues:**
@@ -218,7 +218,7 @@ sudo journalctl -u tux -n 50
 uv run db health
 
 # Check database status (Docker)
-docker compose ps tux-postgres
+docker compose ps bot-postgres
 
 # Check database status (systemd)
 sudo systemctl status postgresql
