@@ -18,7 +18,8 @@ env:
 jobs:
   validate:
     name: Validate
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    if: github.repository == 'awfixers-stuff/bot'
     outputs:
       version: ${{ steps.version.outputs.version }}
       is_prerelease: ${{ steps.version.outputs.is_prerelease }}
@@ -33,7 +34,8 @@ jobs:
           "${{ github.event.inputs.version }}"
   wait:
     name: Wait for Tests
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    if: github.repository == 'awfixers-stuff/bot'
     steps:
       # Wait for tests workflow to complete before creating release
       # Note: This step requires GitHub API access and won't work with act (local testing)
@@ -49,8 +51,9 @@ jobs:
           allowed-conclusions: success
   create:
     name: Create Release
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: [validate, wait]
+    if: github.repository == 'awfixers-stuff/bot'
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6

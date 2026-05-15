@@ -27,7 +27,8 @@ env:
 jobs:
   changes:
     name: File Detection
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    if: github.repository == 'awfixers-stuff/bot'
     permissions:
       contents: read
     outputs:
@@ -62,10 +63,10 @@ jobs:
             conftest.py
   test:
     name: Run All Tests
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-8vcpu-ubuntu-2204
     timeout-minutes: 60
     needs: [changes]
-    if: needs.changes.outputs.any || github.event_name == 'workflow_dispatch'
+    if: github.repository == 'awfixers-stuff/bot' && (needs.changes.outputs.any || github.event_name == 'workflow_dispatch')
     permissions:
       contents: read
       pull-requests: write

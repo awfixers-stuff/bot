@@ -30,7 +30,8 @@ env:
 jobs:
   changes:
     name: File Detection
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    if: github.repository == 'awfixers-stuff/bot'
     permissions:
       contents: read
     outputs:
@@ -59,9 +60,9 @@ jobs:
   validate:
     name: Validate
     needs: [changes]
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request'
-      && needs.changes.outputs.docker == 'true')
-    runs-on: ubuntu-latest
+    if: github.repository == 'awfixers-stuff/bot' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request'
+      && needs.changes.outputs.docker == 'true'))
+    runs-on: blacksmith-8vcpu-ubuntu-2204
     permissions:
       contents: read
       pull-requests: write
@@ -243,14 +244,14 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
   build:
     name: Build & Push
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-8vcpu-ubuntu-2204
     needs: [changes]
     # Run for tag pushes or workflow_dispatch on version tags (v*)
     # Note: workflow_dispatch sets github.ref to refs/heads/<tag> instead of refs/tags/<tag>
     # So we check github.ref_name (just the tag name) instead
-    if: |
+    if: github.repository == 'awfixers-stuff/bot' && (
       (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
-      (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'v'))
+      (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'v')))
     permissions:
       contents: read
       packages: write
