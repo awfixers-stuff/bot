@@ -10,7 +10,7 @@ tags:
 
 # Warn
 
-The `warn` command allows server moderators to issue a formal warning to a member. While this command doesn't restrict the user's access to the server, it creates a permanent case in Tux's database. This allows moderators to track behavior over time and take more severe actions in the future if needed.
+The `warn` command allows server moderators to issue a formal warning to a member. While this command doesn't restrict the user's access to the server, it creates a permanent case in Bot's database. This allows moderators to track behavior over time and take more severe actions in the future if needed.
 
 ## Syntax
 
@@ -48,7 +48,7 @@ This command supports the following flags:
 
 | Flag | Aliases | Type | Default | Description |
 |------|---------|------|---------|-------------|
-| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Tux will not attempt to DM the user. |
+| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Bot will not attempt to DM the user. |
 
 ### -silent
 
@@ -62,7 +62,7 @@ Whether to suppress the DM notification to the warned user. The warning is still
 
 ### Bot Permissions
 
-Tux requires the following permissions:
+Bot requires the following permissions:
 
 - **Send Messages** - To confirm the warning and log it.
 
@@ -71,7 +71,7 @@ Tux requires the following permissions:
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 
@@ -99,7 +99,7 @@ Logging a warning without notifying the user.
 
 ## Response Format
 
-When executed successfully, Tux will:
+When executed successfully, Bot will:
 
 1. Attempt to DM the user with the warning reason (unless `-silent` is used).
 2. Create a new moderation case in the database.
@@ -126,7 +126,7 @@ The confirmation message includes the warned user's name, the reason, and a link
 
 #### Lacking Permission Rank
 
-**When it occurs:** Your internal Tux permission rank is lower than the rank required to use this command.
+**When it occurs:** Your internal Bot permission rank is lower than the rank required to use this command.
 
 **What happens:** The bot sends an error message indicating you don't have permission to use this command.
 
@@ -137,7 +137,7 @@ The confirmation message includes the warned user's name, the reason, and a link
 
 #### Cannot DM User
 
-**When it occurs:** Tux is unable to send a DM to the user (e.g., they have DMs disabled) and `-silent` was not used.
+**When it occurs:** Bot is unable to send a DM to the user (e.g., they have DMs disabled) and `-silent` was not used.
 
 **What happens:** The warning is still recorded in the database and the command succeeds, but the user will not receive the DM notification.
 

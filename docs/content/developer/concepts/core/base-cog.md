@@ -1,6 +1,6 @@
 ---
 title: Base Cog
-description: Enhanced base cog class providing database access, configuration helpers, and automatic usage generation for Tux Discord bot extensions.
+description: Enhanced base cog class providing database access, configuration helpers, and automatic usage generation for Bot Discord bot extensions.
 tags:
   - developer-guide
   - concepts
@@ -14,11 +14,11 @@ icon: lucide/settings
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-The `BaseCog` class is the foundation for all Tux cogs. It extends discord.py's `commands.Cog` with Tux-specific features that make building commands easier and more consistent.
+The `BaseCog` class is the foundation for all Bot cogs. It extends discord.py's `commands.Cog` with Bot-specific features that make building commands easier and more consistent.
 
 ## Overview
 
-When you create a cog in Tux, inherit from `BaseCog` instead of `commands.Cog`. This gives you:
+When you create a cog in Bot, inherit from `BaseCog` instead of `commands.Cog`. This gives you:
 
 - **Database Access** - Direct access to all database controllers via `self.db`
 - **Configuration Helpers** - Easy config retrieval with dot notation
@@ -30,14 +30,14 @@ When you create a cog in Tux, inherit from `BaseCog` instead of `commands.Cog`. 
 
 ### Basic Usage
 
-All Tux cogs should inherit from `BaseCog`:
+All Bot cogs should inherit from `BaseCog`:
 
 ```python
-from tux.core.base_cog import BaseCog
-from tux.core.bot import Tux
+from bot.core.base_cog import BaseCog
+from bot.core.bot import Bot
 
 class MyCog(BaseCog):
-    def __init__(self, bot: Tux) -> None:
+    def __init__(self, bot: Bot) -> None:
         super().__init__(bot)  # Enables all BaseCog features
 
     @commands.command()
@@ -90,7 +90,7 @@ class MyCog(BaseCog):
     @commands.command()
     async def check_setting(self, ctx):
         # Get nested config value
-        bot_name = self.get_config("BOT_INFO.BOT_NAME", "Tux")
+        bot_name = self.get_config("BOT_INFO.BOT_NAME", "Bot")
         
         # Get config with default
         timeout = self.get_config("MY_COG.TIMEOUT", 30)
@@ -182,7 +182,7 @@ These helpers are available through the bot instance stored in `self.bot`.
 
 ### Always Inherit from BaseCog
 
-Use `BaseCog` for all Tux cogs. It provides essential features you'll need, and using it consistently makes code easier to understand and maintain.
+Use `BaseCog` for all Bot cogs. It provides essential features you'll need, and using it consistently makes code easier to understand and maintain.
 
 ### Use Database Controllers
 
@@ -224,6 +224,6 @@ If usage strings aren't generated:
 
 ## Resources
 
-- **Source Code**: `src/tux/core/base_cog.py`
+- **Source Code**: `src/bot/core/base_cog.py`
 - **Database Controllers**: See database documentation for available controllers
 - **Configuration System**: See configuration documentation for setup

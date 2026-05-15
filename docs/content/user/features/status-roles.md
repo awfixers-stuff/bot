@@ -11,7 +11,7 @@ icon: lucide/badge
 # Status Roles
 
 Status Roles is an automated role management system that rewards or categorizes users based on
-their Discord custom status. By using regular expression (regex) pattern matching, Tux can monitor
+their Discord custom status. By using regular expression (regex) pattern matching, Bot can monitor
 what users have set as their status and automatically assign or remove roles accordingly. This is
 commonly used to reward users who support the community in their status or to indicate a user's
 current activity (e.g., "Working", "Streaming").
@@ -22,12 +22,12 @@ The system is fully dynamic and responds instantly to status changes. It also pe
 
 ### Mechanics
 
-Tux utilizes Discord's gateway events to monitor when a user's presence (specifically their custom status) changes.
+Bot utilizes Discord's gateway events to monitor when a user's presence (specifically their custom status) changes.
 
 - **Regex Matching:** The bot compares the text of a user's custom status against a list of pre-configured regex patterns.
-- **Role Assignment:** If a match is found, Tux checks if the user already has the corresponding role. If not, it assigns it.
-- **Role Removal:** If a user's status changes and no longer matches any configured pattern for a specific role they hold, Tux automatically removes that role.
-- **Startup Sync:** On startup, Tux iterates through all members of configured servers to reconcile status roles.
+- **Role Assignment:** If a match is found, Bot checks if the user already has the corresponding role. If not, it assigns it.
+- **Role Removal:** If a user's status changes and no longer matches any configured pattern for a specific role they hold, Bot automatically removes that role.
+- **Startup Sync:** On startup, Bot iterates through all members of configured servers to reconcile status roles.
 
 ### Automation
 
@@ -35,14 +35,14 @@ This feature provides seamless role automation:
 
 - **Instant Response:** Roles are updated as soon as Discord notifies the bot of a presence change.
 - **No Manual Cleanup:** Admins don't need to manually remove roles when users change their status.
-- **Bot Protection:** To prevent issues, Tux automatically ignores other bot accounts for status role assignment.
+- **Bot Protection:** To prevent issues, Bot automatically ignores other bot accounts for status role assignment.
 
 ### Triggers
 
 The feature activates when:
 
 - A user updates their Discord custom status.
-- Tux starts up and performs its initial member sweep.
+- Bot starts up and performs its initial member sweep.
 
 ## User Experience
 
@@ -56,7 +56,7 @@ Status roles are completely transparent to the user:
 
 ### Interaction
 
-Users do not need to interact with Tux directly. They interact with the feature through their own Discord status settings.
+Users do not need to interact with Bot directly. They interact with the feature through their own Discord status settings.
 
 ## Configuration
 
@@ -81,7 +81,7 @@ Each mapping object:
 {
   "STATUS_ROLES": {
     "MAPPINGS": [
-      { "status": ".*tux.*", "role_id": 987654321098765432 },
+      { "status": ".*bot.*", "role_id": 987654321098765432 },
       { "status": "^Working$", "role_id": 111222333444555666 }
     ]
   }
@@ -104,7 +104,7 @@ Each mapping object:
 
 ### Bot Permissions
 
-Tux requires the following permissions for this feature:
+Bot requires the following permissions for this feature:
 
 - **Manage Roles** - Needed to assign and remove roles from users.
 - **View Server Members** - Needed to sweep the member list on startup.
@@ -126,15 +126,15 @@ None required. All members are eligible for status roles based on the server's c
 
 **Causes:**
 
-- Tux is missing the "Manage Roles" permission.
-- Tux's role is lower in the hierarchy than the role it is trying to assign.
+- Bot is missing the "Manage Roles" permission.
+- Bot's role is lower in the hierarchy than the role it is trying to assign.
 - The `role_id` in a `MAPPINGS` entry is incorrect.
 - The regex pattern is invalid or does not match as expected.
 
 **Solutions:**
 
-1. Ensure Tux has "Manage Roles" permission.
-2. Move Tux's role above the status roles in the server hierarchy.
+1. Ensure Bot has "Manage Roles" permission.
+2. Move Bot's role above the status roles in the server hierarchy.
 3. Test your regex pattern using an online tool to ensure it matches the user's exact status.
 
 ### Issue: Roles are not being removed
@@ -146,7 +146,7 @@ None required. All members are eligible for status roles based on the server's c
 **Causes:**
 
 - The new status still matches the regex pattern (e.g., using `.*` too broadly).
-- Tux did not receive the presence update event from Discord.
+- Bot did not receive the presence update event from Discord.
 
 **Solutions:**
 

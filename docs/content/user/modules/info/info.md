@@ -222,7 +222,7 @@ $i inv discord.gg/invitecode
 
 ### Bot Permissions
 
-Tux requires the following permissions to execute this command:
+Bot requires the following permissions to execute this command:
 
 - **Embed Links** - To display the gathered information.
 - **Read Message History** - Needed to look up specific messages by ID.
@@ -232,7 +232,7 @@ Tux requires the following permissions to execute this command:
 This command is available to all users by default. Some administrative data (like server bans) might be restricted to higher permission ranks if configured differently.
 
 !!! tip "Permission System"
-    Tux uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Bot uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Response Format
 

@@ -10,9 +10,9 @@ from rich.panel import Panel
 from rich.table import Table
 from typer import Exit
 
+from bot.shared.config.settings import Config
 from scripts.core import create_app
 from scripts.ui import console, create_status
-from tux.shared.config.settings import Config
 
 app = create_app()
 

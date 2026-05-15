@@ -6,11 +6,11 @@ hide:
   - toc
 ---
 
-# Tux
+# Bot
 
 <div style="font-size: 20px;">
-Tux is an all-in-one open source Discord bot, originally designed for the
-<a href="https://allthingslinux.org">All Things Linux</a> community.
+Bot is an all-in-one open source Discord bot, originally designed for the
+<a href="https://github.com/awfixers-stuff/bot">AWFixer Enterprising Inc</a> community.
 It is designed to provide a variety of features to the server, including
 moderation, support, utility, and various fun commands.
 </div>
@@ -19,16 +19,16 @@ moderation, support, utility, and various fun commands.
 
 ## Getting Started
 
-Choose your path to get started with Tux:
+Choose your path to get started with Bot:
 
 <div class="grid cards" style="grid-template-columns: repeat(2, 1fr);" markdown>
 
-- :material-linux:{ .lg .middle } __Using Tux__
+- :material-linux:{ .lg .middle } __Using Bot__
 
     ---
 
-    Get started with using Tux in your server. View information on commands
-    and learn about all the features Tux offers.
+    Get started with using Bot in your server. View information on commands
+    and learn about all the features Bot offers.
 
     [:octicons-arrow-right-24: View User Guide](user/index.md){ .md-button .md-button--primary }
 
@@ -45,7 +45,7 @@ Choose your path to get started with Tux:
 
     ---
 
-    Deploy your own Tux instance with full control. Docker or systemd
+    Deploy your own Bot instance with full control. Docker or systemd
     deployment with all dependencies included.
 
     [:octicons-arrow-right-24: View Guide](selfhost/index.md){ .md-button .md-button--primary }
@@ -54,7 +54,7 @@ Choose your path to get started with Tux:
 
     ---
 
-    Contribute to the Tux codebase or build custom plugins. Comprehensive
+    Contribute to the Bot codebase or build custom plugins. Comprehensive
     developer documentation and API references.
 
     [:octicons-arrow-right-24: View Guide](developer/index.md){ .md-button .md-button--primary }
@@ -107,11 +107,11 @@ Choose your path to get started with Tux:
 
 ---
 
-## Why Tux?
+## Why Bot?
 
 ### Built for Linux Communities
 
-Tux combines powerful moderation tools with engaging features, all built
+Bot combines powerful moderation tools with engaging features, all built
 with modern Python and best practices.
 
 <div class="grid cards" markdown>
@@ -242,13 +242,13 @@ with modern Python and best practices.
 
     Star or watch the repository to stay updated with the latest changes.
 
-    [:octicons-arrow-right-24: View Repository](https://github.com/allthingslinux/tux){ .md-button .md-button--primary }
+    [:octicons-arrow-right-24: View Repository](https://github.com/awfixers-stuff/bot){ .md-button .md-button--primary }
 
 - :material-heart:{ .lg .middle } __Contribute__
 
     ---
 
-    Learn how to contribute to Tux and help us make it better, or report bugs and suggest features.
+    Learn how to contribute to Bot and help us make it better, or report bugs and suggest features.
 
     [:octicons-arrow-right-24: Contributing Guide](developer/contributing.md){ .md-button .md-button--primary }
 
@@ -262,18 +262,18 @@ with modern Python and best practices.
 
     Latest project activity and metrics.
 
-    [![Repository Metrics](https://repobeats.axiom.co/api/embed/e2782b71a13b2d36f5fcca1c90cd3ab014388ebf.svg)](https://github.com/allthingslinux/tux/pulse)
+    [![Repository Metrics](https://repobeats.axiom.co/api/embed/e2782b71a13b2d36f5fcca1c90cd3ab014388ebf.svg)](https://github.com/awfixers-stuff/bot/pulse)
 
 - ## Contributors
 
     Special thanks to our contributors!
 
-    [![Contributors](https://contrib.rocks/image?repo=allthingslinux/tux)](https://github.com/allthingslinux/tux/graphs/contributors)
+    [![Contributors](https://contrib.rocks/image?repo=awfixers-stuff/bot)](https://github.com/awfixers-stuff/bot/graphs/contributors)
 
 </div>
 
 ---
 
 <div style="text-align: center;">
-Made with ❤️ by the <a href="https://allthingslinux.org">All Things Linux</a> community
+Made with ❤️ by the <a href="https://github.com/awfixers-stuff/bot">AWFixer Enterprising Inc</a> community
 </div>

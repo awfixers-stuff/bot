@@ -18,8 +18,8 @@ from alembic.config import Config
 from alembic.script import ScriptDirectory
 from alembic.util.exc import CommandError
 
-from tux.core.setup.database_setup import DatabaseSetupService
-from tux.database.service import DatabaseService
+from bot.core.setup.database_setup import DatabaseSetupService
+from bot.database.service import DatabaseService
 
 pytestmark = pytest.mark.integration
 
@@ -62,7 +62,7 @@ class TestMigrationPathResolution:
         """Test that the versions directory exists and contains migrations."""
         project_root = Path(__file__).parent.parent.parent
         versions_dir = (
-            project_root / "src" / "tux" / "database" / "migrations" / "versions"
+            project_root / "src" / "bot" / "database" / "migrations" / "versions"
         )
 
         assert versions_dir.exists(), f"Versions directory not found: {versions_dir}"
@@ -86,7 +86,7 @@ class TestMigrationPathResolution:
 
         # Verify project root contains alembic.ini
         assert (project_root / "alembic.ini").exists()
-        assert (project_root / "src" / "tux" / "database" / "migrations").exists()
+        assert (project_root / "src" / "bot" / "database" / "migrations").exists()
 
     def test_alembic_config_builds_correctly(self) -> None:
         """Test that Alembic config is built with correct paths."""
@@ -145,7 +145,7 @@ class TestMigrationFileDiscovery:
         """Test that migration files are valid Python modules."""
         project_root = Path(__file__).parent.parent.parent
         versions_dir = (
-            project_root / "src" / "tux" / "database" / "migrations" / "versions"
+            project_root / "src" / "bot" / "database" / "migrations" / "versions"
         )
 
         # Get all migration files
@@ -222,7 +222,7 @@ class TestAlembicConfiguration:
 
         # Verify script_location matches expected pattern
         script_location = cfg.get_main_option("script_location")
-        assert script_location == "src/tux/database/migrations"
+        assert script_location == "src/bot/database/migrations"
 
         # Verify prepend_sys_path is set
         prepend_sys_path = cfg.get_main_option("prepend_sys_path")
@@ -230,7 +230,7 @@ class TestAlembicConfiguration:
 
         # Verify version_locations matches expected pattern
         version_locations = cfg.get_main_option("version_locations")
-        assert version_locations == "src/tux/database/migrations/versions"
+        assert version_locations == "src/bot/database/migrations/versions"
 
     def test_prepend_sys_path_enables_imports(self) -> None:
         """Test that prepend_sys_path allows importing models."""
@@ -249,4 +249,4 @@ class TestAlembicConfiguration:
 
         # Verify models can be imported from this path
         # (This is tested indirectly by migration generation working)
-        assert (prepend_path / "tux" / "database" / "models").exists()
+        assert (prepend_path / "bot" / "database" / "models").exists()

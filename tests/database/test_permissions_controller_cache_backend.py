@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from tux.database.controllers.permissions import PermissionRankController
-from tux.database.models.models import PermissionRank
+from bot.database.controllers.permissions import PermissionRankController
+from bot.database.models.models import PermissionRank
 
 pytestmark = pytest.mark.unit
 

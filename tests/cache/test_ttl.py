@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from tux.cache.ttl import TTLCache
+from bot.cache.ttl import TTLCache
 
 pytestmark = pytest.mark.unit
 

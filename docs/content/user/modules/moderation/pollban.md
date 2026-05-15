@@ -10,7 +10,7 @@ tags:
 
 # PollBan
 
-The `pollban` command (also available as `pb`) allows server moderators to restrict a member's ability to use Tux's poll creation features. This is useful for dealing with members who misuse the poll system for spam or inappropriate content.
+The `pollban` command (also available as `pb`) allows server moderators to restrict a member's ability to use Bot's poll creation features. This is useful for dealing with members who misuse the poll system for spam or inappropriate content.
 
 ## Syntax
 
@@ -48,7 +48,7 @@ This command supports the following flags:
 
 | Flag | Aliases | Type | Default | Description |
 |------|---------|------|---------|-------------|
-| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Tux will not attempt to DM the user. |
+| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Bot will not attempt to DM the user. |
 
 ### -silent
 
@@ -62,14 +62,14 @@ Whether to suppress the DM notification to the restricted user.
 
 ### Bot Permissions
 
-Tux requires no special Discord permissions for this command, as it is handled internally via its database.
+Bot requires no special Discord permissions for this command, as it is handled internally via its database.
 
 ### User Permissions
 
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 
@@ -89,7 +89,7 @@ $pollban @user Repeatedly creating joke polls in #serious-discussion
 
 ## Response Format
 
-When executed successfully, Tux will:
+When executed successfully, Bot will:
 
 1. Update its internal database to mark the user as poll-banned.
 2. Attempt to DM the user informing them they can no longer create polls (unless `-silent` is used).
@@ -105,7 +105,7 @@ The confirmation message includes the poll-banned user's name, the reason, and a
 
 #### Lacking Permission Rank
 
-**When it occurs:** Your internal Tux permission rank is lower than what's required to use this command.
+**When it occurs:** Your internal Bot permission rank is lower than what's required to use this command.
 
 **What happens:** The bot sends an error message indicating you don't have permission to use this command.
 

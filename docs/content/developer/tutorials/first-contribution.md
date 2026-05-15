@@ -1,6 +1,6 @@
 ---
 title: First Contribution
-description: How to make your first contribution to the Tux codebase
+description: How to make your first contribution to the Bot codebase
 tags:
   - developer-guide
   - tutorials

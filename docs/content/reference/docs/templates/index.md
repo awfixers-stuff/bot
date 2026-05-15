@@ -10,7 +10,7 @@ icon: lucide/layout-template
 
 # Documentation Templates
 
-This directory contains templates for documenting Tux's modules, commands, command groups, and features. These templates provide structured outlines to ensure consistency across all documentation.
+This directory contains templates for documenting Bot's modules, commands, command groups, and features. These templates provide structured outlines to ensure consistency across all documentation.
 
 ## Available Templates
 

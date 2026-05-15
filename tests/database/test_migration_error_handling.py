@@ -11,9 +11,9 @@ from unittest.mock import patch
 
 import pytest
 
-from tux.core.setup.database_setup import DatabaseSetupService
-from tux.database.service import DatabaseService
-from tux.shared.exceptions import TuxDatabaseConnectionError, TuxDatabaseMigrationError
+from bot.core.setup.database_setup import DatabaseSetupService
+from bot.database.service import DatabaseService
+from bot.shared.exceptions import BotDatabaseConnectionError, BotDatabaseMigrationError
 
 pytestmark = pytest.mark.integration
 
@@ -24,7 +24,7 @@ class TestMigrationErrorHandling:
     @pytest.mark.asyncio
     @pytest.mark.slow
     async def test_migration_timeout_raises_error(self) -> None:
-        """Test that migration timeout raises TuxDatabaseMigrationError.
+        """Test that migration timeout raises BotDatabaseMigrationError.
 
         This test intentionally sleeps for 35 seconds to verify timeout behavior,
         making it a slow test that should be excluded from fast test runs.
@@ -43,10 +43,10 @@ class TestMigrationErrorHandling:
                 time.sleep(35)  # Longer than 30s timeout
 
             with patch(
-                "tux.core.setup.database_setup.command.upgrade",
+                "bot.core.setup.database_setup.command.upgrade",
                 side_effect=slow_upgrade,
             ):
-                with pytest.raises(TuxDatabaseMigrationError) as exc_info:
+                with pytest.raises(BotDatabaseMigrationError) as exc_info:
                     await setup_service._upgrade_head_if_needed()
 
                 error_msg = str(exc_info.value).lower()
@@ -55,7 +55,7 @@ class TestMigrationErrorHandling:
 
     @pytest.mark.asyncio
     async def test_migration_failure_raises_error(self) -> None:
-        """Migration failures raise TuxDatabaseMigrationError with expected message."""
+        """Migration failures raise BotDatabaseMigrationError with expected message."""
         # Arrange
         db_service = DatabaseService()
         setup_service = DatabaseSetupService(db_service)
@@ -66,12 +66,12 @@ class TestMigrationErrorHandling:
                 return_value="current_rev",
             ),
             patch(
-                "tux.core.setup.database_setup.command.upgrade",
+                "bot.core.setup.database_setup.command.upgrade",
                 side_effect=Exception("Migration failed"),
             ),
         ):
             # Act & Assert
-            with pytest.raises(TuxDatabaseMigrationError) as exc_info:
+            with pytest.raises(BotDatabaseMigrationError) as exc_info:
                 await setup_service._upgrade_head_if_needed()
             assert "failed" in str(exc_info.value).lower()
             assert "migration" in str(exc_info.value).lower()
@@ -85,7 +85,7 @@ class TestMigrationErrorHandling:
         # Mock db_service to simulate connection failure
         with (
             patch.object(db_service, "is_connected", return_value=False),
-            pytest.raises(TuxDatabaseConnectionError),
+            pytest.raises(BotDatabaseConnectionError),
         ):
             await setup_service.setup()
 
@@ -103,11 +103,11 @@ class TestMigrationErrorHandling:
                 return_value="current_rev",
             ),
             patch(
-                "tux.core.setup.database_setup.command.upgrade",
+                "bot.core.setup.database_setup.command.upgrade",
                 side_effect=Exception("Migration failed"),
             ),
         ):
-            with pytest.raises(TuxDatabaseMigrationError) as exc_info:
+            with pytest.raises(BotDatabaseMigrationError) as exc_info:
                 await setup_service._upgrade_head_if_needed()
 
             error_msg = str(exc_info.value)

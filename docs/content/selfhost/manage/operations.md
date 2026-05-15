@@ -11,11 +11,11 @@ icon: lucide/activity
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-Monitor, maintain, and optimize your Tux installation.
+Monitor, maintain, and optimize your Bot installation.
 
 ## Monitoring
 
-Monitor Tux health and performance.
+Monitor Bot health and performance.
 
 ### Health Checks
 
@@ -23,20 +23,20 @@ Monitor Tux health and performance.
 
 ```bash
 # Check if running
-docker compose ps tux
+docker compose ps bot
 
 # Check health status
-docker inspect tux --format='{{.State.Health.Status}}'
+docker inspect bot --format='{{.State.Health.Status}}'
 ```
 
 #### Database Health
 
 ```bash
 # Via CLI
-docker compose exec tux uv run db health
+docker compose exec bot uv run db health
 
 # Direct check
-docker compose exec tux-postgres pg_isready -U tuxuser
+docker compose exec bot-postgres pg_isready -U botuser
 ```
 
 #### Discord Connection
@@ -49,7 +49,7 @@ Check bot shows online in Discord.
 
 ```bash
 # Docker stats
-docker stats tux tux-postgres
+docker stats bot bot-postgres
 
 # System resources
 htop
@@ -98,7 +98,7 @@ EXTERNAL_SERVICES__INFLUXDB_ORG=org
 
 ## Performance Optimization
 
-Optimize Tux for your server size.
+Optimize Bot for your server size.
 
 ### Database Optimization
 
@@ -130,7 +130,7 @@ deploy:
 
 ```bash
 # Resource usage
-docker stats tux
+docker stats bot
 
 # Database performance
 uv run db queries
@@ -151,32 +151,32 @@ Log management and configuration.
 
 ### Log Output
 
-Tux uses **Loguru** for structured logging.
+Bot uses **Loguru** for structured logging.
 
 #### Docker Compose
 
 ```bash
 # View logs
-docker compose logs -f tux
+docker compose logs -f bot
 
 # Last 100 lines
-docker compose logs --tail=100 tux
+docker compose logs --tail=100 bot
 
 # Since timestamp
-docker compose logs --since 2024-01-01T00:00:00 tux
+docker compose logs --since 2024-01-01T00:00:00 bot
 ```
 
 #### Systemd
 
 ```bash
 # Follow logs
-sudo journalctl -u tux -f
+sudo journalctl -u bot -f
 
 # Last hour
-sudo journalctl -u tux --since "1 hour ago"
+sudo journalctl -u bot --since "1 hour ago"
 
 # Search for errors
-sudo journalctl -u tux | grep ERROR
+sudo journalctl -u bot | grep ERROR
 ```
 
 ### Log Levels
@@ -212,7 +212,7 @@ logging:
 
 ## Updates
 
-Keep your Tux installation up to date with the latest features and security patches.
+Keep your Bot installation up to date with the latest features and security patches.
 
 ### Update Methods
 
@@ -233,16 +233,16 @@ docker compose --profile dev up -d --build
 
 ```bash
 # Pull latest image
-docker pull tux:latest
+docker pull bot:latest
 
 # Stop current container
-docker stop tux
+docker stop bot
 
 # Remove old container
-docker rm tux
+docker rm bot
 
 # Start new container
-docker run -d --name tux tux:latest
+docker run -d --name bot bot:latest
 ```
 
 #### Bare Metal Updates
@@ -251,13 +251,13 @@ docker run -d --name tux tux:latest
 
 ```bash
 # Stop the bot
-sudo systemctl stop tux
+sudo systemctl stop bot
 
 # Backup current installation
-cp -r /opt/tux /opt/tux.backup.$(date +%Y%m%d)
+cp -r /opt/bot /opt/bot.backup.$(date +%Y%m%d)
 
 # Pull latest changes
-cd /opt/tux
+cd /opt/bot
 git pull origin main
 
 # Update dependencies
@@ -267,35 +267,35 @@ uv sync
 uv run db push
 
 # Start the bot
-sudo systemctl start tux
+sudo systemctl start bot
 ```
 
 ##### Automated Update Script
 
 ```bash
 #!/bin/bash
-# update-tux.sh
+# update-bot.sh
 
 set -e
 
-echo "Stopping Tux..."
-sudo systemctl stop tux
+echo "Stopping Bot..."
+sudo systemctl stop bot
 
 echo "Backing up current installation..."
-sudo cp -r /opt/tux /opt/tux.backup.$(date +%Y%m%d)
+sudo cp -r /opt/bot /opt/bot.backup.$(date +%Y%m%d)
 
-echo "Updating Tux..."
-cd /opt/tux
-sudo -u tux git pull origin main
+echo "Updating Bot..."
+cd /opt/bot
+sudo -u bot git pull origin main
 
 echo "Updating dependencies..."
-sudo -u tux uv sync
+sudo -u bot uv sync
 
 echo "Running database migrations..."
-sudo -u tux uv run db push
+sudo -u bot uv run db push
 
-echo "Starting Tux..."
-sudo systemctl start tux
+echo "Starting Bot..."
+sudo systemctl start bot
 
 echo "Update complete!"
 ```
@@ -373,7 +373,7 @@ uv run db downgrade 20231201_001
 docker compose down
 
 # Restore previous image
-docker tag tux:previous tux:latest
+docker tag bot:previous bot:latest
 
 # Start with previous version (use --profile dev or --profile production)
 docker compose --profile production up -d
@@ -383,17 +383,17 @@ docker compose --profile production up -d
 
 ```bash
 # Stop bot
-sudo systemctl stop tux
+sudo systemctl stop bot
 
 # Restore backup
-sudo rm -rf /opt/tux
-sudo mv /opt/tux.backup.20231201 /opt/tux
+sudo rm -rf /opt/bot
+sudo mv /opt/bot.backup.20231201 /opt/bot
 
 # Restore database (if needed)
-sudo -u postgres psql tux < backup.sql
+sudo -u postgres psql bot < backup.sql
 
 # Start bot
-sudo systemctl start tux
+sudo systemctl start bot
 ```
 
 ### Update Monitoring
@@ -402,10 +402,10 @@ sudo systemctl start tux
 
 ```bash
 # Check bot status
-docker compose ps tux
+docker compose ps bot
 
 # Check logs
-docker compose logs --tail=100 tux
+docker compose logs --tail=100 bot
 
 # Test commands
 /ping
@@ -467,7 +467,7 @@ uv run db fix-sequences --dry-run
 
 ## Security
 
-Security considerations for your Tux installation.
+Security considerations for your Bot installation.
 
 *Security documentation in progress. Basic recommendations:*
 

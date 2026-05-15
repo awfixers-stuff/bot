@@ -1,6 +1,6 @@
 ---
 title: Sampling
-description: How Sentry sampling works in Tux and how to configure it
+description: How Sentry sampling works in Bot and how to configure it
 tags:
   - developer-guide
   - best-practices
@@ -10,7 +10,7 @@ icon: lucide/shield-check
 
 # Sampling
 
-Tux uses Sentry's sampling system to control the volume of events sent to Sentry while maintaining data quality. This guide explains how sampling works and how it's configured.
+Bot uses Sentry's sampling system to control the volume of events sent to Sentry while maintaining data quality. This guide explains how sampling works and how it's configured.
 
 ## Overview
 
@@ -20,7 +20,7 @@ Sampling helps balance:
 - **Performance** - Minimal overhead from tracing
 - **Volume** - Manageable number of events sent to Sentry
 
-Tux uses different sampling strategies for errors and transactions.
+Bot uses different sampling strategies for errors and transactions.
 
 ## Error Sampling
 
@@ -28,7 +28,7 @@ Tux uses different sampling strategies for errors and transactions.
 
 ### Current Configuration
 
-Tux doesn't configure `sample_rate` or `error_sampler`, which means:
+Bot doesn't configure `sample_rate` or `error_sampler`, which means:
 
 - All errors are captured and sent to Sentry
 - No error sampling is applied
@@ -45,7 +45,7 @@ Error sampling is useful when:
 
 ### Configuring Error Sampling
 
-If you need to sample errors, you can add configuration to `src/tux/services/sentry/config.py`:
+If you need to sample errors, you can add configuration to `src/bot/services/sentry/config.py`:
 
 ```python
 # Static sample rate (25% of errors)
@@ -59,7 +59,7 @@ def error_sampler(event: Event, hint: Hint) -> float:
     error_class = hint["exc_info"][0]
     
     # Sample critical errors at 100%
-    if error_class in [TuxDatabaseConnectionError, TuxCogLoadError]:
+    if error_class in [BotDatabaseConnectionError, BotCogLoadError]:
         return 1.0
     
     # Sample other errors at 50%
@@ -73,11 +73,11 @@ sentry_sdk.init(
 
 ## Transaction Sampling
 
-Tux uses a **dynamic sampling function** (`traces_sampler`) that samples different operation types at different rates.
+Bot uses a **dynamic sampling function** (`traces_sampler`) that samples different operation types at different rates.
 
 ### Current Sampling Rates
 
-Tux samples transactions based on operation type:
+Bot samples transactions based on operation type:
 
 | Operation Type | Sample Rate | Rationale |
 |---------------|-------------|-----------|
@@ -89,7 +89,7 @@ Tux samples transactions based on operation type:
 
 ### Parent Sampling Inheritance
 
-Tux's `traces_sampler` **always respects parent sampling decisions** to maintain distributed trace integrity:
+Bot's `traces_sampler` **always respects parent sampling decisions** to maintain distributed trace integrity:
 
 ```python
 def traces_sampler(sampling_context: dict[str, Any]) -> float:
@@ -123,7 +123,7 @@ The sampling function receives context about the transaction:
 When creating custom transactions, you can pass additional context for sampling:
 
 ```python
-from tux.services.sentry import start_transaction
+from bot.services.sentry import start_transaction
 
 with start_transaction(
     op="task",
@@ -139,7 +139,7 @@ with start_transaction(
 
 ## Adjusting Sampling Rates
 
-To adjust sampling rates, modify `src/tux/services/sentry/handlers.py`:
+To adjust sampling rates, modify `src/bot/services/sentry/handlers.py`:
 
 ```python
 def traces_sampler(sampling_context: dict[str, Any]) -> float:
@@ -189,7 +189,7 @@ When multiple sampling mechanisms could apply, Sentry uses this precedence:
 3. **Parent inheritance** - If no sampler but parent exists, inherit parent's decision
 4. **Static rate** - If `traces_sample_rate` is set, use that rate
 
-Tux uses option 2 (sampling function) which respects parent decisions.
+Bot uses option 2 (sampling function) which respects parent decisions.
 
 ## Monitoring Sampling
 

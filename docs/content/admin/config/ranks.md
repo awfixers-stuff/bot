@@ -9,7 +9,7 @@ icon: lucide/square-star
 
 # Ranks Configuration
 
-Permission ranks form the foundation of Tux's access control system. This guide covers how to set up and manage permission ranks for your Discord server.
+Permission ranks form the foundation of Bot's access control system. This guide covers how to set up and manage permission ranks for your Discord server.
 
 ## Overview
 

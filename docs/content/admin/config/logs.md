@@ -13,7 +13,7 @@ Configure logging channels for audit logs and moderation logs. These channels he
 
 ## Overview
 
-Tux supports multiple types of logging channels:
+Bot supports multiple types of logging channels:
 
 - **Audit Log** - Records all moderation actions (bans, kicks, timeouts, etc.)
 - **Moderation Log** - Detailed logs of moderation cases and actions

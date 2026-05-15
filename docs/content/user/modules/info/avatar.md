@@ -44,7 +44,7 @@ $avatar [member]
 
 ### Bot Permissions
 
-Tux requires the following permissions to execute this command:
+Bot requires the following permissions to execute this command:
 
 - **Embed Links** - To display the avatars neatly.
 - **Send Messages** - To deliver the files.

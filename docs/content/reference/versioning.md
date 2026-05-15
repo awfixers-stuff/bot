@@ -14,11 +14,11 @@ icon: lucide/arrow-up-1-0
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-This document outlines Tux's [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) implementation, version detection system, and release process.
+This document outlines Bot's [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) implementation, version detection system, and release process.
 
 ## Semantic Versioning
 
-Tux follows SemVer 2.0.0 with version format `MAJOR.MINOR.PATCH`:
+Bot follows SemVer 2.0.0 with version format `MAJOR.MINOR.PATCH`:
 
 - **MAJOR** (`X.y.z`): Breaking API changes (command syntax, config formats, plugin interfaces)
 - **MINOR** (`x.Y.z`): Backward-compatible additions (new commands, features, options)
@@ -31,7 +31,7 @@ Tux follows SemVer 2.0.0 with version format `MAJOR.MINOR.PATCH`:
 
 ## Version System
 
-Tux uses a unified version system (`src/tux/shared/version.py`) that provides:
+Bot uses a unified version system (`src/bot/shared/version.py`) that provides:
 
 - **Multi-source detection**: Environment variables, VERSION file, git tags with clear priority
 - **Full SemVer support**: Validation, comparison, and parsing using official regex patterns
@@ -43,7 +43,7 @@ Tux uses a unified version system (`src/tux/shared/version.py`) that provides:
 
 Version is determined dynamically at runtime (pyproject.toml uses placeholder `0.0.0`). Priority order:
 
-1. **`TUX_VERSION` env var**: Runtime override for testing/deployments
+1. **`BOT_VERSION` env var**: Runtime override for testing/deployments
 2. **`VERSION` file**: Docker containers and production builds
 3. **`git describe --tags --always`**: Development with git history (supports pre-releases)
 4. **`"dev"` fallback**: Ensures app always starts
@@ -53,7 +53,7 @@ Git tags automatically strip `v` prefix and handle pre-release versions (`v1.2.3
 ## API Reference
 
 ```python
-from tux.shared.version import (
+from bot.shared.version import (
     # Core functions
     get_version(),           # Get current detected version
     get_build_info(),        # Get build metadata
@@ -181,7 +181,7 @@ To build a versioned image, pass the `VERSION` argument:
 docker build \
   --build-arg VERSION=$(git describe --tags --always) \
   --target production \
-  -t your-registry/tux:latest .
+  -t your-registry/bot:latest .
 ```
 
 You can also tag the image with the specific version:
@@ -192,8 +192,8 @@ VERSION_TAG=$(git describe --tags --always)
 docker build \
   --build-arg VERSION=$VERSION_TAG \
   --target production \
-  -t your-registry/tux:$VERSION_TAG \
-  -t your-registry/tux:latest .
+  -t your-registry/bot:$VERSION_TAG \
+  -t your-registry/bot:latest .
 ```
 
 **Note**: The version system automatically handles the `v` prefix from git tags (e.g., `v1.2.3` becomes `1.2.3`) to ensure clean, semver-compatible version strings.
@@ -232,7 +232,7 @@ uv run pytest tests/shared/test_version_system.py -v
 1. **Version shows as "dev"**:
    - Check if you're in a git repository
    - Verify the VERSION file exists and contains a valid version
-   - Ensure TUX_VERSION environment variable is not set to an empty value
+   - Ensure BOT_VERSION environment variable is not set to an empty value
 
 2. **Git describe fails**:
    - Ensure you have at least one git tag
@@ -249,7 +249,7 @@ uv run pytest tests/shared/test_version_system.py -v
 You can debug version detection by checking the version system directly:
 
 ```python
-from tux.shared.version import VersionManager
+from bot.shared.version import VersionManager
 
 manager = VersionManager()
 print(f"Detected version: {manager.get_version()}")

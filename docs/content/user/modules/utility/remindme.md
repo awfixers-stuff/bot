@@ -77,7 +77,7 @@ Set a reminder for next week.
 
 When you set a reminder, the bot confirms with an embed titled **"Reminder Set"** with a description using Discord's timestamp format: `Reminder set for <t:TIMESTAMP:f>.` This shows exactly when your reminder will trigger.
 
-When the time expires, Tux sends you a **Direct Message** containing an embed with the title **"Reminder"** and a description containing only your reminder text (no timestamp or original message reference).
+When the time expires, Bot sends you a **Direct Message** containing an embed with the title **"Reminder"** and a description containing only your reminder text (no timestamp or original message reference).
 
 ## Error Handling
 

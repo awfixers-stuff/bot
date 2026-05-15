@@ -22,7 +22,8 @@ env:
 jobs:
   changes:
     name: File Detection
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    if: github.repository == 'awfixers-stuff/bot'
     permissions:
       contents: read
     outputs:
@@ -88,9 +89,9 @@ jobs:
             .github/**
   quality:
     name: Python
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: [changes]
-    if: needs.changes.outputs.python == 'true' || github.event_name == 'workflow_dispatch'
+    if: github.repository == 'awfixers-stuff/bot' && (needs.changes.outputs.python == 'true' || github.event_name == 'workflow_dispatch')
     permissions:
       contents: read
       pull-requests: write
@@ -139,9 +140,9 @@ jobs:
         run: uv cache prune --ci
   markdown:
     name: Markdown
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: [changes]
-    if: needs.changes.outputs.markdown == 'true'
+    if: github.repository == 'awfixers-stuff/bot' && needs.changes.outputs.markdown == 'true'
     permissions:
       contents: read
       pull-requests: write
@@ -159,9 +160,9 @@ jobs:
           markdownlint_flags: -c .markdownlint.yaml
   shell:
     name: Shell
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: [changes]
-    if: needs.changes.outputs.shell == 'true'
+    if: github.repository == 'awfixers-stuff/bot' && needs.changes.outputs.shell == 'true'
     permissions:
       contents: read
       pull-requests: write
@@ -185,9 +186,9 @@ jobs:
           shfmt_flags: -ln bash -i 2 -ci -bn -sr -kp -w -s
   workflows:
     name: Workflows
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: [changes]
-    if: needs.changes.outputs.workflows == 'true'
+    if: github.repository == 'awfixers-stuff/bot' && needs.changes.outputs.workflows == 'true'
     permissions:
       contents: read
       pull-requests: write
@@ -204,9 +205,9 @@ jobs:
           fail_level: ${{ env.REVIEWDOG_FAIL_LEVEL }}
   docker:
     name: Docker
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: [changes]
-    if: needs.changes.outputs.docker == 'true'
+    if: github.repository == 'awfixers-stuff/bot' && needs.changes.outputs.docker == 'true'
     permissions:
       contents: read
       pull-requests: write
@@ -225,9 +226,9 @@ jobs:
           include: Containerfile
   yaml:
     name: YAML
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: [changes]
-    if: needs.changes.outputs.yaml == 'true'
+    if: github.repository == 'awfixers-stuff/bot' && needs.changes.outputs.yaml == 'true'
     permissions:
       contents: read
       pull-requests: write
@@ -244,9 +245,9 @@ jobs:
           fail_level: ${{ env.REVIEWDOG_FAIL_LEVEL }}
   security:
     name: Security
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: [changes]
-    if: always()
+    if: github.repository == 'awfixers-stuff/bot' && always()
     permissions:
       contents: read
       pull-requests: write

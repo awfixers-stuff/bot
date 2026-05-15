@@ -8,19 +8,19 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from tux.core.bot import Tux
-from tux.core.permission_system import RESTRICTED_COMMANDS, PermissionSystem
-from tux.database.controllers import DatabaseCoordinator
-from tux.database.models import PermissionCommand
+from bot.core.bot import Bot
+from bot.core.permission_system import RESTRICTED_COMMANDS, PermissionSystem
+from bot.database.controllers import DatabaseCoordinator
+from bot.database.models import PermissionCommand
 
 
 class TestRestrictedCommands:
     """Restricted commands constant and permission-system behavior."""
 
     @pytest.fixture
-    def mock_bot(self) -> Tux:
+    def mock_bot(self) -> Bot:
         """Create a mock bot instance."""
-        return MagicMock(spec=Tux)
+        return MagicMock(spec=Bot)
 
     @pytest.fixture
     def mock_db_coordinator(self) -> MagicMock:
@@ -33,7 +33,7 @@ class TestRestrictedCommands:
     @pytest.fixture
     def permission_system(
         self,
-        mock_bot: Tux,
+        mock_bot: Bot,
         mock_db_coordinator: MagicMock,
     ) -> PermissionSystem:
         """Create a PermissionSystem instance for testing."""
@@ -153,7 +153,7 @@ class TestRestrictedCommands:
 
         # Act
         with patch(
-            "tux.core.permission_system.logger",
+            "bot.core.permission_system.logger",
             autospec=True,
         ) as mock_logger:
             await permission_system.load_from_config(guild_id, config)

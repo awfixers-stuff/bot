@@ -10,22 +10,22 @@ import discord
 import pytest
 from discord.ext import commands
 
-from tux.core.bot import Tux
-from tux.modules.moderation.purge import Purge
+from bot.core.bot import Bot
+from bot.modules.moderation.purge import Purge
 
 pytestmark = pytest.mark.asyncio
 
 
 @pytest.fixture
-def mock_bot() -> Tux:
-    """Return a mock Tux bot with emoji_manager stubbed."""
-    bot = MagicMock(spec=Tux)
+def mock_bot() -> Bot:
+    """Return a mock Bot bot with emoji_manager stubbed."""
+    bot = MagicMock(spec=Bot)
     bot.emoji_manager = MagicMock()
     return bot
 
 
 @pytest.fixture
-def purge_cog(mock_bot: Tux) -> Purge:
+def purge_cog(mock_bot: Bot) -> Purge:
     """Return a Purge cog with a mocked database coordinator."""
     cog = Purge(mock_bot)
     cog._db_coordinator = MagicMock()
@@ -35,7 +35,7 @@ def purge_cog(mock_bot: Tux) -> Purge:
 
 
 @pytest.fixture
-def mock_ctx(mock_bot: Tux) -> commands.Context[Tux]:
+def mock_ctx(mock_bot: Bot) -> commands.Context[Bot]:
     """Return a mock command context in a text channel."""
     ctx = MagicMock(spec=commands.Context)
     ctx.bot = mock_bot
@@ -56,7 +56,7 @@ class TestPurgeLimitValidation:
     async def test_zero_messages_rejected(
         self,
         purge_cog: Purge,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """Purging 0 messages should be rejected."""
         await purge_cog.prefix_purge(mock_ctx, 0)
@@ -67,7 +67,7 @@ class TestPurgeLimitValidation:
     async def test_negative_limit_rejected(
         self,
         purge_cog: Purge,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """Purging negative messages should be rejected."""
         await purge_cog.prefix_purge(mock_ctx, -5)
@@ -78,7 +78,7 @@ class TestPurgeLimitValidation:
     async def test_over_500_rejected(
         self,
         purge_cog: Purge,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """Purging more than 500 messages should be rejected."""
         await purge_cog.prefix_purge(mock_ctx, 501)
@@ -89,7 +89,7 @@ class TestPurgeLimitValidation:
     async def test_valid_limit_proceeds(
         self,
         purge_cog: Purge,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """A valid limit (1-500) should attempt the purge."""
         mock_ctx.channel.purge = AsyncMock(return_value=[MagicMock()] * 10)
@@ -106,7 +106,7 @@ class TestPurgeChannelHandling:
     async def test_defaults_to_current_channel(
         self,
         purge_cog: Purge,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """When no channel specified, purge should use the current channel."""
         mock_ctx.channel.purge = AsyncMock(return_value=[MagicMock()] * 5)
@@ -118,7 +118,7 @@ class TestPurgeChannelHandling:
     async def test_explicit_channel_used(
         self,
         purge_cog: Purge,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """When a channel is specified, purge should target that channel."""
         target_channel = MagicMock(spec=discord.TextChannel)
@@ -133,7 +133,7 @@ class TestPurgeChannelHandling:
     async def test_invalid_channel_type_rejected(
         self,
         purge_cog: Purge,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """Purge in a DM or non-text channel should be rejected."""
         mock_ctx.channel = MagicMock(spec=discord.DMChannel)
@@ -150,7 +150,7 @@ class TestPurgeErrorHandling:
     async def test_forbidden_shows_permission_error(
         self,
         purge_cog: Purge,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """When bot lacks permissions, user should get a clear error."""
         mock_ctx.channel.purge = AsyncMock(
@@ -165,7 +165,7 @@ class TestPurgeErrorHandling:
     async def test_http_error_shows_error_message(
         self,
         purge_cog: Purge,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """HTTP errors from Discord should be reported to the user."""
         mock_ctx.channel.purge = AsyncMock(
@@ -180,7 +180,7 @@ class TestPurgeErrorHandling:
     async def test_partial_purge_reports_count(
         self,
         purge_cog: Purge,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """When fewer messages deleted than requested (14-day limit), user should be told."""
         # Request 50 but only 20 were young enough to delete

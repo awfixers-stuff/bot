@@ -15,13 +15,13 @@ icon: lucide/database
 
 ## Overview
 
-Tux uses SQLModel for type-safe database models that combine SQLAlchemy and Pydantic. All models inherit from a custom BaseModel class providing automatic timestamp management, serialization utilities, and PostgreSQL-specific features.
+Bot uses SQLModel for type-safe database models that combine SQLAlchemy and Pydantic. All models inherit from a custom BaseModel class providing automatic timestamp management, serialization utilities, and PostgreSQL-specific features.
 
 Models serve as the data contract between application and database, providing type safety, automatic serialization, relationship management, and schema generation.
 
 ## BaseModel Foundation
 
-All Tux models inherit from BaseModel for consistent behavior across the application.
+All Bot models inherit from BaseModel for consistent behavior across the application.
 
 ### BaseModel Features
 
@@ -32,7 +32,7 @@ All Tux models inherit from BaseModel for consistent behavior across the applica
 
 ### Mixin Patterns
 
-Tux provides reusable mixins for common model patterns:
+Bot provides reusable mixins for common model patterns:
 
 - **TimestampMixin**: Automatic created_at/updated_at with database defaults
 - **UUIDMixin**: For records needing UUID primary keys (API keys, tokens)

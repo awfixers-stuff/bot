@@ -8,6 +8,8 @@ import asyncio
 
 from typer import Exit
 
+from bot.database.service import DatabaseService
+from bot.shared.config import CONFIG
 from scripts.core import create_app
 from scripts.ui import (
     create_status,
@@ -16,8 +18,6 @@ from scripts.ui import (
     print_success,
     rich_print,
 )
-from tux.database.service import DatabaseService
-from tux.shared.config import CONFIG
 
 app = create_app()
 

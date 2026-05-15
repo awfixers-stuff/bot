@@ -1,6 +1,6 @@
 ---
 title: Debugging Best Practices
-description: Debugging best practices for Tux development, including logging, interactive debugging, testing, and common debugging scenarios.
+description: Debugging best practices for Bot development, including logging, interactive debugging, testing, and common debugging scenarios.
 tags:
   - developer-guide
   - best-practices
@@ -21,11 +21,11 @@ Enable debug mode for enhanced logging and error information:
 
 ```bash
 # Start bot with debug mode
-uv run tux start --debug
+uv run bot start --debug
 
 # Or set in environment
 export DEBUG=1
-uv run tux start
+uv run bot start
 ```
 
 Debug mode provides:
@@ -70,7 +70,7 @@ logger.critical("System failures", database_status="disconnected")
 ### Structured Debugging Logs
 
 ```python
-from tux.core.logging import StructuredLogger
+from bot.core.logging import StructuredLogger
 
 # Log performance with context
 StructuredLogger.performance(
@@ -222,7 +222,7 @@ def test_api_call_with_debug():
 ```python
 # Debug SQL queries
 from sqlalchemy import text
-from tux.core.logging import logger
+from bot.core.logging import logger
 
 async def debug_query():
     """Debug database queries with detailed logging."""
@@ -289,7 +289,7 @@ async def debug_async_flow():
 ```python
 # Debug Discord API interactions
 @commands.hybrid_command(name="debug_user")
-async def debug_user_command(self, ctx: commands.Context[Tux], user: discord.User):
+async def debug_user_command(self, ctx: commands.Context[Bot], user: discord.User):
     """Debug command for user-related issues."""
 
     logger.info("Debugging user command",
@@ -412,40 +412,40 @@ async def debug_async_performance():
 docker compose logs
 
 # Execute commands in running container
-docker exec -it tux /bin/bash
+docker exec -it bot /bin/bash
 
 # Debug with full environment
-docker run --rm -it --entrypoint /bin/bash tux:latest
+docker run --rm -it --entrypoint /bin/bash bot:latest
 
 # View container resource usage
-docker stats tux
+docker stats bot
 ```
 
 ### Debug Database in Docker
 
 ```bash
 # Connect to database container
-docker exec -it tux-postgres psql -U tux -d tux
+docker exec -it bot-postgres psql -U bot -d bot
 
 # View database logs
-docker logs tux-postgres
+docker logs bot-postgres
 
 # Debug slow queries
-docker exec tux-postgres psql -U tux -d tux -c "SELECT * FROM pg_stat_activity;"
+docker exec bot-postgres psql -U bot -d bot -c "SELECT * FROM pg_stat_activity;"
 ```
 
 ### Network Debugging
 
 ```bash
 # Test connectivity between containers
-docker exec tux ping tux-postgres
+docker exec bot ping bot-postgres
 
 # Debug network issues
 docker network ls
-docker network inspect tux_network
+docker network inspect bot_network
 
 # Test external API calls
-docker exec tux curl -v https://api.github.com/user
+docker exec bot curl -v https://api.github.com/user
 ```
 
 ## Hot Reload Debugging
@@ -454,7 +454,7 @@ docker exec tux curl -v https://api.github.com/user
 
 ```python
 # Enable hot reload debugging
-from tux.services.hot_reload import HotReloadService
+from bot.services.hot_reload import HotReloadService
 
 # Log hot reload events
 logger.debug("Hot reload triggered", files_changed=changed_files)
@@ -493,7 +493,7 @@ class DebugFileHandler(FileSystemEventHandler):
 
 ```python
 @commands.hybrid_command(name="debug_command")
-async def debug_command(self, ctx: commands.Context[Tux]):
+async def debug_command(self, ctx: commands.Context[Bot]):
     """Debug command execution context."""
 
     # Log command context
@@ -544,7 +544,7 @@ async def on_message(self, message: discord.Message):
 ```python
 # Debug Discord rate limits
 @commands.Cog.listener()
-async def on_command_error(self, ctx: commands.Context[Tux], error):
+async def on_command_error(self, ctx: commands.Context[Bot], error):
     """Debug command errors including rate limits."""
 
     if isinstance(error, commands.CommandOnCooldown):
@@ -569,7 +569,7 @@ async def on_command_error(self, ctx: commands.Context[Tux], error):
 
 ## Development Commands
 
-Tux includes development commands for debugging:
+Bot includes development commands for debugging:
 
 ```bash
 # Reload cogs without restarting

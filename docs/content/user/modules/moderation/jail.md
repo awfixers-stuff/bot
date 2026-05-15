@@ -10,7 +10,7 @@ tags:
 
 # Jail
 
-The `jail` command is a powerful moderation tool that isolates a member from the rest of the server. When applied, Tux removes the member's existing roles (storing them for later restoration) and assigns a specialized "Jail" role.
+The `jail` command is a powerful moderation tool that isolates a member from the rest of the server. When applied, Bot removes the member's existing roles (storing them for later restoration) and assigns a specialized "Jail" role.
 
 Typically, the Jail role is configured to deny access to all server channels except for a designated "jail" channel where the member can communicate with moderators to resolve the issue.
 
@@ -50,7 +50,7 @@ This command supports the following flags:
 
 | Flag | Aliases | Type | Default | Description |
 |------|---------|------|---------|-------------|
-| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Tux will not attempt to DM the user. |
+| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Bot will not attempt to DM the user. |
 
 ### -silent
 
@@ -64,7 +64,7 @@ Whether to suppress the DM notification to the jailed user.
 
 ### Bot Permissions
 
-Tux requires the following permissions:
+Bot requires the following permissions:
 
 - **Manage Roles** - Required to remove existing roles and add the jail role.
 
@@ -73,7 +73,7 @@ Tux requires the following permissions:
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Configuration
 
@@ -103,7 +103,7 @@ $jail @user Inappropriate behavior in voice chat
 
 ## Response Format
 
-When executed successfully, Tux will:
+When executed successfully, Bot will:
 
 1. Fetch and store the member's current manageable roles.
 2. Add the designated Jail role to the member.
@@ -117,7 +117,7 @@ The confirmation message includes the jailed user's name, the reason, and a link
 
 ### Re-jail on rejoin
 
-If a jailed member leaves the server and rejoins before being unjailed, Tux automatically re-applies the jail (adds the Jail role and strips any roles they gained on rejoin). No new case is created and no DM is sent. Use `/unjail` when you are ready to release them.
+If a jailed member leaves the server and rejoins before being unjailed, Bot automatically re-applies the jail (adds the Jail role and strips any roles they gained on rejoin). No new case is created and no DM is sent. Use `/unjail` when you are ready to release them.
 
 ## Error Handling
 
@@ -125,19 +125,19 @@ If a jailed member leaves the server and rejoins before being unjailed, Tux auto
 
 #### Missing Permissions / Higher Role
 
-**When it occurs:** Tux lacks the "Manage Roles" permission, or the target user's highest role is equal to or higher than Tux's highest role.
+**When it occurs:** Bot lacks the "Manage Roles" permission, or the target user's highest role is equal to or higher than Bot's highest role.
 
 **What happens:** The bot sends an error message indicating insufficient permissions.
 
 **Solutions:**
 
-- Ensure Tux has the "Manage Roles" permission
-- Move the "Tux" role above the target's role in the server hierarchy
-- Check that Tux's role has the necessary permissions in the server settings
+- Ensure Bot has the "Manage Roles" permission
+- Move the "Bot" role above the target's role in the server hierarchy
+- Check that Bot's role has the necessary permissions in the server settings
 
 #### Lacking Permission Rank
 
-**When it occurs:** Your internal Tux permission rank is lower than the rank required to use this command.
+**When it occurs:** Your internal Bot permission rank is lower than the rank required to use this command.
 
 **What happens:** The bot sends an error message indicating you don't have permission to use this command.
 
@@ -150,7 +150,7 @@ If a jailed member leaves the server and rejoins before being unjailed, Tux auto
 
 **When it occurs:** The guild has not set a jail role or jail channel (use `/config jail`).
 
-**Solution:** Ask a server administrator to configure these settings via Tux's configuration module.
+**Solution:** Ask a server administrator to configure these settings via Bot's configuration module.
 
 #### Member Already Jailed
 

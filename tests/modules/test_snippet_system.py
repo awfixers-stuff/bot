@@ -10,12 +10,12 @@ import discord
 import pytest
 from discord.ext import commands
 
-from tux.core.bot import Tux
-from tux.database.controllers import DatabaseCoordinator
-from tux.database.models import CaseType, Guild
-from tux.database.service import DatabaseService
-from tux.modules.snippets import SnippetsBaseCog
-from tux.modules.snippets.create_snippet import CreateSnippet
+from bot.core.bot import Bot
+from bot.database.controllers import DatabaseCoordinator
+from bot.database.models import CaseType
+from bot.database.service import DatabaseService
+from bot.modules.snippets import SnippetsBaseCog
+from bot.modules.snippets.create_snippet import CreateSnippet
 
 pytestmark = [pytest.mark.asyncio, pytest.mark.integration, pytest.mark.database]
 
@@ -25,16 +25,16 @@ TEST_MOD_ID = 300000
 
 
 @pytest.fixture
-def mock_bot() -> Tux:
-    """Return a mock Tux bot with emoji_manager stubbed."""
-    bot = MagicMock(spec=Tux)
+def mock_bot() -> Bot:
+    """Return a mock Bot bot with emoji_manager stubbed."""
+    bot = MagicMock(spec=Bot)
     bot.emoji_manager = MagicMock()
     bot.emoji_manager.get = lambda x: f":{x}:"
     return bot
 
 
 @pytest.fixture
-def mock_ctx(mock_bot: Tux) -> commands.Context[Tux]:
+def mock_ctx(mock_bot: Bot) -> commands.Context[Bot]:
     """Return a mock command context in a guild with a test user."""
     ctx = MagicMock(spec=commands.Context)
     ctx.bot = mock_bot
@@ -59,25 +59,17 @@ class TestSnippetPermissionChecks:
     """Test that snippet permission logic enforces real-world access rules."""
 
     @pytest.fixture
-    async def cog(self, mock_bot: Tux, db_service: DatabaseService) -> SnippetsBaseCog:
+    async def cog(self, mock_bot: Bot, db_service: DatabaseService) -> SnippetsBaseCog:
         """Build a snippets cog wired to the test database."""
         cog = SnippetsBaseCog(mock_bot)
         coordinator = DatabaseCoordinator(db_service)
         mock_bot.db = coordinator
         return cog
 
-    @pytest.fixture
-    async def seed_guild(self, db_service: DatabaseService) -> None:
-        """Insert a minimal guild row for FK-backed operations."""
-        async with db_service.session() as session:
-            session.add(Guild(id=TEST_GUILD_ID, case_count=0))
-            await session.commit()
-
-    @pytest.mark.usefixtures("seed_guild")
     async def test_snippet_banned_user_cannot_create(
         self,
         cog: SnippetsBaseCog,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         db_service: DatabaseService,
     ) -> None:
         """A user who has been snippet-banned should be denied snippet operations."""
@@ -103,11 +95,10 @@ class TestSnippetPermissionChecks:
         assert allowed is False
         assert "banned" in reason.lower()
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_snippet_unbanned_user_can_create(
         self,
         cog: SnippetsBaseCog,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         db_service: DatabaseService,
     ) -> None:
         """A user who was banned then unbanned should be allowed again."""
@@ -142,7 +133,7 @@ class TestSnippetPermissionChecks:
     async def test_non_owner_cannot_edit_others_snippet(
         self,
         cog: SnippetsBaseCog,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """A regular user should not be able to edit someone else's snippet."""
         other_user_id = 999999
@@ -173,7 +164,7 @@ class TestSnippetPermissionChecks:
     async def test_mod_can_edit_others_snippet(
         self,
         cog: SnippetsBaseCog,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """A moderator should be able to edit any snippet via mod override."""
         other_user_id = 999999
@@ -196,7 +187,7 @@ class TestSnippetPermissionChecks:
     async def test_locked_snippet_cannot_be_edited(
         self,
         cog: SnippetsBaseCog,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """A locked snippet should not be editable by its owner."""
         with (
@@ -225,7 +216,7 @@ class TestSnippetPermissionChecks:
     async def test_mod_can_edit_locked_snippet(
         self,
         cog: SnippetsBaseCog,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """A moderator should bypass the lock."""
         with patch.object(
@@ -247,7 +238,7 @@ class TestSnippetCreation:
     """Test snippet creation workflows against a real database."""
 
     @pytest.fixture
-    async def cog(self, mock_bot: Tux, db_service: DatabaseService) -> CreateSnippet:
+    async def cog(self, mock_bot: Bot, db_service: DatabaseService) -> CreateSnippet:
         """Build a create-snippet cog wired to the test database."""
         cog = CreateSnippet(mock_bot)
         coordinator = DatabaseCoordinator(db_service)
@@ -255,18 +246,10 @@ class TestSnippetCreation:
         cog.create_snippet.cog = cog
         return cog
 
-    @pytest.fixture
-    async def seed_guild(self, db_service: DatabaseService) -> None:
-        """Insert a minimal guild row for FK-backed operations."""
-        async with db_service.session() as session:
-            session.add(Guild(id=TEST_GUILD_ID, case_count=0))
-            await session.commit()
-
-    @pytest.mark.usefixtures("seed_guild")
     async def test_create_snippet_stores_in_database(
         self,
         cog: CreateSnippet,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         db_service: DatabaseService,
     ) -> None:
         """Creating a snippet should persist it in the database with correct fields."""
@@ -289,11 +272,10 @@ class TestSnippetCreation:
         assert snippet.snippet_user_id == TEST_USER_ID
         assert snippet.guild_id == TEST_GUILD_ID
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_create_duplicate_name_rejected(
         self,
         cog: CreateSnippet,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         db_service: DatabaseService,
     ) -> None:
         """Creating a snippet with an existing name should fail."""
@@ -317,11 +299,10 @@ class TestSnippetCreation:
         assert snippet is not None
         assert snippet.snippet_content == "First"
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_create_snippet_invalid_name_rejected(
         self,
         cog: CreateSnippet,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """Snippet names with special characters should be rejected."""
         with patch.object(
@@ -339,11 +320,10 @@ class TestSnippetCreation:
         )
         assert snippet is None
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_create_alias_when_content_matches_existing_snippet(
         self,
         cog: CreateSnippet,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
         db_service: DatabaseService,
     ) -> None:
         """When content matches an existing snippet name, an alias should be created."""
@@ -372,11 +352,10 @@ class TestSnippetCreation:
         assert alias is not None
         assert alias.alias == "original"
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_banned_user_cannot_create_snippet(
         self,
         cog: CreateSnippet,
-        mock_ctx: commands.Context[Tux],
+        mock_ctx: commands.Context[Bot],
     ) -> None:
         """A snippet-banned user's create attempt should be rejected before hitting the DB."""
         with patch.object(
@@ -398,21 +377,13 @@ class TestSnippetAliasResolution:
     """Test that alias chains resolve correctly."""
 
     @pytest.fixture
-    async def cog(self, mock_bot: Tux, db_service: DatabaseService) -> SnippetsBaseCog:
+    async def cog(self, mock_bot: Bot, db_service: DatabaseService) -> SnippetsBaseCog:
         """Build a snippets cog wired to the test database."""
         cog = SnippetsBaseCog(mock_bot)
         coordinator = DatabaseCoordinator(db_service)
         mock_bot.db = coordinator
         return cog
 
-    @pytest.fixture
-    async def seed_guild(self, db_service: DatabaseService) -> None:
-        """Insert a minimal guild row for FK-backed operations."""
-        async with db_service.session() as session:
-            session.add(Guild(id=TEST_GUILD_ID, case_count=0))
-            await session.commit()
-
-    @pytest.mark.usefixtures("seed_guild")
     async def test_alias_resolves_to_target(
         self,
         cog: SnippetsBaseCog,
@@ -442,7 +413,6 @@ class TestSnippetAliasResolution:
         assert resolved is not None
         assert resolved.snippet_content == "Real content"
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_broken_alias_returns_none(
         self,
         cog: SnippetsBaseCog,
@@ -479,7 +449,6 @@ class TestSnippetAliasResolution:
         assert is_alias is True
         assert resolved is None
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_non_alias_resolves_to_self(
         self,
         cog: SnippetsBaseCog,

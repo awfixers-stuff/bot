@@ -1,5 +1,5 @@
 """
-Tests for Config (tux.shared.config.settings) helpers and behavior.
+Tests for Config (bot.shared.config.settings) helpers and behavior.
 
 Uses init overrides to avoid depending on project .env/config.json.
 Sets POSTGRES_PASSWORD to a safe value so validate_environment does not raise.
@@ -11,20 +11,20 @@ from unittest.mock import patch
 
 import pytest
 
-from tux.shared.config.models import BotInfo, ExternalServices
+from bot.shared.config.models import BotInfo, ExternalServices
 
 pytestmark = pytest.mark.unit
 
 
 @pytest.fixture(autouse=True)
 def _safe_env_for_config(monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[reportUnusedFunction]
-    """Ensure POSTGRES_PASSWORD is safe and TUX_VERSION unset for deterministic config."""
+    """Ensure POSTGRES_PASSWORD is safe and BOT_VERSION unset for deterministic config."""
     monkeypatch.setenv("POSTGRES_PASSWORD", "ChangeThisToAStrongPassword123!")
-    monkeypatch.delenv("TUX_VERSION", raising=False)
+    monkeypatch.delenv("BOT_VERSION", raising=False)
 
 
 def _config(**kwargs: Any) -> Any:
-    from tux.shared.config.settings import Config  # noqa: PLC0415
+    from bot.shared.config.settings import Config  # noqa: PLC0415
 
     defaults: dict[str, Any] = {
         "BOT_TOKEN": "test-token",

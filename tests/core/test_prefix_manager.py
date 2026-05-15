@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from tux.core.prefix_manager import PrefixManager
+from bot.core.prefix_manager import PrefixManager
 
 pytestmark = pytest.mark.unit
 
@@ -25,7 +25,7 @@ def mock_bot() -> MagicMock:
 @pytest.fixture
 def prefix_manager(mock_bot: MagicMock) -> Generator[PrefixManager]:
     """PrefixManager with mocked bot; CONFIG patch stays active for full test."""
-    with patch("tux.core.prefix_manager.CONFIG") as mock_config:
+    with patch("bot.core.prefix_manager.CONFIG") as mock_config:
         mock_config.get_prefix.return_value = "!"
         mock_config.is_prefix_override_enabled.return_value = False
         yield PrefixManager(mock_bot)
@@ -40,7 +40,7 @@ async def test_get_prefix_returns_from_backend_when_cached(
     mock_backend = MagicMock()
     mock_backend.get = AsyncMock(return_value="?")
     with patch(
-        "tux.core.prefix_manager.get_cache_backend",
+        "bot.core.prefix_manager.get_cache_backend",
         return_value=mock_backend,
     ):
         result = await prefix_manager.get_prefix(TEST_GUILD_ID)
@@ -56,7 +56,7 @@ async def test_get_prefix_returns_from_sync_cache_on_hit(
     """get_prefix returns from _prefix_cache when key already in cache (no backend call)."""
     prefix_manager._prefix_cache[TEST_GUILD_ID] = "."
     with patch(
-        "tux.core.prefix_manager.get_cache_backend",
+        "bot.core.prefix_manager.get_cache_backend",
         side_effect=AssertionError("Backend should not be called on cache hit"),
     ):
         result = await prefix_manager.get_prefix(TEST_GUILD_ID)
@@ -73,7 +73,7 @@ async def test_set_prefix_writes_to_backend(
     mock_backend.set = AsyncMock()
     with (
         patch(
-            "tux.core.prefix_manager.get_cache_backend",
+            "bot.core.prefix_manager.get_cache_backend",
             return_value=mock_backend,
         ),
         patch.object(

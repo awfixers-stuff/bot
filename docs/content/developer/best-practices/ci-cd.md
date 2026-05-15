@@ -1,6 +1,6 @@
 ---
 title: CI/CD Best Practices
-description: CI/CD best practices for Tux development, including pipeline architecture, change detection strategy, and quality assurance.
+description: CI/CD best practices for Bot development, including pipeline architecture, change detection strategy, and quality assurance.
 tags:
   - developer-guide
   - best-practices
@@ -15,7 +15,7 @@ icon: lucide/infinity
 
 ## Overview
 
-Tux uses GitHub Actions for a comprehensive CI/CD pipeline that ensures code quality, security, and reliable deployments. The pipeline includes:
+Bot uses GitHub Actions for a comprehensive CI/CD pipeline that ensures code quality, security, and reliable deployments. The pipeline includes:
 
 - **Quality Gates**: Linting, type checking, formatting
 - **Testing**: Unit, integration, and end-to-end tests with coverage
@@ -28,7 +28,7 @@ Tux uses GitHub Actions for a comprehensive CI/CD pipeline that ensures code qua
 
 ### Change Detection Strategy
 
-Tux uses intelligent change detection to run only necessary jobs, reducing CI time and costs:
+Bot uses intelligent change detection to run only necessary jobs, reducing CI time and costs:
 
 ```yaml
 # File-based job triggering
@@ -64,7 +64,7 @@ concurrency:
 
 ### Code Quality Checks
 
-Tux runs comprehensive quality checks using multiple tools:
+Bot runs comprehensive quality checks using multiple tools:
 
 ```yaml
 # Quality gates with reviewdog integration
@@ -87,7 +87,7 @@ jobs:
 
 ### Testing Strategy
 
-Tux implements a three-tier testing approach:
+Bot implements a three-tier testing approach:
 
 ```yaml
 # Comprehensive test coverage
@@ -109,7 +109,7 @@ jobs:
 
 ### Custom Actions
 
-Tux uses custom composite actions for consistency:
+Bot uses custom composite actions for consistency:
 
 ```yaml
 # Python environment setup
@@ -128,7 +128,7 @@ Tux uses custom composite actions for consistency:
 
 ### Multi-Layer Security
 
-Tux implements security at multiple levels:
+Bot implements security at multiple levels:
 
 ```yaml
 # Security scanning jobs
@@ -161,7 +161,7 @@ permissions:
 
 ### Docker Build Pipeline
 
-Tux uses advanced Docker workflows:
+Bot uses advanced Docker workflows:
 
 ```yaml
 # Multi-stage build with security scanning
@@ -200,7 +200,7 @@ jobs:
 
 ### Zensical Pipeline
 
-Tux automates documentation deployment:
+Bot automates documentation deployment:
 
 ```yaml
 # Documentation build and validation
@@ -224,7 +224,7 @@ jobs:
 
 ### Automated Releases
 
-Tux uses semantic versioning with automated releases:
+Bot uses semantic versioning with automated releases:
 
 ```yaml
 # Release on tag push
@@ -280,7 +280,7 @@ strategy:
 
 ### Automated Maintenance
 
-Tux includes automated maintenance workflows:
+Bot includes automated maintenance workflows:
 
 ```yaml
 # Weekly and monthly maintenance
@@ -419,7 +419,7 @@ act -j unit
 act -l pull_request
 ```
 
-**Common Tux Scenarios:**
+**Common Bot Scenarios:**
 
 ```bash
 # Test CI workflow (quality checks, linting, type checking)

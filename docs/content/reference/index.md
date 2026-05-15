@@ -5,13 +5,13 @@ icon: lucide/book-open
 
 # Reference
 
-Complete reference documentation for Tux, including CLI commands, environment variables, configuration options, and technical specifications.
+Complete reference documentation for Bot, including CLI commands, environment variables, configuration options, and technical specifications.
 
 ## Quick Reference
 
 ### [CLI Reference](cli.md)
 
-Complete command-line interface reference for all Tux commands:
+Complete command-line interface reference for all Bot commands:
 
 - **Bot Commands** - Start bot, version information
 - **Database Commands** - Migration management, health checks, sequence fixes
@@ -42,7 +42,7 @@ Auto-generated reference for all environment variables and configuration options
 
 ### [Docker Production Deployment](docker-production.md)
 
-Reference guide for deploying Tux in production using Docker:
+Reference guide for deploying Bot in production using Docker:
 
 - Production profile configuration
 - Security features and hardening
@@ -80,7 +80,7 @@ Directory listings and structure reference.
 
 ## API Reference
 
-### [Source Code Reference](src/tux/index.md)
+### [Source Code Reference](src/bot/index.md)
 
 Auto-generated API documentation from source code.
 

@@ -1,6 +1,6 @@
 ---
 title: Documentation
-description: Templates and resources for creating consistent documentation for Tux
+description: Templates and resources for creating consistent documentation for Bot
 tags:
   - reference
   - docs
@@ -10,7 +10,7 @@ icon: lucide/notepad-text-dashed
 
 # Documentation
 
-This section contains templates and resources for creating consistent documentation for Tux.
+This section contains templates and resources for creating consistent documentation for Bot.
 
 ## Templates
 

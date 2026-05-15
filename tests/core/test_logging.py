@@ -15,7 +15,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from loguru import logger
 
-from tux.core.logging import (
+from bot.core.logging import (
     INTERCEPTED_LIBRARIES,
     THIRD_PARTY_LOG_LEVELS,
     VALID_LOG_LEVELS,
@@ -29,7 +29,7 @@ from tux.core.logging import (
     configure_testing_logging,
     verify_logging_interception,
 )
-from tux.core.logging import _state as logging_state
+from bot.core.logging import _state as logging_state
 
 
 @contextmanager
@@ -367,7 +367,7 @@ class TestInterceptHandler:
 
             # Act
             with patch(
-                "tux.core.logging.logger.patch",
+                "bot.core.logging.logger.patch",
                 side_effect=Exception("Patch failed"),
             ):
                 intercept_handler.emit(record)
@@ -507,7 +507,7 @@ class TestLoggingIntegration:
             assert handler.levelno > logger.level("INFO").no
 
     @pytest.mark.unit
-    @patch("tux.core.logging.logger", autospec=True)
+    @patch("bot.core.logging.logger", autospec=True)
     def test_configure_logging_emits_summary_message(
         self,
         mock_logger: MagicMock,

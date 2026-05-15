@@ -11,7 +11,7 @@ tags:
 
 # Self-timeout
 
-The `self_timeout` command is a focus and productivity tool that allows you to voluntarily restrict your own access to the server. Once confirmed, Tux will apply a standard Discord timeout to your account, preventing you from sending messages or reacting for the duration you specify.
+The `self_timeout` command is a focus and productivity tool that allows you to voluntarily restrict your own access to the server. Once confirmed, Bot will apply a standard Discord timeout to your account, preventing you from sending messages or reacting for the duration you specify.
 
 **Warning:** Once applied, the timeout **cannot** be removed early, even by server administrators. Use this tool carefully!
 
@@ -71,7 +71,7 @@ Take a longer break from the community.
 To prevent accidental timeouts, the bot follows a strict confirmation flow:
 
 1. You run the command with your desired duration and optional reason.
-2. Tux replies with a **confirmation message** explaining the consequences and showing your selected duration.
+2. Bot replies with a **confirmation message** explaining the consequences and showing your selected duration.
 3. You must click the **Confirm** button within the response to proceed.
 4. Once confirmed, the timeout is immediately applied and cannot be reversed early.
 
@@ -79,7 +79,7 @@ The confirmation message clearly states that the timeout cannot be removed early
 
 ## Behavior Notes
 
-- **AFK Integration:** Upon timing out, Tux will also set your status to AFK with the same reason.
+- **AFK Integration:** Upon timing out, Bot will also set your status to AFK with the same reason.
 - **DM Delivery:** The bot will attempt to send you a Direct Message confirming the start of your timeout.
 - **Irreversibility:** The timeout is handled by Discord's native system and enforced by the bot's configuration; staff are instructed not to remove voluntary timeouts.
 

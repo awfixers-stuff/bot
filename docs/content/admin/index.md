@@ -7,18 +7,18 @@ icon: material/shield-outline
 
 # Admin Guide
 
-Welcome to the Tux Admin Guide! This guide covers everything you need to know to configure and manage Tux on your Discord server.
+Welcome to the Bot Admin Guide! This guide covers everything you need to know to configure and manage Bot on your Discord server.
 
 ## Quick Start
 
-1. **Invite Tux** to your server with appropriate permissions
+1. **Invite Bot** to your server with appropriate permissions
 2. **Configure permissions** using `/config ranks init` to set up the permission system
 3. **Set up logging** using `/config logs` to configure audit and moderation logs
 4. **Configure features** like jail, starboard, and other modules as needed
 
 ## Configuration Overview
 
-Tux uses a unified configuration dashboard accessible via `/config` or `/config overview`. The dashboard provides an interactive interface for managing all server settings.
+Bot uses a unified configuration dashboard accessible via `/config` or `/config overview`. The dashboard provides an interactive interface for managing all server settings.
 
 ### Main Configuration Areas
 
@@ -30,7 +30,7 @@ Tux uses a unified configuration dashboard accessible via `/config` or `/config 
 
 ## Permission System
 
-Tux uses a database-driven permission system that allows each server to customize who can use which commands. The system is based on:
+Bot uses a database-driven permission system that allows each server to customize who can use which commands. The system is based on:
 
 - **Permission Ranks** - Numeric hierarchy (0-10) where higher numbers mean more permissions
 - **Role Assignments** - Map Discord roles to permission ranks

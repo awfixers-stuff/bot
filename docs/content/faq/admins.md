@@ -7,7 +7,7 @@ icon: lucide/user-star
 
 # For Admins
 
-## How do I configure Tux?
+## How do I configure Bot?
 
 Use `config.json` for app settings (roles, features, limits) and `.env` for secrets and environment-specific values. Use the `/config` command for an interactive [configuration dashboard](../admin/config/index.md).
 

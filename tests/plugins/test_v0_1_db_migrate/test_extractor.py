@@ -3,13 +3,13 @@
 import pytest
 from sqlalchemy import create_engine, text
 
-from tux.plugins.v0_1_db_migrate.config import (
+from bot.plugins.v0_1_db_migrate.config import (
     MigrationConfig,
 )
-from tux.plugins.v0_1_db_migrate.extractor import (
+from bot.plugins.v0_1_db_migrate.extractor import (
     DataExtractor,
 )
-from tux.plugins.v0_1_db_migrate.mapper import (
+from bot.plugins.v0_1_db_migrate.mapper import (
     ModelMapper,
 )
 

@@ -89,7 +89,7 @@ Share XKCD comics with your community, with easy access to explanations and orig
 
 ### Bot Permissions
 
-Tux requires the following permissions for this module:
+Bot requires the following permissions for this module:
 
 - **Send Messages** - Required for command responses
 - **Embed Links** - Required for displaying XKCD comics and random outputs
@@ -99,7 +99,7 @@ Tux requires the following permissions for this module:
 Fun commands are available to all users by default.
 
 !!! tip "Permission System"
-    Tux uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Bot uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Related Documentation
 

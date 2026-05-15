@@ -12,7 +12,7 @@ icon: lucide/mic
 
 Temp VC (Temporary Voice Channels) is a utility that allows users to create their own private or
 group voice spaces on demand. Instead of having dozens of empty voice channels cluttering your
-server, you provide a single "template" channel. When a user joins this template, Tux instantly
+server, you provide a single "template" channel. When a user joins this template, Bot instantly
 creates a new voice channel for them and moves them into it.
 
 The system is completely self-managing. Channels are created only when needed and are automatically deleted as soon as the last person leaves. This keeps your voice channel list clean while giving users the flexibility to have their own space whenever they want.
@@ -21,12 +21,12 @@ The system is completely self-managing. Channels are created only when needed an
 
 ### Mechanics
 
-Tux monitors voice state changes to detect when a user enters the designated template channel.
+Bot monitors voice state changes to detect when a user enters the designated template channel.
 
-- **Dynamic Creation:** Upon joining the template, Tux creates a new voice channel in the configured category.
+- **Dynamic Creation:** Upon joining the template, Bot creates a new voice channel in the configured category.
 - **Naming Convention:** New channels are automatically named `/tmp/[username]` to clearly identify them as temporary.
 - **Permission Cloning:** The new channel inherits all permissions and settings from the template channel, allowing for easy configuration.
-- **Smart Re-entry:** If a user already has a temporary channel and tries to create another, Tux simply moves them back to their existing channel.
+- **Smart Re-entry:** If a user already has a temporary channel and tries to create another, Bot simply moves them back to their existing channel.
 
 ### Automation
 
@@ -101,7 +101,7 @@ Unquoted integers (recommended) or quoted strings both work:
 
 ### Bot Permissions
 
-Tux requires the following permissions for this feature:
+Bot requires the following permissions for this feature:
 
 - **Manage Channels** - Needed to create and delete the temporary voice channels.
 - **Move Members** - Needed to move users from the template to their new channel.
@@ -126,13 +126,13 @@ None required to use the feature. Users only need permission to join the templat
 **Causes:**
 
 - The `TEMPVC_CHANNEL_ID` or `TEMPVC_CATEGORY_ID` is incorrect.
-- Tux is missing "Manage Channels" or "Move Members" permission.
+- Bot is missing "Manage Channels" or "Move Members" permission.
 - The category has reached Discord's channel limit (50 channels per category).
 
 **Solutions:**
 
 1. Verify the IDs in your `config.json`.
-2. Ensure Tux has the necessary permissions in both the category and the template channel.
+2. Ensure Bot has the necessary permissions in both the category and the template channel.
 3. Check if there are too many channels in the category.
 
 ### Issue: Users are not being moved
@@ -143,13 +143,13 @@ None required to use the feature. Users only need permission to join the templat
 
 **Causes:**
 
-- Tux is missing the "Move Members" permission.
-- The user's role is higher than Tux's role, and your server settings restrict moving them.
+- Bot is missing the "Move Members" permission.
+- The user's role is higher than Bot's role, and your server settings restrict moving them.
 
 **Solutions:**
 
-1. Grant Tux the "Move Members" permission.
-2. Move Tux's role higher in the server's role hierarchy.
+1. Grant Bot the "Move Members" permission.
+2. Move Bot's role higher in the server's role hierarchy.
 
 ## Limitations
 

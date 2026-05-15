@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 import httpx
 import pytest
 
-from tux.services.handlers.error.extractors import extract_httpx_status_details
+from bot.services.handlers.error.extractors import extract_httpx_status_details
 
 pytestmark = pytest.mark.unit
 

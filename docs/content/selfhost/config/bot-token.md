@@ -12,7 +12,7 @@ icon: lucide/key-round
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-Quick guide to get your Discord bot token configured for Tux.
+Quick guide to get your Discord bot token configured for Bot.
 
 ## Getting Your Bot Token
 
@@ -22,7 +22,7 @@ Quick guide to get your Discord bot token configured for Tux.
 
 2. **Create New Application**:
    - Click "New Application"
-   - Name it (e.g., "Tux Bot")
+   - Name it (e.g., "Bot Bot")
    - Click "Create"
 
 3. **Add Bot User**:
@@ -36,12 +36,12 @@ Quick guide to get your Discord bot token configured for Tux.
 ## Required Bot Permissions
 
 !!! warning "Admin Permissions Required"
-    **Currently, Tux requires Administrator permissions** until we complete permission auditing and cleanup. We're working on reducing this to only necessary permissions.
+    **Currently, Bot requires Administrator permissions** until we complete permission auditing and cleanup. We're working on reducing this to only necessary permissions.
 
-**Give Tux the Administrator permission** when inviting the bot to your server.
+**Give Bot the Administrator permission** when inviting the bot to your server.
 
 !!! info "Permission Cleanup"
-    We're actively working on identifying the exact permissions Tux needs. This will be updated in a future release.
+    We're actively working on identifying the exact permissions Bot needs. This will be updated in a future release.
 
 ## Environment Setup
 
@@ -61,7 +61,7 @@ Set **bot owner ID** (and optional sysadmins) in **`config/config.json`**, not i
 
 ## Enable Privileged Intents
 
-Tux uses all Discord intents for full functionality:
+Bot uses all Discord intents for full functionality:
 
 1. **Go to Bot Settings** → **Privileged Gateway Intents**
 2. **Enable all three**:
@@ -84,7 +84,7 @@ Tux uses all Discord intents for full functionality:
 
 ```bash
 # Start the bot
-uv run tux start
+uv run bot start
 
 # Test basic commands
 /ping
@@ -96,7 +96,7 @@ uv run tux start
 
 - Check `BOT_TOKEN` is correct in `.env`
 - Verify bot is invited to your server
-- Check bot status: `systemctl status tux` (systemd) or `docker compose ps tux`
+- Check bot status: `systemctl status bot` (systemd) or `docker compose ps bot`
 
 **Commands not working?**
 

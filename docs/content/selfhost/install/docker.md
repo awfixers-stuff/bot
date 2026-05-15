@@ -9,9 +9,9 @@ icon: lucide/container
 
 # Docker Installation
 
-Deploy Tux using Docker Compose for easy setup and management. Docker Compose handles PostgreSQL, Tux, and optional Adminer (database management UI).
+Deploy Bot using Docker Compose for easy setup and management. Docker Compose handles PostgreSQL, Bot, and optional Adminer (database management UI).
 
-Tux Docker images are optimized for production use with:
+Bot Docker images are optimized for production use with:
 
 - Multi-stage builds for minimal image size (~400MB)
 - Non-root user for security
@@ -37,7 +37,7 @@ Follow the official Docker installation guide for your OS: [Install Docker Engin
 
 ### Install uv
 
-Tux uses `uv` as its package manager. Install it using the standalone installer:
+Bot uses `uv` as its package manager. Install it using the standalone installer:
 
 ```bash
 # Install uv
@@ -58,8 +58,8 @@ uv --version
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/allthingslinux/tux.git /opt/tux
-cd /opt/tux
+git clone https://github.com/awfixers-stuff/bot.git /opt/bot
+cd /opt/bot
 ```
 
 ### 2. Configure Environment
@@ -87,8 +87,8 @@ openssl rand -base64 32
 BOT_TOKEN=your_bot_token_here
 
 # Database Configuration (optional - defaults provided)
-POSTGRES_DB=tuxdb
-POSTGRES_USER=tuxuser
+POSTGRES_DB=botdb
+POSTGRES_USER=botuser
 POSTGRES_PASSWORD=<paste the generated password here>
 POSTGRES_PORT=5432
 
@@ -132,20 +132,20 @@ COMPOSE_PROFILES=production docker compose up -d
 
 Set `RESTART_POLICY=unless-stopped` in `.env` for production. To add Adminer: `--profile adminer`.
 
-Profiles work as in [Docker Compose](https://docs.docker.com/compose/how-tos/profiles/): `tux-postgres` has no profile (always started); `tux` and `tux-dev` are behind `production` and `dev` so you must enable one. `adminer` is optional.
+Profiles work as in [Docker Compose](https://docs.docker.com/compose/how-tos/profiles/): `bot-postgres` has no profile (always started); `bot` and `bot-dev` are behind `production` and `dev` so you must enable one. `adminer` is optional.
 
 The Docker Compose setup includes:
 
-- **tux-postgres** - PostgreSQL database (no profile; always started with Tux)
-- **tux** (production) or **tux-dev** (development) - Tux Discord bot; use `--profile production` or `--profile dev`
-- **tux-valkey** (optional) - Valkey cache for shared cache across restarts; use `--profile valkey`
-- **tux-adminer** (optional) - Database management UI at `http://localhost:8080`; use `--profile adminer`
+- **bot-postgres** - PostgreSQL database (no profile; always started with Bot)
+- **bot** (production) or **bot-dev** (development) - Bot Discord bot; use `--profile production` or `--profile dev`
+- **bot-valkey** (optional) - Valkey cache for shared cache across restarts; use `--profile valkey`
+- **bot-adminer** (optional) - Database management UI at `http://localhost:8080`; use `--profile adminer`
 
 ## Services Overview
 
-### Tux Bot Service
+### Bot Bot Service
 
-The main Tux container runs with:
+The main Bot container runs with:
 
 - Automatic database migrations on startup
 - Health checks to ensure bot is running
@@ -182,7 +182,7 @@ Omit `--profile adminer` to run without Adminer.
 ### Valkey (optional cache)
 
 Valkey provides a shared cache (guild config, jail status, prefix, permissions) that
-persists across bot restarts. Without it, Tux uses in-memory cache (no extra container).
+persists across bot restarts. Without it, Bot uses in-memory cache (no extra container).
 
 To use Valkey with Docker:
 
@@ -194,10 +194,10 @@ To use Valkey with Docker:
    docker compose --profile production --profile valkey up -d
    ```
 
-2. Set the Valkey host in `.env` so Tux can connect:
+2. Set the Valkey host in `.env` so Bot can connect:
 
    ```env
-   VALKEY_HOST=tux-valkey
+   VALKEY_HOST=bot-valkey
    VALKEY_PORT=6379
    ```
 
@@ -214,8 +214,8 @@ Docker Compose reads from `.env` file. Key variables:
 BOT_TOKEN=your_bot_token_here
 
 # Database (optional - uses defaults if not set)
-POSTGRES_DB=tuxdb
-POSTGRES_USER=tuxuser
+POSTGRES_DB=botdb
+POSTGRES_USER=botuser
 POSTGRES_PASSWORD=your_secure_password_here
 POSTGRES_PORT=5432
 
@@ -226,7 +226,7 @@ LOG_LEVEL=INFO
 DEBUG=false
 
 # Optional: Valkey (use with --profile valkey)
-VALKEY_HOST=tux-valkey
+VALKEY_HOST=bot-valkey
 VALKEY_PORT=6379
 
 # Optional: External Services
@@ -234,24 +234,24 @@ EXTERNAL_SERVICES__SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
 ```
 
 !!! note "Docker-Specific Configuration"
-    The `compose.yaml` automatically sets `POSTGRES_HOST=tux-postgres` for the Tux container, so you don't need to configure this in `.env`.
+    The `compose.yaml` automatically sets `POSTGRES_HOST=bot-postgres` for the Bot container, so you don't need to configure this in `.env`.
 
 ### Volume Mounts
 
 The Docker setup mounts several directories:
 
 - `./config` → `/app/config` (read-only) - Configuration files
-- `./src/tux/plugins` → `/app/tux/plugins` (read-only) - Custom plugins
+- `./src/bot/plugins` → `/app/bot/plugins` (read-only) - Custom plugins
 - `./assets` → `/app/assets` (read-only) - Bot assets
 
 **Note:** Migration files are **not mounted by default** - they come from the Docker image. For development or customization, see [Docker Migration Setup](../../developer/concepts/database/migrations.md#-docker-migration-setup).
 
 Persistent volumes:
 
-- `tux_postgres_data` - PostgreSQL data
-- `tux_cache` - Application cache
-- `tux_temp` - Temporary files
-- `tux_user_home` - User home directory
+- `bot_postgres_data` - PostgreSQL data
+- `bot_cache` - Application cache
+- `bot_temp` - Temporary files
+- `bot_user_home` - User home directory
 
 ## Basic Service Management
 
@@ -261,11 +261,11 @@ Persistent volumes:
 # Follow all logs
 docker compose logs -f
 
-# Follow Tux logs only
-docker compose logs -f tux
+# Follow Bot logs only
+docker compose logs -f bot
 
 # Last 100 lines
-docker compose logs --tail=100 tux
+docker compose logs --tail=100 bot
 ```
 
 ### Start/Stop Services
@@ -286,7 +286,7 @@ docker compose ps
 
 ## Updates
 
-### Update Tux
+### Update Bot
 
 ```bash
 # Pull latest changes
@@ -297,7 +297,7 @@ docker compose down
 docker compose --profile dev up -d --build
 
 # Or rebuild without stopping
-docker compose --profile dev up -d --build --no-deps tux
+docker compose --profile dev up -d --build --no-deps bot
 ```
 
 ### Update Dependencies
@@ -306,8 +306,8 @@ If `pyproject.toml` or `uv.lock` changes:
 
 ```bash
 # Rebuild container with new dependencies (use --profile dev or --profile production)
-docker compose --profile dev build --no-cache tux
-docker compose --profile dev up -d tux
+docker compose --profile dev build --no-cache bot
+docker compose --profile dev up -d bot
 ```
 
 ### Database Migrations
@@ -322,16 +322,16 @@ Create `compose.override.yaml`:
 
 ```yaml
 services:
-  tux:
+  bot:
     volumes:
       # Mount migrations for faster development/customization iteration
       # Without this, migrations come from the Docker image (production behavior)
-      - ./src/tux/database/migrations:/app/src/tux/database/migrations:ro
+      - ./src/bot/database/migrations:/app/src/bot/database/migrations:ro
 ```
 
 ```bash
 # Restart services
-docker compose restart tux
+docker compose restart bot
 ```
 
 See [Docker Migration Setup](../../developer/concepts/database/migrations.md#-docker-migration-setup) for details.
@@ -345,7 +345,7 @@ Docker Compose supports development mode with hot reload:
 docker compose watch
 
 # Watch specific service
-docker compose watch tux
+docker compose watch bot
 ```
 
 Watch mode automatically:

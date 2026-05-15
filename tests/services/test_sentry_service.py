@@ -6,10 +6,10 @@ import discord
 import httpx
 import pytest
 
-from tux.services.sentry import (
+from bot.services.sentry import (
+    capture_bot_exception,
     capture_database_error,
     capture_exception_safe,
-    capture_tux_exception,
     convert_httpx_error,
     set_command_context,
     set_context,
@@ -18,13 +18,13 @@ from tux.services.sentry import (
     track_command_end,
     track_command_start,
 )
-from tux.shared.exceptions import (
-    TuxAPIConnectionError,
-    TuxAPIPermissionError,
-    TuxAPIRequestError,
-    TuxAPIResourceNotFoundError,
-    TuxDatabaseError,
-    TuxError,
+from bot.shared.exceptions import (
+    BotAPIConnectionError,
+    BotAPIPermissionError,
+    BotAPIRequestError,
+    BotAPIResourceNotFoundError,
+    BotDatabaseError,
+    BotError,
 )
 
 pytestmark = pytest.mark.unit
@@ -33,8 +33,8 @@ pytestmark = pytest.mark.unit
 class TestSentryCaptureFunctions:
     """Test Sentry capture functions."""
 
-    @patch("tux.services.sentry.utils.is_initialized")
-    @patch("tux.services.sentry.utils.sentry_sdk")
+    @patch("bot.services.sentry.utils.is_initialized")
+    @patch("bot.services.sentry.utils.sentry_sdk")
     def test_capture_exception_safe_with_generic_exception(
         self,
         mock_sentry_sdk: MagicMock,
@@ -48,8 +48,8 @@ class TestSentryCaptureFunctions:
 
         mock_sentry_sdk.capture_exception.assert_called_once_with(error)
 
-    @patch("tux.services.sentry.utils.is_initialized")
-    @patch("tux.services.sentry.utils.sentry_sdk")
+    @patch("bot.services.sentry.utils.is_initialized")
+    @patch("bot.services.sentry.utils.sentry_sdk")
     def test_capture_exception_safe_when_not_initialized(
         self,
         mock_sentry_sdk: MagicMock,
@@ -63,23 +63,23 @@ class TestSentryCaptureFunctions:
 
         mock_sentry_sdk.capture_exception.assert_not_called()
 
-    @patch("tux.services.sentry.utils.is_initialized")
-    @patch("tux.services.sentry.utils.sentry_sdk")
-    def test_capture_tux_exception(
+    @patch("bot.services.sentry.utils.is_initialized")
+    @patch("bot.services.sentry.utils.sentry_sdk")
+    def test_capture_bot_exception(
         self,
         mock_sentry_sdk: MagicMock,
         mock_is_initialized: MagicMock,
     ) -> None:
-        """Test capture_tux_exception with TuxError."""
+        """Test capture_bot_exception with BotError."""
         mock_is_initialized.return_value = True
-        error = TuxError("Test Tux error")
+        error = BotError("Test Bot error")
 
-        capture_tux_exception(error)
+        capture_bot_exception(error)
 
         mock_sentry_sdk.capture_exception.assert_called_once_with(error)
 
-    @patch("tux.services.sentry.utils.is_initialized")
-    @patch("tux.services.sentry.utils.sentry_sdk")
+    @patch("bot.services.sentry.utils.is_initialized")
+    @patch("bot.services.sentry.utils.sentry_sdk")
     def test_capture_database_error(
         self,
         mock_sentry_sdk: MagicMock,
@@ -90,7 +90,7 @@ class TestSentryCaptureFunctions:
         mock_sentry_sdk.push_scope.return_value.__enter__ = MagicMock()
         mock_sentry_sdk.push_scope.return_value.__exit__ = MagicMock()
 
-        error = TuxDatabaseError("Database connection failed")
+        error = BotDatabaseError("Database connection failed")
 
         capture_database_error(
             error,
@@ -100,8 +100,8 @@ class TestSentryCaptureFunctions:
 
         mock_sentry_sdk.capture_exception.assert_called_once_with(error)
 
-    @patch("tux.services.sentry.utils.is_initialized")
-    @patch("tux.services.sentry.utils.capture_api_error")
+    @patch("bot.services.sentry.utils.is_initialized")
+    @patch("bot.services.sentry.utils.capture_api_error")
     def test_convert_httpx_error_404(
         self,
         mock_capture_api_error: MagicMock,
@@ -119,7 +119,7 @@ class TestSentryCaptureFunctions:
             response=mock_response,
         )
 
-        with pytest.raises(TuxAPIResourceNotFoundError) as exc_info:
+        with pytest.raises(BotAPIResourceNotFoundError) as exc_info:
             convert_httpx_error(
                 error,
                 service_name="GitHub",
@@ -132,8 +132,8 @@ class TestSentryCaptureFunctions:
         # Should not call capture_api_error for 404 (user error)
         mock_capture_api_error.assert_not_called()
 
-    @patch("tux.services.sentry.utils.is_initialized")
-    @patch("tux.services.sentry.utils.capture_api_error")
+    @patch("bot.services.sentry.utils.is_initialized")
+    @patch("bot.services.sentry.utils.capture_api_error")
     def test_convert_httpx_error_403(
         self,
         mock_capture_api_error: MagicMock,
@@ -151,7 +151,7 @@ class TestSentryCaptureFunctions:
             response=mock_response,
         )
 
-        with pytest.raises(TuxAPIPermissionError) as exc_info:
+        with pytest.raises(BotAPIPermissionError) as exc_info:
             convert_httpx_error(
                 error,
                 service_name="GitHub",
@@ -162,8 +162,8 @@ class TestSentryCaptureFunctions:
         # Should not call capture_api_error for 403 (user error)
         mock_capture_api_error.assert_not_called()
 
-    @patch("tux.services.sentry.utils.is_initialized")
-    @patch("tux.services.sentry.utils.capture_api_error")
+    @patch("bot.services.sentry.utils.is_initialized")
+    @patch("bot.services.sentry.utils.capture_api_error")
     def test_convert_httpx_error_500(
         self,
         mock_capture_api_error: MagicMock,
@@ -182,7 +182,7 @@ class TestSentryCaptureFunctions:
             response=mock_response,
         )
 
-        with pytest.raises(TuxAPIRequestError) as exc_info:
+        with pytest.raises(BotAPIRequestError) as exc_info:
             convert_httpx_error(
                 error,
                 service_name="GitHub",
@@ -198,8 +198,8 @@ class TestSentryCaptureFunctions:
             status_code=500,
         )
 
-    @patch("tux.services.sentry.utils.is_initialized")
-    @patch("tux.services.sentry.utils.capture_api_error")
+    @patch("bot.services.sentry.utils.is_initialized")
+    @patch("bot.services.sentry.utils.capture_api_error")
     def test_convert_httpx_error_connection_error(
         self,
         mock_capture_api_error: MagicMock,
@@ -210,7 +210,7 @@ class TestSentryCaptureFunctions:
 
         error = httpx.RequestError("Connection failed", request=MagicMock())
 
-        with pytest.raises(TuxAPIConnectionError) as exc_info:
+        with pytest.raises(BotAPIConnectionError) as exc_info:
             convert_httpx_error(
                 error,
                 service_name="GitHub",
@@ -226,8 +226,8 @@ class TestSentryCaptureFunctions:
 class TestSentryContextFunctions:
     """Test Sentry context setting functions."""
 
-    @patch("tux.services.sentry.context.is_initialized")
-    @patch("tux.services.sentry.context.sentry_sdk")
+    @patch("bot.services.sentry.context.is_initialized")
+    @patch("bot.services.sentry.context.sentry_sdk")
     def test_set_context(
         self,
         mock_sentry_sdk: MagicMock,
@@ -244,8 +244,8 @@ class TestSentryContextFunctions:
             context_data,
         )
 
-    @patch("tux.services.sentry.context.is_initialized")
-    @patch("tux.services.sentry.context.sentry_sdk")
+    @patch("bot.services.sentry.context.is_initialized")
+    @patch("bot.services.sentry.context.sentry_sdk")
     def test_set_tag(
         self,
         mock_sentry_sdk: MagicMock,
@@ -258,8 +258,8 @@ class TestSentryContextFunctions:
 
         mock_sentry_sdk.set_tag.assert_called_once_with("environment", "test")
 
-    @patch("tux.services.sentry.context.is_initialized")
-    @patch("tux.services.sentry.context.sentry_sdk")
+    @patch("bot.services.sentry.context.is_initialized")
+    @patch("bot.services.sentry.context.sentry_sdk")
     def test_set_command_context_with_interaction(
         self,
         mock_sentry_sdk: MagicMock,
@@ -284,8 +284,8 @@ class TestSentryContextFunctions:
         # Verify context was set (should call set_context internally)
         mock_sentry_sdk.set_context.assert_called()
 
-    @patch("tux.services.sentry.context.is_initialized")
-    @patch("tux.services.sentry.context.sentry_sdk")
+    @patch("bot.services.sentry.context.is_initialized")
+    @patch("bot.services.sentry.context.sentry_sdk")
     def test_set_user_context(
         self,
         mock_sentry_sdk: MagicMock,
@@ -319,8 +319,8 @@ class TestSentryPerformanceTracking:
         # Should record the start time (no assertions needed for internal state)
         assert True  # Function should complete without error
 
-    @patch("tux.services.sentry.context.is_initialized")
-    @patch("tux.services.sentry.context.sentry_sdk")
+    @patch("bot.services.sentry.context.is_initialized")
+    @patch("bot.services.sentry.context.sentry_sdk")
     def test_track_command_end_success(
         self,
         mock_sentry_sdk: MagicMock,
@@ -336,8 +336,8 @@ class TestSentryPerformanceTracking:
         # Should set success tag
         mock_sentry_sdk.set_tag.assert_any_call("command.success", True)
 
-    @patch("tux.services.sentry.context.is_initialized")
-    @patch("tux.services.sentry.context.sentry_sdk")
+    @patch("bot.services.sentry.context.is_initialized")
+    @patch("bot.services.sentry.context.sentry_sdk")
     def test_track_command_end_failure(
         self,
         mock_sentry_sdk: MagicMock,

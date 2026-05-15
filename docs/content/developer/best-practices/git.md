@@ -1,6 +1,6 @@
 ---
 title: Git Best Practices
-description: Git best practices for Tux development, including branching strategy, commit conventions, and workflow automation.
+description: Git best practices for Bot development, including branching strategy, commit conventions, and workflow automation.
 tags:
   - developer-guide
   - best-practices
@@ -15,15 +15,15 @@ icon: lucide/github
 
 ## Contributing Workflows
 
-Tux supports contributions from organization members and external contributors.
+Bot supports contributions from organization members and external contributors.
 
 ### Organization Members
 
 Work directly with the main repository:
 
 ```bash
-git clone https://github.com/allthingslinux/tux.git
-cd tux
+git clone https://github.com/awfixers-stuff/bot.git
+cd bot
 git checkout main && git pull origin main
 git checkout -b feature/your-feature-name
 # ... make changes and commits ...
@@ -37,9 +37,9 @@ Work with a fork:
 
 ```bash
 # Fork repository on GitHub, then:
-git clone https://github.com/YOUR_USERNAME/tux.git
-cd tux
-git remote add upstream https://github.com/allthingslinux/tux.git
+git clone https://github.com/YOUR_USERNAME/bot.git
+cd bot
+git remote add upstream https://github.com/awfixers-stuff/bot.git
 git checkout main && git pull upstream main
 git checkout -b feature/your-feature-name
 # ... make changes and commits ...
@@ -49,7 +49,7 @@ git push origin feature/your-feature-name
 
 ## Branching Strategy
 
-Tux uses trunk-based development with a single main branch that is always production-ready.
+Bot uses trunk-based development with a single main branch that is always production-ready.
 
 ### Main Branch
 
@@ -82,7 +82,7 @@ See our [branch naming](./branch-naming.md) conventions.
 
 ## Commit Conventions
 
-Tux uses [Conventional Commits](https://conventionalcommits.org/) for consistent commit messages.
+Bot uses [Conventional Commits](https://conventionalcommits.org/) for consistent commit messages.
 
 ### Format
 
@@ -125,8 +125,8 @@ test: add integration tests for Discord commands
 ### Setup
 
 ```bash
-git clone https://github.com/allthingslinux/tux.git
-cd tux
+git clone https://github.com/awfixers-stuff/bot.git
+cd bot
 uv sync
 cp .env.example .env
 cp config/config.json.example config/config.json
@@ -167,7 +167,7 @@ git commit -m "feat: add user preferences system"
 
 ## Pre-commit Hooks
 
-Tux uses comprehensive pre-commit hooks to maintain code quality. All hooks run automatically on commit.
+Bot uses comprehensive pre-commit hooks to maintain code quality. All hooks run automatically on commit.
 
 ### Quality Checks
 

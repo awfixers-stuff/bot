@@ -14,7 +14,7 @@ icon: lucide/scroll-text
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-Tux uses loguru for all logging, providing a single global logger configured once at startup. The logging system routes all application and third-party library logs through loguru with consistent formatting, making debugging easier.
+Bot uses loguru for all logging, providing a single global logger configured once at startup. The logging system routes all application and third-party library logs through loguru with consistent formatting, making debugging easier.
 
 ## Overview
 
@@ -39,13 +39,13 @@ logger.warning("Rate limit approaching", remaining=5)
 logger.error("Database connection failed", error=str(e))
 ```
 
-The logger is configured automatically when Tux starts. The primary configuration happens in the CLI script (`scripts/tux/start.py`) before any other code runs, ensuring the `--debug` flag and environment variables are respected.
+The logger is configured automatically when Bot starts. The primary configuration happens in the CLI script (`scripts/bot/start.py`) before any other code runs, ensuring the `--debug` flag and environment variables are respected.
 
-As a defensive fallback, logging is also configured in `TuxApp.start()` (`src/tux/core/app.py`) before Sentry initialization. You don't need to set it up yourself.
+As a defensive fallback, logging is also configured in `BotApp.start()` (`src/bot/core/app.py`) before Sentry initialization. You don't need to set it up yourself.
 
 ## Log Levels
 
-Tux uses standard loguru log levels. Choose the appropriate level based on the importance and detail of your message:
+Bot uses standard loguru log levels. Choose the appropriate level based on the importance and detail of your message:
 
 ### TRACE
 
@@ -121,7 +121,7 @@ Log levels are determined in this order (highest to lowest priority):
 3. **Debug Flag** - `DEBUG=1` in `.env` sets DEBUG level automatically
 4. **Default** - `INFO` level if nothing is configured
 
-The `--debug` flag is handled by the CLI script (`scripts/tux/start.py`) which passes `level="DEBUG"` to `configure_logging()`, making it an explicit parameter with the highest priority.
+The `--debug` flag is handled by the CLI script (`scripts/bot/start.py`) which passes `level="DEBUG"` to `configure_logging()`, making it an explicit parameter with the highest priority.
 
 ### Environment Configuration
 
@@ -142,7 +142,7 @@ The logging system reads these values automatically at startup.
 For tests, use explicit level configuration:
 
 ```python
-from tux.core.logging import configure_testing_logging
+from bot.core.logging import configure_testing_logging
 
 configure_testing_logging()  # Sets DEBUG level for tests
 ```
@@ -155,7 +155,7 @@ Logs are formatted with consistent structure:
 HH:mm:ss.SSS | LEVEL     | location:line | message
 ```
 
-For Tux code, the location shows clickable file paths like `src/tux/core/app.py:167`. For third-party libraries, it shows module and function names like `discord.gateway:on_ready`.
+For Bot code, the location shows clickable file paths like `src/bot/core/app.py:167`. For third-party libraries, it shows module and function names like `discord.gateway:on_ready`.
 
 ### Structured Logging
 
@@ -181,7 +181,7 @@ Third-party logs use appropriate log levels to reduce noise. For example, Discor
 
 ## IDE Integration
 
-Log messages include clickable file paths for Tux code. Clicking a path in your IDE opens the file at that line, making debugging faster. Paths are relative to the project root, so they work across different development environments.
+Log messages include clickable file paths for Bot code. Clicking a path in your IDE opens the file at that line, making debugging faster. Paths are relative to the project root, so they work across different development environments.
 
 ## Best Practices
 
@@ -249,6 +249,6 @@ If logs lack context:
 
 ## Resources
 
-- **Source Code**: `src/tux/core/logging.py`
+- **Source Code**: `src/bot/core/logging.py`
 - **Loguru Documentation**: <https://loguru.readthedocs.io/>
 - **Best Practices**: See `developer/best-practices/logging.md` for detailed guidelines

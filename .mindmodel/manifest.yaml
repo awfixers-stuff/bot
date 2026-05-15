@@ -1,0 +1,25 @@
+name: bot
+version: 2
+description: AWFixer Discord bot — Python/discord.py, async PostgreSQL, multi-service moderation platform
+categories:
+  - path: stack.yaml
+    description: Runtime, framework, database, cache, tooling, and CI/CD stack
+    group: stack
+  - path: dependencies.yaml
+    description: Runtime, dev, test, docs, and type dependency inventory with versions
+    group: stack
+  - path: conventions.yaml
+    description: Naming, imports, docstrings, error handling, file organization, testing, and quality conventions
+    group: style
+  - path: domain.yaml
+    description: Core domain entities, events, services, value objects, and external integrations
+    group: domain
+  - path: clusters.yaml
+    description: Codebase cluster map — 14 module groups with paths, files, and ownership
+    group: architecture
+  - path: patterns.yaml
+    description: Design patterns used throughout the codebase with locations and intent
+    group: patterns
+  - path: examples.yaml
+    description: Real annotated code snippets showing canonical patterns in use
+    group: patterns

@@ -1,0 +1,50 @@
+---
+name: Semgrep SAST
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main, 'v[0-9]+.[0-9]+.[0-9]+*']
+  pull_request:
+    branches: [main, 'v[0-9]+.[0-9]+.[0-9]+*']
+  schedule:
+    - cron: "45 6 * * 4"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  semgrep:
+    name: SAST
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 15
+    if: github.repository == 'awfixers-stuff/bot'
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Semgrep scan
+        id: semgrep
+        uses: semgrep/semgrep-action@a7cc7f0befadb53ef7b1320e8cd221e440997190  # v1
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+        with:
+          config: >-
+            p/default
+            p/python
+            p/github-actions
+          sarif_file: semgrep.sarif
+
+      - name: Upload SARIF to GitHub
+        if: steps.semgrep.outputs.sarif_file != ''
+        uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225  # v4
+        with:
+          sarif_file: ${{ steps.semgrep.outputs.sarif_file }}
+          category: semgrep

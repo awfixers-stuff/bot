@@ -9,14 +9,14 @@ icon: lucide/container
 
 # Docker Troubleshooting
 
-Common issues and solutions when running Tux with Docker.
+Common issues and solutions when running Bot with Docker.
 
 ## Bot Not Starting
 
 ### Check Logs
 
 ```bash
-docker compose logs tux
+docker compose logs bot
 ```
 
 ### Common Causes
@@ -29,10 +29,10 @@ docker compose logs tux
 
 ```bash
 # Check environment variables are loaded
-docker compose exec tux env | grep BOT_TOKEN
+docker compose exec bot env | grep BOT_TOKEN
 
 # Test database connection
-docker compose exec tux uv run db health
+docker compose exec bot uv run db health
 ```
 
 ## Database Connection Errors
@@ -40,24 +40,24 @@ docker compose exec tux uv run db health
 ### Check PostgreSQL is Running
 
 ```bash
-docker compose ps tux-postgres
+docker compose ps bot-postgres
 ```
 
 ### Verify Connection
 
 ```bash
 # Test PostgreSQL connection
-docker compose exec tux-postgres pg_isready -U tuxuser
+docker compose exec bot-postgres pg_isready -U botuser
 
 # Check database exists
-docker compose exec tux-postgres psql -U tuxuser -d tuxdb -c "SELECT version();"
+docker compose exec bot-postgres psql -U botuser -d botdb -c "SELECT version();"
 ```
 
 ### Check Environment Variables
 
 ```bash
 # Verify database credentials
-docker compose exec tux env | grep POSTGRES
+docker compose exec bot env | grep POSTGRES
 ```
 
 ## Container Keeps Restarting
@@ -66,7 +66,7 @@ docker compose exec tux env | grep POSTGRES
 
 ```bash
 docker compose ps
-docker compose logs tux --tail=50
+docker compose logs bot --tail=50
 ```
 
 ### Common Issues
@@ -81,17 +81,17 @@ docker compose logs tux --tail=50
 
 ```bash
 # Ensure files are readable
-chmod -R 755 config assets src/tux/plugins
+chmod -R 755 config assets src/bot/plugins
 chmod 644 .env
 ```
 
 ### Check Container User
 
 ```bash
-docker compose exec tux whoami
+docker compose exec bot whoami
 # Should show: nonroot
 
-docker compose exec tux id
+docker compose exec bot id
 # Should show: uid=1001(nonroot) gid=1001(nonroot)
 ```
 
@@ -100,24 +100,24 @@ docker compose exec tux id
 ### Manual Health Check
 
 ```bash
-docker compose exec tux python -c "from tux.shared.config import CONFIG; print('Token set:', bool(CONFIG.BOT_TOKEN))"
+docker compose exec bot python -c "from bot.shared.config import CONFIG; print('Token set:', bool(CONFIG.BOT_TOKEN))"
 ```
 
 ### Check Health Status
 
 ```bash
-docker inspect tux --format='{{json .State.Health}}' | jq
+docker inspect bot --format='{{json .State.Health}}' | jq
 ```
 
 ## View Container Resources
 
 ```bash
 # Resource usage
-docker stats tux tux-postgres
+docker stats bot bot-postgres
 
 # Container details
-docker compose exec tux ps aux
-docker compose exec tux df -h
+docker compose exec bot ps aux
+docker compose exec bot df -h
 ```
 
 ## Image Build Issues
@@ -126,7 +126,7 @@ docker compose exec tux df -h
 
 ```bash
 # Check Docker context
-docker build --no-cache -f Containerfile --target production -t tux:test . 2>&1 | grep -i "permission\|denied"
+docker build --no-cache -f Containerfile --target production -t bot:test . 2>&1 | grep -i "permission\|denied"
 ```
 
 ### Build Context Too Large
@@ -150,10 +150,10 @@ docker build -f Containerfile --target production . 2>&1 | head -5 | grep -E "Se
 docker compose ps -a
 
 # View exit logs
-docker compose logs tux
+docker compose logs bot
 
 # Run interactively to debug (use --profile dev or --profile production)
-docker compose --profile dev run --rm tux sh
+docker compose --profile dev run --rm bot sh
 ```
 
 ### Database Connection Timeout
@@ -162,13 +162,13 @@ The entrypoint script waits up to 60 seconds for PostgreSQL. If timeout occurs:
 
 ```bash
 # Check PostgreSQL is healthy
-docker compose ps tux-postgres
+docker compose ps bot-postgres
 
 # Check network connectivity
-docker compose exec tux ping -c 3 tux-postgres
+docker compose exec bot ping -c 3 bot-postgres
 
 # Verify environment variables
-docker compose exec tux env | grep POSTGRES
+docker compose exec bot env | grep POSTGRES
 ```
 
 ## Related Documentation

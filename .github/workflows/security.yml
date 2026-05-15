@@ -24,7 +24,8 @@ env:
 jobs:
   changes:
     name: File Detection
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    if: github.repository == 'awfixers-stuff/bot'
     permissions:
       contents: read
     outputs:
@@ -49,13 +50,13 @@ jobs:
             src/tux/database/migrations/**/*.py
   codeql:
     name: CodeQL
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     needs: [changes]
     # Only run on Python-related changes, scheduled runs, or manual dispatch
-    if: |
+    if: github.repository == 'awfixers-stuff/bot' && (
       github.event_name == 'schedule' ||
       github.event_name == 'workflow_dispatch' ||
-      needs.changes.outputs.python == 'true'
+      needs.changes.outputs.python == 'true')
     permissions:
       security-events: write
       packages: read
@@ -74,11 +75,11 @@ jobs:
           category: /language:python
   dependencies:
     name: Dependencies
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     # Skip on fork PRs: GITHUB_TOKEN is read-only, so uv-dependency-submission and
     # dependency-review-action would fail on contents/pull-requests write.
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
-      == github.repository
+    if: github.repository == 'awfixers-stuff/bot' && github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name == github.repository
     permissions:
       contents: write
       pull-requests: write
@@ -95,10 +96,10 @@ jobs:
           retry-on-snapshot-warnings: true
   python:
     name: Python Security
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 20
     needs: [changes]
-    if: needs.changes.outputs.python == 'true' || github.event_name == 'workflow_dispatch'
+    if: github.repository == 'awfixers-stuff/bot' && (needs.changes.outputs.python == 'true' || github.event_name == 'workflow_dispatch')
     permissions:
       contents: read
       security-events: write

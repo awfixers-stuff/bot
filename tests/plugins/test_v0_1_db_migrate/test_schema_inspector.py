@@ -4,10 +4,10 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-from tux.plugins.v0_1_db_migrate.config import (
+from bot.plugins.v0_1_db_migrate.config import (
     MigrationConfig,
 )
-from tux.plugins.v0_1_db_migrate.schema_inspector import (
+from bot.plugins.v0_1_db_migrate.schema_inspector import (
     SchemaInspector,
 )
 

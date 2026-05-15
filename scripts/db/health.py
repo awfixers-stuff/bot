@@ -10,6 +10,9 @@ import asyncio
 from loguru import logger
 from typer import Exit
 
+from bot.cache.service import CacheService
+from bot.database.service import DatabaseService
+from bot.shared.config import CONFIG
 from scripts.core import create_app
 from scripts.ui import (
     create_status,
@@ -19,9 +22,6 @@ from scripts.ui import (
     print_success,
     rich_print,
 )
-from tux.cache.service import CacheService
-from tux.database.service import DatabaseService
-from tux.shared.config import CONFIG
 
 app = create_app()
 

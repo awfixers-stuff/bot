@@ -155,7 +155,7 @@ Note if different subcommands have different permission requirements.
 
 ### Bot Permissions
 
-Tux requires the following permissions for this command group:
+Bot requires the following permissions for this command group:
 
 - **{PERMISSION_NAME}** - {Why it's needed}
 - **{PERMISSION_NAME}** - {Why it's needed}
@@ -229,7 +229,7 @@ If no dashboard/UI exists, remove this entire section.
 Describe what users see and how to interact with the interface.
 -->
 
-When you use `/{GROUP_NAME}` or certain subcommands, Tux opens an interactive {DASHBOARD_TYPE}.
+When you use `/{GROUP_NAME}` or certain subcommands, Bot opens an interactive {DASHBOARD_TYPE}.
 
 **Features:**
 

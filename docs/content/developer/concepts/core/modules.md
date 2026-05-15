@@ -14,11 +14,11 @@ icon: lucide/component
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-Modules are Tux's built-in feature packages that provide core bot functionality. Each module is a self-contained package with specific commands and features.
+Modules are Bot's built-in feature packages that provide core bot functionality. Each module is a self-contained package with specific commands and features.
 
 ## Overview
 
-Modules are organized by functionality and loaded automatically when the bot starts. They provide the core features users expect from Tux:
+Modules are organized by functionality and loaded automatically when the bot starts. They provide the core features users expect from Bot:
 
 - **Moderation** - Ban, kick, timeout, and case management
 - **Configuration** - Server settings, permissions, and channel configuration
@@ -27,10 +27,10 @@ Modules are organized by functionality and loaded automatically when the bot sta
 
 ## Module Structure
 
-Modules are located in `src/tux/modules/` and organized by category:
+Modules are located in `src/bot/modules/` and organized by category:
 
 ```text
-src/tux/modules/
+src/bot/modules/
 ├── moderation/     # Moderation commands and case management
 ├── config/         # Server configuration commands
 ├── utility/        # Utility and information commands
@@ -58,19 +58,19 @@ This order ensures dependencies are available when modules need them.
 
 ## Creating Modules
 
-While modules are built-in, understanding their structure helps when creating plugins or contributing to Tux.
+While modules are built-in, understanding their structure helps when creating plugins or contributing to Bot.
 
 ### Module Package Structure
 
 A module package typically contains:
 
 ```python
-# src/tux/modules/example/__init__.py
-from tux.core.base_cog import BaseCog
-from tux.core.bot import Tux
+# src/bot/modules/example/__init__.py
+from bot.core.base_cog import BaseCog
+from bot.core.bot import Bot
 
 class ExampleModule(BaseCog):
-    def __init__(self, bot: Tux) -> None:
+    def __init__(self, bot: Bot) -> None:
         super().__init__(bot)
 
     @commands.command()
@@ -78,7 +78,7 @@ class ExampleModule(BaseCog):
         """Example command."""
         await ctx.send("Example!")
 
-async def setup(bot: Tux) -> None:
+async def setup(bot: Bot) -> None:
     await bot.add_cog(ExampleModule(bot))
 ```
 
@@ -177,7 +177,7 @@ async def risky_command(self, ctx):
 Protect commands with permission decorators:
 
 ```python
-from tux.core.checks import requires_command_permission
+from bot.core.checks import requires_command_permission
 
 @commands.command()
 @requires_command_permission()
@@ -188,7 +188,7 @@ async def admin_command(self, ctx):
 
 ## Resources
 
-- **Module Directory**: `src/tux/modules/`
+- **Module Directory**: `src/bot/modules/`
 - **Base Cog**: See `base-cog.md` for available features
 - **Cog Loader**: See `cog-loader.md` for loading details
 - **Permission System**: See `permission-system.md` for access control

@@ -9,11 +9,11 @@
 
 ## Plugin System Stability
 
-- [ ] **Document Plugin APIs** - Create a clear guide showing which parts of Tux plugins can safely use
+- [ ] **Document Plugin APIs** - Create a clear guide showing which parts of Bot plugins can safely use
 - [ ] **Add Deprecation Warnings** - Set up warnings when old plugin code will be removed in future versions
 - [ ] **Check Plugin Imports** - Review what plugins import and ensure they're using safe, stable code
 - [ ] **Validate Plugins on Load** - Check plugins when they start up to catch problems early
-- [ ] **Version Compatibility** - Document which Tux versions work with plugins and how to upgrade between versions
+- [ ] **Version Compatibility** - Document which Bot versions work with plugins and how to upgrade between versions
 - [ ] **Plugin Error Handling** - Document how plugins should handle errors and exceptions
 - [ ] **Plugin Examples** - Create simple step-by-step guides for building plugins
 - [ ] **Test Plugin Compatibility** - Add tests to ensure plugins work correctly with the bot
@@ -96,3 +96,11 @@ Set permission errors to not be sent to sentry
 - [ ] **Per-Guild Customization** - Allows servers to brand error messages
 - [ ] **Error Recovery Mechanisms** - Improves user experience with transient failures
 - [ ] **Comprehensive Documentation** - Essential for maintainability
+
+## New Systems
+
+- [ ] **Ticket System** - Full ticketing system for user support requests
+- [ ] **Quarantine System** - System to quarantine members with restricted access
+- [ ] **Modmail System** - Modmail system for private communication between members and staff
+- [ ] **Forum Logging System** - All log types logged via forum posts, all logs in a single forum
+- [ ] **Quarantine Case System** - Each quarantine case gets a dedicated read-only channel visible only to the quarantined member and staff; case details sent via embed to the created channel

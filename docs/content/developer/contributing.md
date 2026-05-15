@@ -1,39 +1,39 @@
 ---
 title: Contributing
-description: How to contribute to Tux—setup, workflow, pull requests, and where to find detailed guides.
+description: How to contribute to Bot—setup, workflow, pull requests, and where to find detailed guides.
 tags:
   - developer-guide
   - contributing
 icon: lucide/git-pull-request-arrow
 ---
 
-# Contributing to Tux
+# Contributing to Bot
 
-Thank you for your interest in contributing to Tux. This guide covers setup, workflow, and how to submit changes. For deeper dives, see [Git best practices](best-practices/git.md), [branch naming](best-practices/branch-naming.md), and [Code review](best-practices/code-review.md).
+Thank you for your interest in contributing to Bot. This guide covers setup, workflow, and how to submit changes. For deeper dives, see [Git best practices](best-practices/git.md), [branch naming](best-practices/branch-naming.md), and [Code review](best-practices/code-review.md).
 
 We welcome contributions of all kinds: bug fixes, features, and documentation improvements.
 
 ## Contributing Workflows
 
-Tux supports both organization members and external contributors.
+Bot supports both organization members and external contributors.
 
 ### Organization Members
 
-- Clone the main repository: `git clone https://github.com/allthingslinux/tux.git && cd tux`
+- Clone the main repository: `git clone https://github.com/awfixers-stuff/bot.git && cd bot`
 - Create feature branches in the main repo and push to `origin`
 
 ### External Contributors
 
-- [Fork](https://github.com/allthingslinux/tux/fork) the repository (Fork button → choose your account; you can leave "Copy the `main` branch only" checked).
-- Clone your fork: `git clone https://github.com/yourusername/tux.git && cd tux`
+- [Fork](https://github.com/awfixers-stuff/bot/fork) the repository (Fork button → choose your account; you can leave "Copy the `main` branch only" checked).
+- Clone your fork: `git clone https://github.com/yourusername/bot.git && cd bot`
 - Add `upstream` and verify:
 
   ```bash
-  git remote add upstream https://github.com/allthingslinux/tux.git
+  git remote add upstream https://github.com/awfixers-stuff/bot.git
   git remote -v
   ```
 
-- Push branches to your fork (`origin`) and open pull requests to `allthingslinux/tux`
+- Push branches to your fork (`origin`) and open pull requests to `awfixers-stuff/bot`
 
 For step-by-step walkthroughs, see [Development Setup](tutorials/development-setup.md) and [First Contribution](tutorials/first-contribution.md).
 
@@ -83,8 +83,8 @@ For step-by-step walkthroughs, see [Development Setup](tutorials/development-set
      ```bash
      POSTGRES_HOST=localhost
      POSTGRES_PORT=5432
-     POSTGRES_DB=tuxdb
-     POSTGRES_USER=tuxuser
+     POSTGRES_DB=botdb
+     POSTGRES_USER=botuser
      POSTGRES_PASSWORD=your_secure_password_here
      ```
 
@@ -98,7 +98,7 @@ For step-by-step walkthroughs, see [Development Setup](tutorials/development-set
 
    [Find your ID](https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID). Tweak other options as needed. Regenerate examples: `uv run config generate`.
 
-4. **Database:** If using local Docker: `docker compose up -d tux-postgres` (or `docker compose --profile adminer up -d` to also start Adminer web UI at `http://localhost:8080`). Then:
+4. **Database:** If using local Docker: `docker compose up -d bot-postgres` (or `docker compose --profile adminer up -d` to also start Adminer web UI at `http://localhost:8080`). Then:
 
    ```bash
    uv run db init
@@ -107,7 +107,7 @@ For step-by-step walkthroughs, see [Development Setup](tutorials/development-set
 
    Migrations create the tables; the bot also runs them on first start. Skip the Docker step if you use a remote or managed Postgres.
 
-5. **Run the bot (optional, to verify):** `uv run tux start --debug`. The bot hot-reloads on code changes. Run `$dev ct` (replace `$` with your prefix) to sync slash commands when you add or change them.
+5. **Run the bot (optional, to verify):** `uv run bot start --debug`. The bot hot-reloads on code changes. Run `$dev ct` (replace `$` with your prefix) to sync slash commands when you add or change them.
 
 More detail: [Development Setup](tutorials/development-setup.md) and [First Contribution](tutorials/first-contribution.md).
 
@@ -115,7 +115,7 @@ More detail: [Development Setup](tutorials/development-setup.md) and [First Cont
 
 ### Branching
 
-Tux uses **trunk-based development**: a single `main` branch that stays production-ready. Changes go through feature branches that merge into `main`.
+Bot uses **trunk-based development**: a single `main` branch that stays production-ready. Changes go through feature branches that merge into `main`.
 
 **Lifecycle:** Create → Develop → Merge → Delete. Keep branches short-lived (about 1–3 days), merge to `main` frequently, and ensure `main` stays deployable. See [Branch naming](best-practices/branch-naming.md) and [Git best practices](best-practices/git.md).
 
@@ -193,7 +193,7 @@ git commit -m "feat: implement user role system
 - **Members:** `git push origin feat/your-feature`
 - **Forks:** `git push origin feat/your-feature`
 
-On GitHub: base = `allthingslinux/tux` and branch = `main`. For forks, head = your fork and compare = your feature branch. You can use the "Compare & pull request" prompt or your fork’s "Contribute" → "Open a pull request".
+On GitHub: base = `awfixers-stuff/bot` and branch = `main`. For forks, head = your fork and compare = your feature branch. You can use the "Compare & pull request" prompt or your fork’s "Contribute" → "Open a pull request".
 
 **PR title:** `[module/area] Brief description` (e.g. `[auth] Add OAuth2 login`, `[database] Optimize user query`).
 
@@ -214,7 +214,7 @@ Link issues with `Closes #123` and explain *why* the change is needed. Keep bran
 | PR checklist and review | [Code review](best-practices/code-review.md) |
 | Step-by-step setup | [Development Setup](tutorials/development-setup.md) |
 | First-time contributor path | [First Contribution](tutorials/first-contribution.md) |
-| CLI (`tux`, `db`, `dev`, `test`, `config`, `docs`) | [CLI reference](../reference/cli.md) |
+| CLI (`bot`, `db`, `dev`, `test`, `config`, `docs`) | [CLI reference](../reference/cli.md) |
 | Cursor rules and commands | [Creating Cursor rules](guides/creating-cursor-rules.md), [Creating Cursor commands](guides/creating-cursor-commands.md) |
 
 ## Troubleshooting
@@ -227,11 +227,11 @@ Link issues with `Closes #123` and explain *why* the change is needed. Keep bran
 
 ## Getting help
 
-- [Tux documentation](https://tux.atl.dev)
-- [Issues](https://github.com/allthingslinux/tux/issues)
+- [Bot documentation](https://github.com/awfixers-stuff/bot)
+- [Issues](https://github.com/awfixers-stuff/bot/issues)
 - [Discord](https://discord.gg/gpmSjcjQxg) — ask in a development channel
 
 ## Code of Conduct and License
 
-- [Code of Conduct](https://github.com/allthingslinux/tux/blob/main/.github/CODE_OF_CONDUCT.md) — be respectful, constructive, and inclusive.
-- [License (GPL-3.0)](https://github.com/allthingslinux/tux/blob/main/LICENSE) — by contributing, you agree your contributions are licensed under the same terms.
+- [Code of Conduct](https://github.com/awfixers-stuff/bot/blob/main/.github/CODE_OF_CONDUCT.md) — be respectful, constructive, and inclusive.
+- [License (GPL-3.0)](https://github.com/awfixers-stuff/bot/blob/main/LICENSE) — by contributing, you agree your contributions are licensed under the same terms.

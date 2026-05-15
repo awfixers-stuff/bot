@@ -47,8 +47,8 @@ class TestCheckCache:
         mock_config.valkey_url = "valkey://localhost:6379/0"
         with (
             patch("scripts.db.health.CONFIG", mock_config),
-            patch("tux.cache.service.CONFIG", mock_config),
-            patch("tux.cache.service.Valkey") as mock_valkey,
+            patch("bot.cache.service.CONFIG", mock_config),
+            patch("bot.cache.service.Valkey") as mock_valkey,
         ):
             mock_valkey.from_url.return_value = fake_client
             result = await _check_cache()
@@ -69,8 +69,8 @@ class TestCheckCache:
         mock_config.valkey_url = "valkey://localhost:6379/0"
         with (
             patch("scripts.db.health.CONFIG", mock_config),
-            patch("tux.cache.service.CONFIG", mock_config),
-            patch("tux.cache.service.Valkey") as mock_valkey,
+            patch("bot.cache.service.CONFIG", mock_config),
+            patch("bot.cache.service.Valkey") as mock_valkey,
         ):
             mock_valkey.from_url.return_value = fake_client
             result = await _check_cache()
@@ -85,8 +85,8 @@ class TestCheckCache:
         mock_config.valkey_url = "valkey://localhost:6379/0"
         with (
             patch("scripts.db.health.CONFIG", mock_config),
-            patch("tux.cache.service.CONFIG", mock_config),
-            patch("tux.cache.service.Valkey") as mock_valkey,
+            patch("bot.cache.service.CONFIG", mock_config),
+            patch("bot.cache.service.Valkey") as mock_valkey,
         ):
             mock_valkey.from_url.side_effect = ConnectionError("Connection refused")
             result = await _check_cache()

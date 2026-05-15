@@ -10,7 +10,7 @@ tags:
 
 # SnippetUnban
 
-The `snippetunban` command (also available as `sub`) allows server moderators to lift a previously applied snippet restriction from a member, restoring their ability to use Tux's snippet creation and management features.
+The `snippetunban` command (also available as `sub`) allows server moderators to lift a previously applied snippet restriction from a member, restoring their ability to use Bot's snippet creation and management features.
 
 ## Syntax
 
@@ -48,7 +48,7 @@ This command supports the following flags:
 
 | Flag | Aliases | Type | Default | Description |
 |------|---------|------|---------|-------------|
-| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Tux will not attempt to DM the user. |
+| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Bot will not attempt to DM the user. |
 
 ### -silent
 
@@ -62,14 +62,14 @@ Whether to suppress the DM notification to the user.
 
 ### Bot Permissions
 
-Tux requires no special Discord permissions for this command, as it is handled internally via its database.
+Bot requires no special Discord permissions for this command, as it is handled internally via its database.
 
 ### User Permissions
 
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 
@@ -89,7 +89,7 @@ $snippetunban @user Appealed successfully, access restored
 
 ## Response Format
 
-When executed successfully, Tux will:
+When executed successfully, Bot will:
 
 1. Update its internal database to remove the snippet ban for the user.
 2. Attempt to DM the user informing them they can once again create and manage snippets (unless `-silent` is used).
@@ -105,7 +105,7 @@ The confirmation message includes the snippet-unbanned user's name, the reason (
 
 #### Lacking Permission Rank
 
-**When it occurs:** Your internal Tux permission rank is lower than what's required to use this command.
+**When it occurs:** Your internal Bot permission rank is lower than what's required to use this command.
 
 **What happens:** The bot sends an error message indicating you don't have permission to use this command.
 

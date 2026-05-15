@@ -12,7 +12,7 @@ icon: lucide/database
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-Manage your Tux database including backups, migrations, and administration tools.
+Manage your Bot database including backups, migrations, and administration tools.
 
 ## Database Backups
 
@@ -24,13 +24,13 @@ Protect your data with regular backups.
 
 ```bash
 # Docker Compose
-docker compose exec tux-postgres pg_dump -U tuxuser tuxdb > backup_$(date +%Y%m%d).sql
+docker compose exec bot-postgres pg_dump -U botuser botdb > backup_$(date +%Y%m%d).sql
 
 # With compression
-docker compose exec tux-postgres pg_dump -U tuxuser tuxdb | gzip > backup_$(date +%Y%m%d).sql.gz
+docker compose exec bot-postgres pg_dump -U botuser botdb | gzip > backup_$(date +%Y%m%d).sql.gz
 
 # Local PostgreSQL
-pg_dump -h localhost -U tuxuser tuxdb > backup.sql
+pg_dump -h localhost -U botuser botdb > backup.sql
 ```
 
 #### Automated Backups
@@ -43,13 +43,13 @@ BACKUP_DIR="/backups"
 DATE=$(date +%Y%m%d_%H%M%S)
 
 # Create backup
-docker compose exec tux-postgres pg_dump -U tuxuser tuxdb | gzip > "$BACKUP_DIR/tux_$DATE.sql.gz"
+docker compose exec bot-postgres pg_dump -U botuser botdb | gzip > "$BACKUP_DIR/bot_$DATE.sql.gz"
 
 # Keep only last 30 days
-find "$BACKUP_DIR" -name "tux_*.sql.gz" -mtime +30 -delete
+find "$BACKUP_DIR" -name "bot_*.sql.gz" -mtime +30 -delete
 
 # Optional: Upload to cloud storage
-# rclone copy "$BACKUP_DIR/tux_$DATE.sql.gz" remote:backups/
+# rclone copy "$BACKUP_DIR/bot_$DATE.sql.gz" remote:backups/
 ```
 
 **Add to cron:**
@@ -63,13 +63,13 @@ find "$BACKUP_DIR" -name "tux_*.sql.gz" -mtime +30 -delete
 
 ```bash
 # From SQL file
-docker compose exec -T tux-postgres psql -U tuxuser tuxdb < backup.sql
+docker compose exec -T bot-postgres psql -U botuser botdb < backup.sql
 
 # From gzip
-gunzip < backup.sql.gz | docker compose exec -T tux-postgres psql -U tuxuser tuxdb
+gunzip < backup.sql.gz | docker compose exec -T bot-postgres psql -U botuser botdb
 
 # Or
-docker compose exec tux-postgres psql -U tuxuser tuxdb < backup.sql
+docker compose exec bot-postgres psql -U botuser botdb < backup.sql
 ```
 
 ### Best Practices
@@ -94,7 +94,7 @@ Migrations are version-controlled database schema changes:
 - Rollback if needed
 - Share schema changes with team
 
-Tux uses **Alembic** for migrations.
+Bot uses **Alembic** for migrations.
 
 ### CLI Commands
 
@@ -113,18 +113,18 @@ uv run db history
 
 #### After Updates
 
-When updating Tux:
+When updating Bot:
 
 ```bash
 git pull
 uv sync
 uv run db push                      # Apply new migrations
-docker compose restart tux          # Restart bot
+docker compose restart bot          # Restart bot
 ```
 
 ### Migration Files
 
-Located in: `src/tux/database/migrations/versions/`
+Located in: `src/bot/database/migrations/versions/`
 
 **Don't manually edit** migration files unless you know what you're doing.
 
@@ -140,16 +140,16 @@ Create `compose.override.yaml`:
 
 ```yaml
 services:
-  tux:
+  bot:
     volumes:
       # Mount migrations for faster development/customization iteration
       # Without this, migrations come from the Docker image (production behavior)
-      - ./src/tux/database/migrations:/app/src/tux/database/migrations:ro
+      - ./src/bot/database/migrations:/app/src/bot/database/migrations:ro
 ```
 
 ```bash
 # Migrations now come from local mount
-docker compose restart tux
+docker compose restart bot
 ```
 
 See [Docker Migration Setup](../../developer/concepts/database/migrations.md#-docker-migration-setup) for complete details.
@@ -253,16 +253,16 @@ http://localhost:8080
 If auto-login is disabled:
 
 - **System:** PostgreSQL
-- **Server:** tux-postgres
-- **Username:** tuxuser
+- **Server:** bot-postgres
+- **Username:** botuser
 - **Password:** (from your .env)
-- **Database:** tuxdb
+- **Database:** botdb
 
 ### Common Tasks
 
 #### Browse Data
 
-1. Click database name (tuxdb)
+1. Click database name (botdb)
 2. Click table name
 3. View/edit data
 
@@ -319,7 +319,7 @@ Then access at `http://localhost:9090`
 Stop the service or omit the adminer profile:
 
 ```bash
-docker compose stop tux-adminer
+docker compose stop bot-adminer
 ```
 
 ## Related

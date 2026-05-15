@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Local Docker build script for Tux
+# Local Docker build script for Bot
 # Builds Docker image with version baked in from git tags or manual override
 #
 # Usage:
@@ -12,7 +12,7 @@ set -euo pipefail
 
 # Default values
 TARGET="production"
-IMAGE_TAG="tux:latest"
+IMAGE_TAG="bot:latest"
 VERSION=""
 GIT_SHA=""
 BUILD_DATE=""
@@ -34,7 +34,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --help|-h)
       cat << EOF
-Local Docker build script for Tux
+Local Docker build script for Bot
 
 Usage:
   $0 [OPTIONS] [VERSION]
@@ -45,14 +45,14 @@ Arguments:
 Options:
   --target TARGET      Docker build target (default: production)
                        Options: production, dev
-  --tag TAG           Docker image tag (default: tux:latest)
+  --tag TAG           Docker image tag (default: bot:latest)
   --version VERSION    Explicit version (overrides auto-detection)
   --help, -h          Show this help message
 
 Examples:
   $0                                    # Auto-detect version from git
   $0 1.2.3                              # Use version 1.2.3
-  $0 --target dev --tag tux:dev        # Build dev target with custom tag
+  $0 --target dev --tag bot:dev        # Build dev target with custom tag
   $0 --version \$(git describe --tags)  # Use git describe output
 
 Version Detection Priority:
@@ -143,7 +143,7 @@ if [ -z "$VERSION" ]; then
 fi
 
 # Display build information
-echo "Building Tux Docker Image"
+echo "Building Bot Docker Image"
 echo "Version:     $VERSION"
 echo "Target:      $TARGET"
 echo "Tag:         $IMAGE_TAG"
@@ -183,7 +183,7 @@ echo "Build complete!"
 echo "Image: $IMAGE_TAG"
 echo ""
 echo "To run with Docker Compose:"
-echo "  TUX_IMAGE=${IMAGE_TAG%%:*} TUX_IMAGE_TAG=${IMAGE_TAG##*:} docker compose --profile production up -d"
+echo "  BOT_IMAGE=${IMAGE_TAG%%:*} BOT_IMAGE_TAG=${IMAGE_TAG##*:} docker compose --profile production up -d"
 echo ""
 echo "To run directly:"
 echo "  docker run --rm $IMAGE_TAG"

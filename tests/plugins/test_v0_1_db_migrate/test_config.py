@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from tux.plugins.v0_1_db_migrate.config import (
+from bot.plugins.v0_1_db_migrate.config import (
     MigrationConfig,
     get_old_database_url,
 )

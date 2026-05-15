@@ -113,13 +113,13 @@ Snippets are configured in the server's `config.json` file under the `SNIPPETS` 
 
 - User is [snippet-banned](../modules/moderation/snippetban.md) (`/snippetban`).
 - `LIMIT_TO_ROLE_IDS` is `true` and the user lacks an `ACCESS_ROLE_IDS` role.
-- Tux lacks Send Messages or Embed Links in the channel.
+- Bot lacks Send Messages or Embed Links in the channel.
 
 **Solutions:**
 
 1. Check snippet ban status with moderators; use `/snippetunban` if appropriate.
 2. Confirm `SNIPPETS` config and the user's roles.
-3. Ensure Tux has the required permissions in the channel.
+3. Ensure Bot has the required permissions in the channel.
 
 ## Limitations
 

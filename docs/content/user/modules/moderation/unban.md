@@ -12,7 +12,7 @@ tags:
 
 The `unban` command allows server moderators to lift a ban from a user, allowing them to rejoin the server through a valid invite. This command supports resolving users from the server's ban list using their username, full name with discriminator, or their unique Discord ID.
 
-Unlike the ban command, Tux does not attempt to DM the user when they are unbanned, as they are not currently in the server and cannot receive direct messages from the bot in most cases.
+Unlike the ban command, Bot does not attempt to DM the user when they are unbanned, as they are not currently in the server and cannot receive direct messages from the bot in most cases.
 
 ## Syntax
 
@@ -46,18 +46,18 @@ You can also use these aliases instead of `unban`:
 
 ## User Resolution
 
-Tux is flexible when searching for banned users. You can provide:
+Bot is flexible when searching for banned users. You can provide:
 
 - **Discord ID:** `123456789012345678` (Most reliable)
 - **Exact Username:** `username`
 - **Username and Discriminator:** `username#1234` (Legacy)
-- **Partial Username:** If exactly one banned user matches the partial name, Tux will select them.
+- **Partial Username:** If exactly one banned user matches the partial name, Bot will select them.
 
 ## Permissions
 
 ### Bot Permissions
 
-Tux requires the following permissions:
+Bot requires the following permissions:
 
 - **Ban Members** - Required to remove the user from the guild's ban list.
 
@@ -66,7 +66,7 @@ Tux requires the following permissions:
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 
@@ -96,7 +96,7 @@ If "JaneDoe" is the only banned user with "Jane" in their name:
 
 ## Response Format
 
-When executed successfully, Tux will:
+When executed successfully, Bot will:
 
 1. Resolve the user from the guild's ban list.
 2. Remove the ban on the Discord server.
@@ -104,7 +104,7 @@ When executed successfully, Tux will:
 4. Post a confirmation message in the current channel showing the unban details.
 5. Log the action in the designated moderation log channel.
 
-The confirmation message includes the unbanned user's name, the reason (if provided), and a link to view the moderation case. Unlike ban commands, Tux does not attempt to DM the user when they are unbanned.
+The confirmation message includes the unbanned user's name, the reason (if provided), and a link to view the moderation case. Unlike ban commands, Bot does not attempt to DM the user when they are unbanned.
 
 ## Error Handling
 
@@ -136,7 +136,7 @@ The confirmation message includes the unbanned user's name, the reason (if provi
 
 #### Lacking Permission Rank
 
-**When it occurs:** Your internal Tux permission rank is lower than the rank required to use this command.
+**When it occurs:** Your internal Bot permission rank is lower than the rank required to use this command.
 
 **What happens:** The bot sends an error message indicating you don't have permission to use this command.
 
@@ -147,14 +147,14 @@ The confirmation message includes the unbanned user's name, the reason (if provi
 
 #### Bot Missing Permissions
 
-**When it occurs:** Tux lacks the "Ban Members" permission required to remove bans.
+**When it occurs:** Bot lacks the "Ban Members" permission required to remove bans.
 
 **What happens:** The bot sends an error message indicating insufficient permissions.
 
 **Solutions:**
 
-- Grant Tux the "Ban Members" permission in the server settings
-- Check that Tux's role has the necessary permissions
+- Grant Bot the "Ban Members" permission in the server settings
+- Check that Bot's role has the necessary permissions
 - Verify permissions are not overridden at the channel level
 
 ## Related Commands

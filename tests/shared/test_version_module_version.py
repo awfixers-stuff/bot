@@ -6,8 +6,8 @@ Tests for the module-level __version__ constant.
 
 import pytest
 
-from tux import __version__
-from tux.shared.version import get_version
+from bot import __version__
+from bot.shared.version import get_version
 
 pytestmark = pytest.mark.unit
 

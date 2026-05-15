@@ -12,7 +12,7 @@ tags:
 
 # Run
 
-The `run` command allows users to execute code snippets directly within Discord. By integrating with high-performance online compilers like Godbolt and Wandbox, Tux can compile and run code in over 25 programming languages, returning the standard output or compiler errors in a clean format.
+The `run` command allows users to execute code snippets directly within Discord. By integrating with high-performance online compilers like Godbolt and Wandbox, Bot can compile and run code in over 25 programming languages, returning the standard output or compiler errors in a clean format.
 
 ## Syntax
 
@@ -42,7 +42,7 @@ Paste your code within triple backticks, specifying the language for syntax high
 <!-- markdownlint-disable MD040 -->
 ```text
 $run ```python
-print("Hello from Tux!")
+print("Hello from Bot!")
 ```
 
 ```
@@ -58,7 +58,7 @@ $run
 
 ## Supported Languages
 
-Tux supports a wide variety of languages, including but not limited to:
+Bot supports a wide variety of languages, including but not limited to:
 
 - **C / C++ / C#**
 - **Python / Javascript / Typescript**

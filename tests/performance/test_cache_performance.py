@@ -1,7 +1,7 @@
 """
 Performance benchmarks for cache operations.
 
-Tests TTLCache, GuildConfigCacheManager, and JailStatusCache performance
+Tests TTLCache and JailStatusCache performance
 to ensure optimizations maintain or improve performance.
 """
 
@@ -11,7 +11,7 @@ import timeit
 
 import pytest
 
-from tux.cache import GuildConfigCacheManager, JailStatusCache, TTLCache
+from bot.cache import JailStatusCache, TTLCache
 
 
 @pytest.mark.performance
@@ -42,29 +42,6 @@ class TestTTLCachePerformance:
         size = sys.getsizeof(cache)
         # Should be significantly smaller than without __slots__
         assert size < 200, f"Cache instance too large: {size} bytes"
-
-
-@pytest.mark.performance
-class TestGuildConfigCachePerformance:
-    """Performance tests for GuildConfigCacheManager."""
-
-    def test_cache_get_set_performance(self) -> None:
-        """Benchmark guild config cache operations."""
-        cache = GuildConfigCacheManager()
-
-        async def run_operations() -> None:
-            await cache.clear_all()
-            for guild_id in range(100):
-                await cache.set(guild_id, audit_log_id=guild_id * 10)
-                await cache.get(guild_id)
-
-        def run_sync() -> None:
-            asyncio.run(run_operations())
-
-        # Measure execution time
-        execution_time = timeit.timeit(run_sync, number=50)
-        # Should complete in reasonable time
-        assert execution_time < 1.0, f"Cache operations too slow: {execution_time}s"
 
 
 @pytest.mark.performance

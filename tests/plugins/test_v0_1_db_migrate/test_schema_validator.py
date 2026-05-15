@@ -2,8 +2,8 @@
 
 import pytest
 
-from tux.plugins.v0_1_db_migrate.mapper import ModelMapper
-from tux.plugins.v0_1_db_migrate.schema_validator import SchemaValidator
+from bot.plugins.v0_1_db_migrate.mapper import ModelMapper
+from bot.plugins.v0_1_db_migrate.schema_validator import SchemaValidator
 
 
 @pytest.mark.unit

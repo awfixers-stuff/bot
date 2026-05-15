@@ -1,6 +1,6 @@
 ---
 title: Modules
-description: Complete documentation for all Tux command modules
+description: Complete documentation for all Bot command modules
 tags:
   - user-guide
   - modules
@@ -9,9 +9,9 @@ tags:
 
 # Modules
 
-Tux organizes commands into modules, each providing a focused set of functionality for your Discord server. This section contains complete documentation for all available command modules, including detailed command references, usage examples, and configuration guides.
+Bot organizes commands into modules, each providing a focused set of functionality for your Discord server. This section contains complete documentation for all available command modules, including detailed command references, usage examples, and configuration guides.
 
-Whether you're looking for moderation tools, utility commands, fun features, or administrative controls, you'll find everything you need to make the most of Tux's capabilities.
+Whether you're looking for moderation tools, utility commands, fun features, or administrative controls, you'll find everything you need to make the most of Bot's capabilities.
 
 ## Available Modules
 
@@ -28,15 +28,15 @@ Whether you're looking for moderation tools, utility commands, fun features, or 
 
 ## Getting Started
 
-To get started with Tux's commands:
+To get started with Bot's commands:
 
-1. **Invite Tux** to your server using the [Setup Guide](../../admin/setup/index.md)
+1. **Invite Bot** to your server using the [Setup Guide](../../admin/setup/index.md)
 2. **Configure permissions** using the [Permission Configuration](../../admin/config/commands.md) guide
 3. **Explore modules** using the links above to find commands that fit your needs
 
 ## Command Types
 
-Tux supports both slash commands and prefix commands:
+Bot supports both slash commands and prefix commands:
 
 - **Slash commands**: Modern Discord slash commands (e.g., `/ping`)
 - **Prefix commands**: Traditional text commands using the `$` prefix (e.g., `$ping`)
@@ -45,7 +45,7 @@ Most commands support both formats, though some specialized commands may only be
 
 ## Permissions
 
-Tux uses a dynamic permission system that allows you to configure who can use which commands. By default, most utility and fun commands are available to all users, while moderation and configuration commands require appropriate permission ranks.
+Bot uses a dynamic permission system that allows you to configure who can use which commands. By default, most utility and fun commands are available to all users, while moderation and configuration commands require appropriate permission ranks.
 
 !!! tip "Permission System"
     Configure command permissions via `/config commands` or see the [Permission Configuration](../../admin/config/commands.md) guide.

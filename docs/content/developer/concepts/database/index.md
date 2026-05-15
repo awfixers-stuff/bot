@@ -14,7 +14,7 @@ icon: lucide/database
 
 ## Overview
 
-Tux uses a robust, async-first PostgreSQL database layer built with SQLModel and SQLAlchemy. The database architecture follows a clean three-layer pattern that separates concerns and enables maintainable, type-safe database operations.
+Bot uses a robust, async-first PostgreSQL database layer built with SQLModel and SQLAlchemy. The database architecture follows a clean three-layer pattern that separates concerns and enables maintainable, type-safe database operations.
 
 The three layers work together to provide:
 

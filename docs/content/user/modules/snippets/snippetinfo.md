@@ -47,7 +47,7 @@ $snippetinfo guide
 
 ## Response Format
 
-When executed, Tux returns a rich info embed containing:
+When executed, Bot returns a rich info embed containing:
 
 - **Snippet name** - The unique identifier displayed in the title
 - **Creator** - The user who first created the snippet (shown as a mention, or ID if user not found)

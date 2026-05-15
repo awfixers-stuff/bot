@@ -14,6 +14,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import text
 from typer import Exit, Option
 
+from bot.database.service import DatabaseService
+from bot.shared.config import CONFIG
 from scripts.core import ROOT, create_app
 from scripts.ui import (
     print_error,
@@ -24,8 +26,6 @@ from scripts.ui import (
     prompt,
     rich_print,
 )
-from tux.database.service import DatabaseService
-from tux.shared.config import CONFIG
 
 app = create_app()
 
@@ -42,7 +42,7 @@ async def _drop_and_recreate_schema(session: AsyncSession) -> None:
 def _delete_migration_files() -> None:
     """Delete all migration files in the versions directory."""
     # Anchor to repo root via ROOT constant from core
-    migration_dir = ROOT / "src" / "tux" / "database" / "migrations" / "versions"
+    migration_dir = ROOT / "src" / "bot" / "database" / "migrations" / "versions"
     if migration_dir.exists():
         rich_print("[yellow]Deleting all migration files...[/yellow]")
         deleted_count = 0
@@ -70,7 +70,9 @@ async def _nuclear_reset(fresh: bool) -> None:
 
     db_url = CONFIG.database_url
     # Allow override via env var
-    prod_keywords = os.getenv("PROD_DB_KEYWORDS", "prod,live,allthingslinux.org").split(
+    prod_keywords = os.getenv(
+        "PROD_DB_KEYWORDS", "prod,live,github.com/awfixers-stuff/bot"
+    ).split(
         ",",
     )
     is_prod_db = any(kw.strip() in db_url.lower() for kw in prod_keywords if kw.strip())

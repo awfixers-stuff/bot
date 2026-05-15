@@ -134,7 +134,7 @@ def profile(
 
     Examples
     --------
-        uv run dev profile src/tux/core/bot.py
+        uv run dev profile src/bot/core/bot.py
         uv run dev profile --output profile.txt --sort time --lines 50 script.py
     """
     print_section("Performance Profiling")

@@ -6,9 +6,9 @@ import discord
 import pytest
 from discord.ext import commands
 
-from tux.services.handlers.error.cog import ErrorHandler
-from tux.services.handlers.error.config import ErrorHandlerConfig
-from tux.shared.exceptions import TuxPermissionError
+from bot.services.handlers.error.cog import ErrorHandler
+from bot.services.handlers.error.config import ErrorHandlerConfig
+from bot.shared.exceptions import BotPermissionError
 
 pytestmark = pytest.mark.unit
 
@@ -69,7 +69,7 @@ class TestErrorHandler:
         error_handler: ErrorHandler,
     ) -> None:
         """Test _get_error_config with parent class match."""
-        error = TuxPermissionError("test")
+        error = BotPermissionError("test")
         config = error_handler._get_error_config(error)
 
         assert isinstance(config, ErrorHandlerConfig)
@@ -82,7 +82,7 @@ class TestErrorHandler:
         assert isinstance(config, ErrorHandlerConfig)
         assert config.send_to_sentry is True
 
-    @patch("tux.services.handlers.error.cog.logger")
+    @patch("bot.services.handlers.error.cog.logger")
     def test_log_error_with_sentry(
         self,
         mock_logger: MagicMock,
@@ -99,7 +99,7 @@ class TestErrorHandler:
 
         mock_logger.error.assert_called_once()
 
-    @patch("tux.services.handlers.error.cog.logger")
+    @patch("bot.services.handlers.error.cog.logger")
     def test_log_error_without_sentry(
         self,
         mock_logger: MagicMock,
@@ -116,9 +116,9 @@ class TestErrorHandler:
 
         mock_logger.info.assert_called_once()
 
-    @patch("tux.services.handlers.error.cog.set_command_context")
-    @patch("tux.services.handlers.error.cog.set_user_context")
-    @patch("tux.services.handlers.error.cog.track_command_end")
+    @patch("bot.services.handlers.error.cog.set_command_context")
+    @patch("bot.services.handlers.error.cog.set_user_context")
+    @patch("bot.services.handlers.error.cog.track_command_end")
     def test_set_sentry_context_with_interaction(
         self,
         mock_track_end: MagicMock,
@@ -142,9 +142,9 @@ class TestErrorHandler:
             error=error,
         )
 
-    @patch("tux.services.handlers.error.cog.set_command_context")
-    @patch("tux.services.handlers.error.cog.set_user_context")
-    @patch("tux.services.handlers.error.cog.track_command_end")
+    @patch("bot.services.handlers.error.cog.set_command_context")
+    @patch("bot.services.handlers.error.cog.set_user_context")
+    @patch("bot.services.handlers.error.cog.track_command_end")
     def test_set_sentry_context_with_context(
         self,
         mock_track_end: MagicMock,

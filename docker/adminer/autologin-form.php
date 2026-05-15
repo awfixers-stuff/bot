@@ -9,7 +9,7 @@
  * Typical usage: instantiate the class with login parameters and call loginForm().
  *
  * @author Paul BOREL <paul.borel@gmail.com>
- * Forked and adapted for Tux project
+ * Forked and adapted for Bot project
  */
 
 class AdminerAutoLoginForm {

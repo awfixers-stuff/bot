@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Validate VS Code and Python path configuration for Tux development.
+"""Validate VS Code and Python path configuration for Bot development.
 
 This script checks:
 - Python interpreter location
@@ -117,9 +117,9 @@ def check_module_imports() -> bool:
         sys.path.insert(0, str(src_path.resolve()))
 
     test_imports = [
-        ("tux.core.logging", "Core logging module"),
-        ("tux.core.bot", "Bot core"),
-        ("tux.database.service", "Database service"),
+        ("bot.core.logging", "Core logging module"),
+        ("bot.core.bot", "Bot core"),
+        ("bot.database.service", "Database service"),
     ]
 
     all_good = True
@@ -132,18 +132,18 @@ def check_module_imports() -> bool:
             print(f"   Error: {e}")
             all_good = False
 
-    # Test that tux package can be imported (from src/tux/)
+    # Test that bot package can be imported (from src/bot/)
     try:
-        import tux  # noqa: PLC0415
+        import bot  # noqa: PLC0415
     except ImportError as e:
-        print_error(f"tux package import failed: {e}")
+        print_error(f"bot package import failed: {e}")
         all_good = False
     else:
-        tux_path = Path(tux.__file__).parent
-        if "src/tux" in str(tux_path):
-            print_success(f"tux package found at: {tux_path}")
+        bot_path = Path(bot.__file__).parent
+        if "src/bot" in str(bot_path):
+            print_success(f"bot package found at: {bot_path}")
         else:
-            print_warning(f"tux package found at unexpected location: {tux_path}")
+            print_warning(f"bot package found at unexpected location: {bot_path}")
 
     return all_good
 

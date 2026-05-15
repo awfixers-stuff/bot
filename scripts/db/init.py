@@ -11,6 +11,7 @@ import pathlib
 from sqlalchemy import text
 from typer import Exit
 
+from bot.database.service import DatabaseService
 from scripts.core import create_app
 from scripts.proc import run_command
 from scripts.ui import (
@@ -20,7 +21,6 @@ from scripts.ui import (
     print_success,
     rich_print,
 )
-from tux.database.service import DatabaseService
 
 app = create_app()
 
@@ -65,7 +65,7 @@ def init() -> None:
 
     table_count, migration_count = asyncio.run(_inspect_db_state())
 
-    migration_dir = pathlib.Path("src/tux/database/migrations/versions")
+    migration_dir = pathlib.Path("src/bot/database/migrations/versions")
     migration_files = list(migration_dir.glob("*.py")) if migration_dir.exists() else []
 
     # More explicit migration file filtering

@@ -1,6 +1,6 @@
 ---
 title: Sentry Metrics
-description: Using Sentry metrics to track performance and usage throughout Tux
+description: Using Sentry metrics to track performance and usage throughout Bot
 tags:
   - developer-guide
   - best-practices
@@ -10,7 +10,7 @@ icon: lucide/circle-gauge
 
 # Sentry Metrics
 
-Tux uses Sentry metrics to track performance, usage patterns, and system health. Metrics help you identify bottlenecks, monitor usage trends, and correlate performance data with errors.
+Bot uses Sentry metrics to track performance, usage patterns, and system health. Metrics help you identify bottlenecks, monitor usage trends, and correlate performance data with errors.
 
 ## Overview
 
@@ -22,10 +22,10 @@ Sentry metrics are automatically enabled when Sentry is initialized. The metrics
 
 ## Available Metrics Functions
 
-All metrics functions are available from `tux.services.sentry.metrics`:
+All metrics functions are available from `bot.services.sentry.metrics`:
 
 ```python
-from tux.services.sentry.metrics import (
+from bot.services.sentry.metrics import (
     record_command_metric,
     record_database_metric,
     record_api_metric,
@@ -52,7 +52,7 @@ Command metrics are automatically recorded for all commands:
 - `success` - Whether command succeeded
 - `error_type` - Error type if command failed
 
-**Integration:** Automatically recorded in `track_command_end()` in `src/tux/services/sentry/context.py`
+**Integration:** Automatically recorded in `track_command_end()` in `src/bot/services/sentry/context.py`
 
 ### Database Operations
 
@@ -71,7 +71,7 @@ Database metrics are automatically recorded for all database operations with ret
 - `success` - Whether operation succeeded
 - `error_type` - Error type if operation failed
 
-**Integration:** Automatically recorded in `_execute_with_retry()` in `src/tux/database/service.py`
+**Integration:** Automatically recorded in `_execute_with_retry()` in `src/bot/database/service.py`
 
 ## Manual Metrics Recording
 
@@ -80,7 +80,7 @@ Database metrics are automatically recorded for all database operations with ret
 Track external API call performance:
 
 ```python
-from tux.services.sentry.metrics import record_api_metric
+from bot.services.sentry.metrics import record_api_metric
 import time
 
 start_time = time.perf_counter()
@@ -120,12 +120,12 @@ except httpx.HTTPStatusError as e:
 Track cog loading, unloading, and reloading:
 
 ```python
-from tux.services.sentry.metrics import record_cog_metric
+from bot.services.sentry.metrics import record_cog_metric
 import time
 
 start_time = time.perf_counter()
 try:
-    await bot.load_extension("tux.modules.tools.tldr")
+    await bot.load_extension("bot.modules.tools.tldr")
     duration_ms = (time.perf_counter() - start_time) * 1000
     
     record_cog_metric(
@@ -156,7 +156,7 @@ except Exception as e:
 Track cache performance:
 
 ```python
-from tux.services.sentry.metrics import record_cache_metric
+from bot.services.sentry.metrics import record_cache_metric
 import time
 
 start_time = time.perf_counter()
@@ -201,7 +201,7 @@ else:
 Track background task execution:
 
 ```python
-from tux.services.sentry.metrics import record_task_metric
+from bot.services.sentry.metrics import record_task_metric
 import time
 
 async def background_task():
@@ -238,7 +238,7 @@ async def background_task():
 
 ### Recommended Integration Locations
 
-1. **TLDR Cache Updates** (`src/tux/modules/tools/tldr.py`)
+1. **TLDR Cache Updates** (`src/bot/modules/tools/tldr.py`)
    - Use `record_cache_metric()` for cache operations
    - Track cache update durations
 
@@ -246,11 +246,11 @@ async def background_task():
    - Use `record_api_metric()` for Discord API calls
    - Track rate limits and latencies
 
-3. **Cog Setup** (`src/tux/core/setup/cog_setup.py`)
+3. **Cog Setup** (`src/bot/core/setup/cog_setup.py`)
    - Use `record_cog_metric()` for cog loading operations
    - Track load times and failures
 
-4. **Background Tasks** (`src/tux/core/task_monitor.py`)
+4. **Background Tasks** (`src/bot/core/task_monitor.py`)
    - Use `record_task_metric()` for periodic tasks
    - Track execution times and failures
 
@@ -295,7 +295,7 @@ async def background_task():
 ## Example: Complete Integration
 
 ```python
-from tux.services.sentry.metrics import record_api_metric, record_cache_metric
+from bot.services.sentry.metrics import record_api_metric, record_cache_metric
 import time
 
 async def fetch_tldr_page(platform: str, command: str, lang: str) -> str:

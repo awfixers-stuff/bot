@@ -1,4 +1,4 @@
-"""Unit tests for GuildConfigCacheManager and JailStatusCache with backend set."""
+"""Unit tests for JailStatusCache with backend set."""
 
 from __future__ import annotations
 
@@ -7,117 +7,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from tux.cache import GuildConfigCacheManager, JailStatusCache
-from tux.cache.backend import InMemoryBackend
-
-
-@pytest.mark.unit
-class TestGuildConfigCacheManagerWithBackend:
-    """GuildConfigCacheManager get/set/invalidate when backend is set."""
-
-    @pytest.fixture
-    def backend(self) -> InMemoryBackend:
-        """Fresh in-memory backend per test."""
-        return InMemoryBackend()
-
-    @pytest.fixture
-    def manager(self, backend: InMemoryBackend) -> Generator[GuildConfigCacheManager]:
-        """Singleton with backend set; teardown clears state to avoid leakage."""
-        manager = GuildConfigCacheManager()
-        manager.set_backend(backend)
-        yield manager
-        manager._backend = None
-        manager._cache.clear()
-        manager._locks.clear()
-
-    @pytest.mark.asyncio
-    async def test_get_returns_none_when_not_cached(
-        self,
-        manager: GuildConfigCacheManager,
-    ) -> None:
-        """Get with uncached guild returns None."""
-        assert await manager.get(999) is None
-
-    @pytest.mark.asyncio
-    async def test_set_and_get_roundtrip(
-        self,
-        manager: GuildConfigCacheManager,
-    ) -> None:
-        """Set then get returns the same config."""
-        guild_id = 12345
-        await manager.set(
-            guild_id,
-            audit_log_id=111,
-            mod_log_id=222,
-            jail_role_id=333,
-            jail_channel_id=444,
-        )
-        out = await manager.get(guild_id)
-        assert out is not None
-        assert out["audit_log_id"] == 111
-        assert out["mod_log_id"] == 222
-        assert out["jail_role_id"] == 333
-        assert out["jail_channel_id"] == 444
-
-    @pytest.mark.asyncio
-    async def test_set_partial_merge(self, manager: GuildConfigCacheManager) -> None:
-        """Set with partial fields merges with existing."""
-        guild_id = 100
-        await manager.set(guild_id, audit_log_id=1, mod_log_id=2)
-        await manager.set(guild_id, jail_role_id=3)
-        out = await manager.get(guild_id)
-        assert out is not None
-        assert out["audit_log_id"] == 1
-        assert out["mod_log_id"] == 2
-        assert out["jail_role_id"] == 3
-
-    @pytest.mark.asyncio
-    async def test_invalidate_removes_entry(
-        self,
-        manager: GuildConfigCacheManager,
-    ) -> None:
-        """Invalidate removes the guild config; get returns None."""
-        guild_id = 200
-        await manager.set(guild_id, audit_log_id=1)
-        await manager.invalidate(guild_id)
-        assert await manager.get(guild_id) is None
-
-    @pytest.mark.asyncio
-    async def test_get_returns_none_when_backend_returns_non_dict(
-        self,
-        manager: GuildConfigCacheManager,
-        backend: InMemoryBackend,
-    ) -> None:
-        """Get when backend returns non-dict (e.g. string) returns None."""
-        backend.get = AsyncMock(return_value="not-a-dict")
-        guild_id = 99
-        result = await manager.get(guild_id)
-        assert result is None
-
-    @pytest.mark.asyncio
-    async def test_async_set_with_backend_merges_and_writes(
-        self,
-        manager: GuildConfigCacheManager,
-    ) -> None:
-        """async_set with backend merges existing and writes to backend."""
-        guild_id = 50
-        await manager.async_set(guild_id, audit_log_id=10, mod_log_id=20)
-        out = await manager.get(guild_id)
-        assert out is not None
-        assert out["audit_log_id"] == 10
-        assert out["mod_log_id"] == 20
-
-    @pytest.mark.asyncio
-    async def test_clear_all_clears_in_memory_cache(
-        self,
-        manager: GuildConfigCacheManager,
-    ) -> None:
-        """clear_all clears in-memory _cache (when backend is None, get then returns None)."""
-        manager._backend = None  # Use in-memory path only
-        guild_id = 60
-        await manager.set(guild_id, audit_log_id=1)
-        await manager.clear_all()
-        assert await manager.get(guild_id) is None
+from bot.cache import JailStatusCache
+from bot.cache.backend import InMemoryBackend
 
 
 @pytest.mark.unit

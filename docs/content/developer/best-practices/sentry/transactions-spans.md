@@ -1,6 +1,6 @@
 ---
 title: Transactions and Spans
-description: How to use transactions and spans for tracing in Tux
+description: How to use transactions and spans for tracing in Bot
 tags:
   - developer-guide
   - best-practices
@@ -10,7 +10,7 @@ icon: lucide/activity
 
 # Transactions and Spans
 
-Transactions and spans provide detailed tracing for user-facing operations. This guide shows you how to implement them in Tux.
+Transactions and spans provide detailed tracing for user-facing operations. This guide shows you how to implement them in Bot.
 
 ## Overview
 
@@ -37,7 +37,7 @@ You don't need to manually create transactions for commands—this happens autom
 For non-command operations that are user-facing, create custom transactions:
 
 ```python
-from tux.services.sentry import start_transaction
+from bot.services.sentry import start_transaction
 
 with start_transaction(op="task", name="process_daily_report") as txn:
     await collect_statistics()
@@ -67,7 +67,7 @@ async def get_user(ctx, user_id: int):
 Use `span.set_data()` to add context to spans. This data appears in the trace explorer:
 
 ```python
-from tux.services.sentry import start_span
+from bot.services.sentry import start_span
 
 with start_span("db.query", name="Fetch User") as span:
     user = await db.get_user(user_id)
@@ -90,7 +90,7 @@ with start_span("db.query", name="Fetch User") as span:
 You can use decorators to automatically wrap functions:
 
 ```python
-from tux.services.sentry import transaction, span
+from bot.services.sentry import transaction, span
 
 # Wrap entire function with transaction
 @transaction(op="task.background", name="daily_cleanup")
@@ -170,7 +170,7 @@ async def search_users(ctx, query: str):
         span.set_data("db.search_type", "full_text")
         
         # Metrics for aggregation across all queries
-        from tux.services.sentry.metrics import record_database_metric
+        from bot.services.sentry.metrics import record_database_metric
         record_database_metric(
             operation="search",
             duration_ms=...,

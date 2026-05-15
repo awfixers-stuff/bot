@@ -33,7 +33,7 @@ This guide shows you how to enrich Sentry events with tags, context, span data, 
 ### Using Tags
 
 ```python
-from tux.services.sentry import set_tag
+from bot.services.sentry import set_tag
 
 # Set a tag for filtering
 set_tag("feature", "moderation")
@@ -41,12 +41,12 @@ set_tag("guild_id", str(guild.id))
 set_tag("command.success", True)
 ```
 
-**Common Tags in Tux:**
+**Common Tags in Bot:**
 
 - `command.name` - Command that was executed
 - `command.success` - Whether command succeeded
 - `command.error_type` - Type of error if command failed
-- `error.type` - Category of error (database, api, cog, tux_error)
+- `error.type` - Category of error (database, api, cog, bot_error)
 - `cog.name` - Cog where error occurred
 - `setup_phase` - Current setup phase
 
@@ -73,7 +73,7 @@ set_tag("command.success", True)
 ### Using Context
 
 ```python
-from tux.services.sentry import set_context
+from bot.services.sentry import set_context
 
 # Set structured context
 set_context("command", {
@@ -84,7 +84,7 @@ set_context("command", {
 })
 ```
 
-**Common Context in Tux:**
+**Common Context in Bot:**
 
 - `command` - Command execution details (prefix commands)
 - `interaction` - Interaction details (slash commands)
@@ -92,7 +92,7 @@ set_context("command", {
 - `database` - Database operation context
 - `api_error` - API call context
 - `cog_error` - Cog-related error context
-- `tux_error` - Tux-specific error context
+- `bot_error` - Bot-specific error context
 
 ### Context Best Practices
 
@@ -117,7 +117,7 @@ set_context("command", {
 ### Using Span Data
 
 ```python
-from tux.services.sentry import start_span
+from bot.services.sentry import start_span
 
 with start_span("db.query", name="Fetch User") as span:
     user = await db.get_user(user_id)
@@ -188,12 +188,12 @@ def configure_scope(callback):
     callback(scope)
 ```
 
-### Using Scopes in Tux
+### Using Scopes in Bot
 
-When capturing exceptions with specific context, Tux automatically creates a new scope:
+When capturing exceptions with specific context, Bot automatically creates a new scope:
 
 ```python
-from tux.services.sentry import capture_exception_safe
+from bot.services.sentry import capture_exception_safe
 
 # This automatically creates a new scope
 capture_exception_safe(
@@ -253,7 +253,7 @@ with sentry_sdk.push_scope() as scope:
 
 ## Users
 
-**Yes! Tux tracks users via Discord user IDs.** This enables powerful user-based analytics in Sentry, including user impact analysis, error grouping by user, and user-specific error tracking.
+**Yes! Bot tracks users via Discord user IDs.** This enables powerful user-based analytics in Sentry, including user impact analysis, error grouping by user, and user-specific error tracking.
 
 ### Automatic User Tracking
 
@@ -321,7 +321,7 @@ You can then:
 If you need to set user context manually:
 
 ```python
-from tux.services.sentry import set_user_context
+from bot.services.sentry import set_user_context
 
 set_user_context(ctx.author)
 ```
@@ -330,7 +330,7 @@ set_user_context(ctx.author)
 
 ✅ **Do:**
 
-- Let Tux automatically set user context (handled by `SentryHandler`)
+- Let Bot automatically set user context (handled by `SentryHandler`)
 - Include user context for all user-facing operations
 - Use user IDs (not usernames) for identification
 
@@ -346,7 +346,7 @@ Breadcrumbs create a trail of events leading up to an error, providing context a
 
 ### Automatic Breadcrumbs
 
-Tux uses **LoguruIntegration** to automatically capture logs as breadcrumbs:
+Bot uses **LoguruIntegration** to automatically capture logs as breadcrumbs:
 
 - **All log levels** captured as breadcrumbs (DEBUG, INFO, WARNING, ERROR)
 - **Structured data** from log messages included
@@ -387,14 +387,14 @@ sentry_sdk.add_breadcrumb(
 - Custom operation milestones
 - User actions that aren't captured by logs
 
-**Note:** Tux primarily relies on Loguru integration for breadcrumbs. Manual breadcrumbs are rarely needed since logs are automatically captured as breadcrumbs.
+**Note:** Bot primarily relies on Loguru integration for breadcrumbs. Manual breadcrumbs are rarely needed since logs are automatically captured as breadcrumbs.
 
 ## Common Patterns
 
 ### Pattern 1: Capturing Error with Context
 
 ```python
-from tux.services.sentry import capture_exception_safe
+from bot.services.sentry import capture_exception_safe
 
 try:
     await perform_operation()
@@ -413,7 +413,7 @@ except Exception as e:
 ### Pattern 2: Setting Tags for Filtering
 
 ```python
-from tux.services.sentry import set_tag
+from bot.services.sentry import set_tag
 
 # Set tags for filtering
 set_tag("feature", "moderation")
@@ -424,7 +424,7 @@ set_tag("operation", "ban_user")
 ### Pattern 3: Setting Context for Debugging
 
 ```python
-from tux.services.sentry import set_context
+from bot.services.sentry import set_context
 
 # Set structured context
 set_context("moderation", {
@@ -439,7 +439,7 @@ set_context("moderation", {
 ### Pattern 4: Adding Span Data
 
 ```python
-from tux.services.sentry import start_span
+from bot.services.sentry import start_span
 
 with start_span("db.query", name="Fetch User") as span:
     user = await db.get_user(user_id)

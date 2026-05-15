@@ -3,7 +3,7 @@
 # Codecov Configuration
 # ==============================================================================
 #
-# This file configures Codecov integration for Tux.
+# This file configures Codecov integration for Bot.
 # It defines coverage requirements, status checks, reporting behavior, and
 # file exclusions for comprehensive test coverage tracking.
 #
@@ -169,12 +169,12 @@ github_checks:
 # - Uses regex patterns for matching
 # - Normalizes absolute CI paths to relative repository paths
 fixes:
-  # Normalize any absolute path containing src/tux/ to relative src/tux/
+  # Normalize any absolute path containing src/bot/ to relative src/bot/
   # Examples of transformations:
-  #   /home/runner/work/tux/tux/src/tux/core/app.py => src/tux/core/app.py
-  #   /tmp/workspace/src/tux/database/models.py => src/tux/database/models.py
+  #   /home/runner/work/bot/bot/src/bot/core/app.py => src/bot/core/app.py
+  #   /tmp/workspace/src/bot/database/models.py => src/bot/database/models.py
   # Note: Quoted to match Codecov documentation style
-  - .*/src/tux/::src/tux/
+  - .*/src/bot/::src/bot/
 # ==============================================================================
 # File Exclusion
 # ==============================================================================

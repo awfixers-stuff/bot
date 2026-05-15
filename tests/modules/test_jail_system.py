@@ -10,12 +10,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import discord
 import pytest
 
-from tux.cache import JailStatusCache
-from tux.core.bot import Tux
-from tux.database.controllers import CaseController, DatabaseCoordinator
-from tux.database.models import CaseType
-from tux.database.service import DatabaseService
-from tux.modules.moderation.jail import Jail
+from bot.cache import JailStatusCache
+from bot.core.bot import Bot
+from bot.database.controllers import CaseController, DatabaseCoordinator
+from bot.database.models import CaseType
+from bot.database.service import DatabaseService
+from bot.modules.moderation.jail import Jail
 
 TEST_GUILD_ID = 123456
 ALT_GUILD_ID = 987654
@@ -487,7 +487,7 @@ class TestRejailOnRejoin:
             case_reason="Rejail test",
             case_user_roles=[],
         )
-        bot = MagicMock(spec=Tux)
+        bot = MagicMock(spec=Bot)
         bot.db = jail_ready_coord
         jail_role = create_mock_role(JAIL_ROLE_ID, "Jailed")
         mock_channel = MagicMock(spec=discord.abc.GuildChannel)
@@ -504,7 +504,7 @@ class TestRejailOnRejoin:
         member.remove_roles = AsyncMock()
 
         with patch(
-            "tux.services.moderation.factory.ModerationServiceFactory.create_coordinator",
+            "bot.services.moderation.factory.ModerationServiceFactory.create_coordinator",
             return_value=MagicMock(),
             autospec=True,
         ):
@@ -546,7 +546,7 @@ class TestRejailOnRejoin:
             guild_id=TEST_GUILD_ID,
             case_reason="Released",
         )
-        bot = MagicMock(spec=Tux)
+        bot = MagicMock(spec=Bot)
         bot.db = jail_ready_coord
         jail_role = create_mock_role(JAIL_ROLE_ID, "Jailed")
         guild = MagicMock(spec=discord.Guild)
@@ -564,7 +564,7 @@ class TestRejailOnRejoin:
         member.remove_roles = AsyncMock()
 
         with patch(
-            "tux.services.moderation.factory.ModerationServiceFactory.create_coordinator",
+            "bot.services.moderation.factory.ModerationServiceFactory.create_coordinator",
             return_value=MagicMock(),
             autospec=True,
         ):

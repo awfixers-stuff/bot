@@ -8,8 +8,8 @@ import pytest
 from discord import app_commands
 from discord.ext import commands
 
-from tux.services.handlers.error.cog import ErrorHandler
-from tux.shared.exceptions import TuxError, TuxPermissionDeniedError
+from bot.services.handlers.error.cog import ErrorHandler
+from bot.shared.exceptions import BotError, BotPermissionDeniedError
 
 pytestmark = pytest.mark.integration
 
@@ -53,11 +53,11 @@ class TestErrorHandlingEndToEnd:
         assert "embed" in call_args.kwargs
 
     @pytest.mark.asyncio
-    async def test_tux_error_shows_custom_message(
+    async def test_bot_error_shows_custom_message(
         self,
         error_handler: ErrorHandler,
     ) -> None:
-        """Test that TuxError shows default message (not custom)."""
+        """Test that BotError shows default message (not custom)."""
         mock_ctx = MagicMock()
         mock_ctx.reply = AsyncMock()
         mock_ctx.command = MagicMock()
@@ -65,11 +65,11 @@ class TestErrorHandlingEndToEnd:
         mock_ctx.command.has_error_handler.return_value = False
         mock_ctx.cog = None
 
-        error = cast(commands.CommandError, TuxError("Custom error message"))
+        error = cast(commands.CommandError, BotError("Custom error message"))
 
         await error_handler.on_command_error(mock_ctx, error)
 
-        # Verify response was sent (TuxError uses default message)
+        # Verify response was sent (BotError uses default message)
         mock_ctx.reply.assert_called_once()
         call_args = mock_ctx.reply.call_args
         embed = call_args.kwargs["embed"]
@@ -124,7 +124,7 @@ class TestErrorHandlingEndToEnd:
         # Simulate unconfigured command (both ranks are 0)
         error = cast(
             commands.CommandError,
-            TuxPermissionDeniedError(
+            BotPermissionDeniedError(
             required_rank=0,
             user_rank=0,
             command_name="dev clear_tree",
@@ -161,7 +161,7 @@ class TestErrorHandlingEndToEnd:
         # Simulate insufficient rank
         error = cast(
             commands.CommandError,
-            TuxPermissionDeniedError(
+            BotPermissionDeniedError(
             required_rank=5,
             user_rank=2,
             command_name="ban",
@@ -198,7 +198,7 @@ class TestErrorHandlingEndToEnd:
         # Simulate permission denied for slash command
         error = cast(
             app_commands.AppCommandError,
-            TuxPermissionDeniedError(
+            BotPermissionDeniedError(
             required_rank=3,
             user_rank=1,
             command_name="config",

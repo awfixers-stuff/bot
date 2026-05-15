@@ -13,7 +13,7 @@ icon: lucide/shield-alert
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-Tux integrates with Sentry for comprehensive error tracking, performance monitoring, and production observability. The Sentry integration provides automatic exception capture, command performance tracking, distributed tracing, and rich contextual data for debugging production issues.
+Bot integrates with Sentry for comprehensive error tracking, performance monitoring, and production observability. The Sentry integration provides automatic exception capture, command performance tracking, distributed tracing, and rich contextual data for debugging production issues.
 
 ## Overview
 
@@ -47,12 +47,12 @@ The Sentry SDK uses a **Scope and Client** pattern for managing state and contex
 - Applies sampling and filtering
 - Single instance per application
 
-In Tux, we interact with scopes through `SentryManager` and specialized capture functions. The SDK automatically manages the client instance.
+In Bot, we interact with scopes through `SentryManager` and specialized capture functions. The SDK automatically manages the client instance.
 
 ### Component Structure
 
 ```text
-src/tux/services/sentry/
+src/bot/services/sentry/
 ├── __init__.py          # SentryManager class and public API
 ├── config.py            # SDK initialization and configuration
 ├── context.py           # Context enrichment (users, commands)
@@ -104,7 +104,7 @@ Sentry uses an **integrations system** to automatically instrument frameworks an
 - **Middleware**: Add middleware to web frameworks
 - **Exception handlers**: Catch and process exceptions
 
-**Tux Integrations:**
+**Bot Integrations:**
 
 - **AsyncioIntegration**: Captures asyncio task exceptions and performance
 - **LoguruIntegration**: Converts Loguru logs to Sentry breadcrumbs and events
@@ -139,7 +139,7 @@ graph TD
 
 **Initialization Sequence:**
 
-1. **Application Layer** - `SentryManager.setup()` called first in `TuxApp.start()`
+1. **Application Layer** - `SentryManager.setup()` called first in `BotApp.start()`
 2. **Configuration Check** - Validates `SENTRY_DSN` environment variable
 3. **SDK Initialization** - Configures Sentry with integrations and handlers
 4. **Integration Setup** - Integrations install hooks and patches
@@ -167,7 +167,7 @@ SENTRY_DSN=https://your-key@your-org.ingest.sentry.io/project-id
 
 ### SDK Configuration
 
-Tux configures Sentry with production-ready defaults that work out of the box. The SDK automatically detects your environment (development or production) and tags all events with your bot version for release tracking.
+Bot configures Sentry with production-ready defaults that work out of the box. The SDK automatically detects your environment (development or production) and tags all events with your bot version for release tracking.
 
 **Key Features:**
 
@@ -177,7 +177,7 @@ Tux configures Sentry with production-ready defaults that work out of the box. T
 - **Performance Monitoring** - Tracing enabled for commands and operations to identify slow code paths
 - **Privacy Protection** - No personally identifiable information sent by default
 
-You don't need to configure these options yourself—they're set automatically when Sentry initializes. If you need custom configuration, modify `src/tux/services/sentry/config.py`.
+You don't need to configure these options yourself—they're set automatically when Sentry initializes. If you need custom configuration, modify `src/bot/services/sentry/config.py`.
 
 ### Graceful Shutdown
 
@@ -231,7 +231,7 @@ Context helps you understand what was happening when an error occurred. Set user
 The `SentryHandler` cog automatically sets user and command context for all commands. If you need to set context manually:
 
 ```python
-from tux.services.sentry import set_user_context, set_command_context
+from bot.services.sentry import set_user_context, set_command_context
 
 set_user_context(ctx.author)
 set_command_context(ctx)
@@ -257,7 +257,7 @@ Sentry automatically tracks command performance, but you can add custom transact
 **Transactions** track complete operations from start to finish. Use them for background tasks or major operations:
 
 ```python
-from tux.services.sentry import start_transaction
+from bot.services.sentry import start_transaction
 
 with start_transaction(op="task.background", name="process_daily_report") as txn:
     await collect_statistics()
@@ -267,7 +267,7 @@ with start_transaction(op="task.background", name="process_daily_report") as txn
 **Spans** track individual operations within a transaction. Use them to see which parts of your code are slow:
 
 ```python
-from tux.services.sentry import start_span
+from bot.services.sentry import start_span
 
 with start_span(op="database.query", name="Fetch user data") as span:
     user = await db.get_user(user_id)
@@ -279,7 +279,7 @@ For detailed information about metrics, see [Metrics](./metrics.md).
 
 ### Metrics
 
-Sentry metrics track performance and usage patterns throughout Tux. Metrics are automatically recorded for commands, database operations, API calls, and more.
+Sentry metrics track performance and usage patterns throughout Bot. Metrics are automatically recorded for commands, database operations, API calls, and more.
 
 **Available Metric Types:**
 
@@ -300,7 +300,7 @@ Sentry metrics track performance and usage patterns throughout Tux. Metrics are 
 You can record custom metrics for specific operations:
 
 ```python
-from tux.services.sentry import record_api_metric
+from bot.services.sentry import record_api_metric
 
 record_api_metric(
     endpoint="repos.get",
@@ -317,7 +317,7 @@ The `SentryHandler` cog automatically enriches error reports with context, so yo
 
 ### User Context
 
-**Tux tracks users via Discord user IDs!** When a command runs, Sentry automatically captures Discord user information including:
+**Bot tracks users via Discord user IDs!** When a command runs, Sentry automatically captures Discord user information including:
 
 - **User ID** - Discord user ID (used as unique identifier in Sentry)
 - **Username & Display Name** - For better identification
@@ -354,7 +354,7 @@ Use decorators to automatically track function performance and errors. Decorator
 Wrap entire functions with `@transaction` to track complete operations. The decorator automatically measures execution time, captures errors with stack traces, and tracks success or failure status:
 
 ```python
-from tux.services.sentry import transaction
+from bot.services.sentry import transaction
 
 @transaction(op="task.background", name="daily_cleanup")
 async def perform_daily_cleanup():
@@ -366,7 +366,7 @@ async def perform_daily_cleanup():
 Use `@span` to track operations within existing transactions. Spans appear nested within parent transactions, helping you see which parts of your code are slow:
 
 ```python
-from tux.services.sentry import span
+from bot.services.sentry import span
 
 @span(op="database.query", description="Fetch user by ID")
 async def get_user(user_id: int):
@@ -378,7 +378,7 @@ async def get_user(user_id: int):
 For fine-grained control, use context managers directly. This gives you access to the transaction or span object to set tags and data:
 
 ```python
-from tux.services.sentry import start_transaction, start_span
+from bot.services.sentry import start_transaction, start_span
 
 with start_transaction(op="api.request", name="fetch_data") as txn:
     txn.set_tag("endpoint", "/api/users")
@@ -390,14 +390,14 @@ with start_transaction(op="api.request", name="fetch_data") as txn:
 
 ## Specialized Error Capture
 
-Tux provides specialized error capture functions that automatically add relevant context based on the error type. Use these instead of generic `capture_exception()` for better error reports.
+Bot provides specialized error capture functions that automatically add relevant context based on the error type. Use these instead of generic `capture_exception()` for better error reports.
 
 ### Database Errors
 
 Use `capture_database_error()` when database operations fail. It automatically includes query details, table name, and operation type:
 
 ```python
-from tux.services.sentry import capture_database_error
+from bot.services.sentry import capture_database_error
 
 try:
     await db.execute_query(query)
@@ -407,10 +407,10 @@ except Exception as e:
 
 ### API Errors
 
-For HTTPX errors in API wrappers, use `convert_httpx_error()` to automatically convert HTTPX exceptions to TuxAPI exceptions and report them to Sentry:
+For HTTPX errors in API wrappers, use `convert_httpx_error()` to automatically convert HTTPX exceptions to BotAPI exceptions and report them to Sentry:
 
 ```python
-from tux.services.sentry import convert_httpx_error
+from bot.services.sentry import convert_httpx_error
 
 try:
     response = await httpx.get(endpoint)
@@ -425,16 +425,16 @@ except Exception as e:
 
 This function automatically:
 
-- Converts 404 errors to `TuxAPIResourceNotFoundError`
-- Converts 403 errors to `TuxAPIPermissionError`
-- Converts other HTTP status errors to `TuxAPIRequestError`
-- Converts connection errors to `TuxAPIConnectionError`
+- Converts 404 errors to `BotAPIResourceNotFoundError`
+- Converts 403 errors to `BotAPIPermissionError`
+- Converts other HTTP status errors to `BotAPIRequestError`
+- Converts connection errors to `BotAPIConnectionError`
 - Reports all errors to Sentry with appropriate context via `capture_api_error()`
 
 For other HTTP error scenarios where you need more control, use `capture_api_error()` directly:
 
 ```python
-from tux.services.sentry import capture_api_error
+from bot.services.sentry import capture_api_error
 
 try:
     response = await httpx.get(endpoint)
@@ -447,7 +447,7 @@ except Exception as e:
 Use `capture_cog_error()` for errors within cogs. It automatically tags errors with cog and command names:
 
 ```python
-from tux.services.sentry import capture_cog_error
+from bot.services.sentry import capture_cog_error
 
 try:
     await self.bot.process_commands(message)
@@ -455,17 +455,17 @@ except Exception as e:
     capture_cog_error(e, cog_name=self.__class__.__name__, command_name=ctx.command.name)
 ```
 
-### Tux Errors
+### Bot Errors
 
-Use `capture_tux_exception()` for Tux-specific errors. It includes error severity and user-facing flags:
+Use `capture_bot_exception()` for Bot-specific errors. It includes error severity and user-facing flags:
 
 ```python
-from tux.services.sentry import capture_tux_exception
+from bot.services.sentry import capture_bot_exception
 
 try:
     await perform_operation()
-except TuxError as e:
-    capture_tux_exception(e, command_name="moderation.ban", user_id=str(ctx.author.id))
+except BotError as e:
+    capture_bot_exception(e, command_name="moderation.ban", user_id=str(ctx.author.id))
 ```
 
 ### Safe Exception Capture
@@ -473,7 +473,7 @@ except TuxError as e:
 Use `capture_exception_safe()` when you want to include local variables from the calling function. This is useful for debugging complex issues:
 
 ```python
-from tux.services.sentry import capture_exception_safe
+from bot.services.sentry import capture_exception_safe
 
 capture_exception_safe(error, extra_context={"operation": "user_update"}, capture_locals=True)
 ```
@@ -495,15 +495,15 @@ Performance monitoring uses intelligent sampling to reduce overhead. Different o
 - **Background Tasks** - 2% sampled (periodic operations)
 - **Other** - 1% sampled (catch-all for low-volume operations)
 
-This means you get representative performance data without overwhelming Sentry with every single operation. Sampling rates are configured in `src/tux/services/sentry/handlers.py` if you need to adjust them.
+This means you get representative performance data without overwhelming Sentry with every single operation. Sampling rates are configured in `src/bot/services/sentry/handlers.py` if you need to adjust them.
 
 ### Span Filtering
 
 Redundant spans are automatically grouped and filtered. Discord API spans are excluded (too noisy), and similar spans are combined into summary spans to reduce clutter in performance traces.
 
-## How Sentry Integrates with Tux
+## How Sentry Integrates with Bot
 
-Sentry integrates seamlessly throughout Tux's lifecycle. You don't need to do anything special—it works automatically.
+Sentry integrates seamlessly throughout Bot's lifecycle. You don't need to do anything special—it works automatically.
 
 ### Bot Integration
 
@@ -519,7 +519,7 @@ The `SentryHandler` cog automatically tracks all commands. It sets user and comm
 
 Sentry initializes first during application startup, before any other services. This ensures startup errors are captured. Signal handlers are registered for graceful shutdown, and events are flushed before the bot exits.
 
-You don't need to manage any of this—it's all handled automatically by Tux's application layer.
+You don't need to manage any of this—it's all handled automatically by Bot's application layer.
 
 ## Best Practices
 
@@ -581,7 +581,7 @@ Filter sensitive data before capturing errors. If you need to include local vari
 
    ```bash
    # Look for initialization messages
-   grep -i sentry logs/tux.log
+   grep -i sentry logs/bot.log
    ```
 
 ### Events Not Appearing
@@ -655,7 +655,7 @@ Filter sensitive data before capturing errors. If you need to include local vari
 
 ## Resources
 
-- **Source Code**: `src/tux/services/sentry/`
+- **Source Code**: `src/bot/services/sentry/`
 - **Sentry SDK Docs**: <https://docs.sentry.io/platforms/python/>
 - **Configuration**: See `config.py` for initialization options
 - **Bot Integration**: See `../../concepts/core/bot.md` for lifecycle integration

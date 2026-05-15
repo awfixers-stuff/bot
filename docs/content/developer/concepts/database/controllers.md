@@ -13,7 +13,7 @@ icon: lucide/gamepad-directional
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-Tux's controller layer provides a clean, composable interface for database operations. Controllers encapsulate business logic, optimize queries, and provide consistent APIs for database interactions.
+Bot's controller layer provides a clean, composable interface for database operations. Controllers encapsulate business logic, optimize queries, and provide consistent APIs for database interactions.
 
 The controller system uses composition over inheritance with lazy-loaded specialized controllers for optimal performance. The DatabaseCoordinator acts as a facade providing centralized access to all model-specific controllers.
 

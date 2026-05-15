@@ -10,7 +10,7 @@ icon: lucide/pencil-ruler
 
 # Choosing Instrumentation - Decision Guide
 
-This guide helps you decide when to use **transactions**, **spans**, or **metrics** for observability in Tux.
+This guide helps you decide when to use **transactions**, **spans**, or **metrics** for observability in Bot.
 
 ## Quick Decision Tree
 

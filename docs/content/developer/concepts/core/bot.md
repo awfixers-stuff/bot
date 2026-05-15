@@ -1,6 +1,6 @@
 ---
 title: Bot Core
-description: Tux Discord bot core implementation with lifecycle management, database integration, telemetry, and graceful resource cleanup.
+description: Bot Discord bot core implementation with lifecycle management, database integration, telemetry, and graceful resource cleanup.
 tags:
   - developer-guide
   - concepts
@@ -13,11 +13,11 @@ icon: lucide/bot
 !!! warning "Work in progress"
     This section is a work in progress. Please help us by contributing to the documentation.
 
-The `Tux` class (`src/tux/core/bot.py`) is the main bot class that extends discord.py's `commands.Bot`. It orchestrates all major components including database access, cog loading, telemetry, background tasks, and lifecycle management.
+The `Bot` class (`src/bot/core/bot.py`) is the main bot class that extends discord.py's `commands.Bot`. It orchestrates all major components including database access, cog loading, telemetry, background tasks, and lifecycle management.
 
 ## Overview
 
-The `Tux` class is the heart of the Discord bot, providing:
+The `Bot` class is the heart of the Discord bot, providing:
 
 - **Database Integration** - Automatic database access via `self.db`
 - **Cog Management** - Extension loading with priority ordering
@@ -28,7 +28,7 @@ The `Tux` class is the heart of the Discord bot, providing:
 
 ## Bot Initialization
 
-When you create a `Tux` instance, it initializes services and schedules async setup:
+When you create a `Bot` instance, it initializes services and schedules async setup:
 
 **Initialized Services:**
 
@@ -249,8 +249,8 @@ env | grep -E "(POSTGRES|DATABASE)"
 Check for import errors or syntax issues:
 
 ```bash
-python -c "import tux.modules.moderation.ban"
-python -m py_compile src/tux/modules/moderation/ban.py
+python -c "import bot.modules.moderation.ban"
+python -m py_compile src/bot/modules/moderation/ban.py
 ```
 
 **Discord Connection Issues:**
@@ -269,7 +269,7 @@ env | grep BOT_TOKEN
 Monitor task count and check for hanging tasks:
 
 ```bash
-ps aux | grep -E "(python|tux)"
+ps aux | grep -E "(python|bot)"
 ```
 
 **Performance Problems:**
@@ -291,8 +291,8 @@ env | grep BOT_TOKEN
 
 ## Resources
 
-- **Source Code**: `src/tux/core/bot.py`
+- **Source Code**: `src/bot/core/bot.py`
 - **Setup Orchestrator**: See lifecycle documentation
 - **Database Coordinator**: See database documentation
 - **Sentry Integration**: See `../../best-practices/sentry/index.md` for details
-- **Task Monitor**: `src/tux/core/task_monitor.py`
+- **Task Monitor**: `src/bot/core/task_monitor.py`

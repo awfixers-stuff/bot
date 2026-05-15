@@ -1,0 +1,49 @@
+---
+name: PR Title Validation
+
+permissions:
+  pull-requests: read
+  statuses: write
+
+# pull_request (not pull_request_target) is used intentionally:
+# - Avoids the security risks of pull_request_target (untrusted PR code in base branch context)
+# - Still has sufficient permission to read PR title and set status checks
+# - The action only reads PR metadata (title, labels) - no checkout needed
+on:
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-pr-title:
+    name: Validate PR Title
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 5
+    if: github.repository == 'awfixers-stuff/bot'
+    steps:
+      - name: Validate PR title
+        uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50  # v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          requireScope: false
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}" didn't match the required pattern: {pattern}
+            The subject must not start with an uppercase letter.
+          wip: true

@@ -43,7 +43,7 @@ You can also use these aliases instead of `clearafk`:
 
 ## How It Works
 
-When a user sets themselves as AFK using Tux, the bot:
+When a user sets themselves as AFK using Bot, the bot:
 
 1. Records their original nickname.
 2. Updates their nickname to include "[AFK]" (depending on server config).
@@ -59,7 +59,7 @@ The `clearafk` command reverses all these actions:
 
 ### Bot Permissions
 
-Tux requires the following permissions:
+Bot requires the following permissions:
 
 - **Manage Nicknames** - Required to restore the user's original nickname.
 - **Moderate Members** - Required to remove self-timeouts.
@@ -69,7 +69,7 @@ Tux requires the following permissions:
 Users need appropriate moderation permissions to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 
@@ -81,7 +81,7 @@ Users need appropriate moderation permissions to use this command.
 
 ## Response Format
 
-Upon successful execution, Tux will return an ephemeral confirmation message:
+Upon successful execution, Bot will return an ephemeral confirmation message:
 > "AFK status for @user has been cleared."
 
 The command removes the AFK entry from the database, restores the member's original nickname (if it was modified), and removes any self-timeout resulting from enforced AFK.
@@ -92,7 +92,7 @@ The command removes the AFK entry from the database, restores the member's origi
 
 #### Lacking Permission Rank
 
-**When it occurs:** Your internal Tux permission rank is lower than what's required to use this command.
+**When it occurs:** Your internal Bot permission rank is lower than what's required to use this command.
 
 **What happens:** The bot sends an error message indicating you don't have permission to use this command.
 
@@ -114,15 +114,15 @@ The command removes the AFK entry from the database, restores the member's origi
 
 #### Missing Permissions / Higher Role
 
-**When it occurs:** Tux lacks the "Manage Nicknames" or "Moderate Members" permission, or the target user has a higher role than the bot.
+**When it occurs:** Bot lacks the "Manage Nicknames" or "Moderate Members" permission, or the target user has a higher role than the bot.
 
 **What happens:** The status is cleared in the database, but nickname/timeout restoration may fail.
 
 **Solutions:**
 
-- Ensure Tux has the "Manage Nicknames" and "Moderate Members" permissions
-- Move Tux's role higher in the server hierarchy
-- Check that Tux's role has the necessary permissions in the server settings
+- Ensure Bot has the "Manage Nicknames" and "Moderate Members" permissions
+- Move Bot's role higher in the server hierarchy
+- Check that Bot's role has the necessary permissions in the server settings
 
 ## Related Commands
 

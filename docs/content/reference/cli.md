@@ -1,6 +1,6 @@
 ---
 title: CLI Reference
-description: Complete reference for Tux command-line interface commands
+description: Complete reference for Bot command-line interface commands
 tags:
   - cli
   - typer
@@ -11,25 +11,25 @@ icon: lucide/square-terminal
 
 # CLI Reference
 
-Tux provides a comprehensive command-line interface built with Typer. All commands are accessed via `uv run <command>`.
+Bot provides a comprehensive command-line interface built with Typer. All commands are accessed via `uv run <command>`.
 
 ## Bot Commands
 
-### `tux start`
+### `bot start`
 
 Start the Discord bot.
 
 ```bash
-uv run tux start
-uv run tux start --debug  # Debug mode with verbose logging
+uv run bot start
+uv run bot start --debug  # Debug mode with verbose logging
 ```
 
-### `tux version`
+### `bot version`
 
 Show version information.
 
 ```bash
-uv run tux version
+uv run bot version
 ```
 
 ## Database Commands
@@ -297,13 +297,13 @@ cp .env.example .env
 cp config/config.json.example config/config.json
 
 # Start database
-docker compose up -d tux-postgres
+docker compose up -d bot-postgres
 
 # Initialize database
 uv run db init
 
 # Start bot
-uv run tux start
+uv run bot start
 ```
 
 ### Development Workflow

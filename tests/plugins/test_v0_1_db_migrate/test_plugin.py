@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from discord.ext import commands
 
-from tux.core.bot import Tux
-from tux.plugins.v0_1_db_migrate.plugin import (
+from bot.core.bot import Bot
+from bot.plugins.v0_1_db_migrate.plugin import (
     DatabaseMigration,
 )
 
@@ -19,7 +19,7 @@ class TestDatabaseMigrationPlugin:
     @pytest.fixture
     def mock_bot(self) -> MagicMock:
         """Create mock bot."""
-        bot = MagicMock(spec=Tux)
+        bot = MagicMock(spec=Bot)
         bot.user = MagicMock()
         bot.user.id = 123456789
         return bot
@@ -59,7 +59,7 @@ class TestDatabaseMigrationPlugin:
         mock_ctx: MagicMock,
     ) -> None:
         """Test cog_check with bot owner."""
-        with patch("tux.plugins.v0_1_db_migrate.plugin.CONFIG") as mock_config:
+        with patch("bot.plugins.v0_1_db_migrate.plugin.CONFIG") as mock_config:
             mock_config.USER_IDS.BOT_OWNER_ID = 123456789
             mock_config.USER_IDS.SYSADMINS = []
 
@@ -73,7 +73,7 @@ class TestDatabaseMigrationPlugin:
     ) -> None:
         """Test cog_check with sysadmin."""
         mock_ctx.author.id = 999999999
-        with patch("tux.plugins.v0_1_db_migrate.plugin.CONFIG") as mock_config:
+        with patch("bot.plugins.v0_1_db_migrate.plugin.CONFIG") as mock_config:
             mock_config.USER_IDS.BOT_OWNER_ID = 123456789
             mock_config.USER_IDS.SYSADMINS = [999999999]
 
@@ -87,7 +87,7 @@ class TestDatabaseMigrationPlugin:
     ) -> None:
         """Test cog_check with unauthorized user."""
         mock_ctx.author.id = 111111111
-        with patch("tux.plugins.v0_1_db_migrate.plugin.CONFIG") as mock_config:
+        with patch("bot.plugins.v0_1_db_migrate.plugin.CONFIG") as mock_config:
             mock_config.USER_IDS.BOT_OWNER_ID = 123456789
             mock_config.USER_IDS.SYSADMINS = []
 
@@ -113,7 +113,7 @@ class TestDatabaseMigrationPlugin:
         with (
             patch.object(plugin, "schema_inspector", None),
             patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaInspector",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaInspector",
             ) as mock_inspector_class,
             patch("asyncio.get_event_loop") as mock_loop,
         ):
@@ -147,10 +147,10 @@ class TestDatabaseMigrationPlugin:
         mock_ctx: MagicMock,
     ) -> None:
         """Test migrate dry-run command."""
-        with patch("tux.plugins.v0_1_db_migrate.plugin.CONFIG") as mock_config:
+        with patch("bot.plugins.v0_1_db_migrate.plugin.CONFIG") as mock_config:
             mock_config.database_url = "sqlite:///:memory:"
             with patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaInspector",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaInspector",
             ) as mock_inspector_class:
                 mock_inspector = MagicMock()
                 mock_inspector.engine = MagicMock()
@@ -159,7 +159,7 @@ class TestDatabaseMigrationPlugin:
                 mock_inspector_class.return_value = mock_inspector
 
                 with patch(
-                    "tux.plugins.v0_1_db_migrate.plugin.DatabaseService",
+                    "bot.plugins.v0_1_db_migrate.plugin.DatabaseService",
                 ) as mock_db_service_class:
                     mock_db_service = AsyncMock()
                     mock_db_service.connect = AsyncMock()
@@ -167,7 +167,7 @@ class TestDatabaseMigrationPlugin:
                     mock_db_service_class.return_value = mock_db_service
 
                     with patch(
-                        "tux.plugins.v0_1_db_migrate.plugin.DatabaseMigrator",
+                        "bot.plugins.v0_1_db_migrate.plugin.DatabaseMigrator",
                     ) as mock_migrator_class:
                         mock_migrator = AsyncMock()
                         mock_migrator.migrate_all = AsyncMock(
@@ -188,10 +188,10 @@ class TestDatabaseMigrationPlugin:
         mock_ctx: MagicMock,
     ) -> None:
         """Test migrate table command."""
-        with patch("tux.plugins.v0_1_db_migrate.plugin.CONFIG") as mock_config:
+        with patch("bot.plugins.v0_1_db_migrate.plugin.CONFIG") as mock_config:
             mock_config.database_url = "sqlite:///:memory:"
             with patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaInspector",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaInspector",
             ) as mock_inspector_class:
                 mock_inspector = MagicMock()
                 mock_inspector.engine = MagicMock()
@@ -200,7 +200,7 @@ class TestDatabaseMigrationPlugin:
                 mock_inspector_class.return_value = mock_inspector
 
                 with patch(
-                    "tux.plugins.v0_1_db_migrate.plugin.DatabaseService",
+                    "bot.plugins.v0_1_db_migrate.plugin.DatabaseService",
                 ) as mock_db_service_class:
                     mock_db_service = AsyncMock()
                     mock_db_service.connect = AsyncMock()
@@ -208,7 +208,7 @@ class TestDatabaseMigrationPlugin:
                     mock_db_service_class.return_value = mock_db_service
 
                     with patch(
-                        "tux.plugins.v0_1_db_migrate.plugin.DatabaseMigrator",
+                        "bot.plugins.v0_1_db_migrate.plugin.DatabaseMigrator",
                     ) as mock_migrator_class:
                         mock_migrator = AsyncMock()
                         mock_migrator.migrate_table = AsyncMock(
@@ -227,10 +227,10 @@ class TestDatabaseMigrationPlugin:
         mock_ctx: MagicMock,
     ) -> None:
         """Test migrate validate command."""
-        with patch("tux.plugins.v0_1_db_migrate.plugin.CONFIG") as mock_config:
+        with patch("bot.plugins.v0_1_db_migrate.plugin.CONFIG") as mock_config:
             mock_config.database_url = "sqlite:///:memory:"
             with patch(
-                "tux.plugins.v0_1_db_migrate.plugin.SchemaInspector",
+                "bot.plugins.v0_1_db_migrate.plugin.SchemaInspector",
             ) as mock_inspector_class:
                 mock_inspector = MagicMock()
                 mock_inspector.engine = MagicMock()
@@ -239,7 +239,7 @@ class TestDatabaseMigrationPlugin:
                 mock_inspector_class.return_value = mock_inspector
 
                 with patch(
-                    "tux.plugins.v0_1_db_migrate.plugin.DatabaseService",
+                    "bot.plugins.v0_1_db_migrate.plugin.DatabaseService",
                 ) as mock_db_service_class:
                     mock_db_service = AsyncMock()
                     mock_db_service.connect = AsyncMock()
@@ -247,7 +247,7 @@ class TestDatabaseMigrationPlugin:
                     mock_db_service_class.return_value = mock_db_service
 
                     with patch(
-                        "tux.plugins.v0_1_db_migrate.plugin.MigrationValidator",
+                        "bot.plugins.v0_1_db_migrate.plugin.MigrationValidator",
                     ) as mock_validator_class:
                         mock_validator = AsyncMock()
                         mock_validator.generate_validation_report = AsyncMock(

@@ -6,9 +6,9 @@ import discord
 import pytest
 from discord.ext import commands
 
-from tux.services.sentry import track_command_end, track_command_start
-from tux.services.sentry.cog import SentryHandler
-from tux.services.sentry.context import _command_start_times
+from bot.services.sentry import track_command_end, track_command_start
+from bot.services.sentry.cog import SentryHandler
+from bot.services.sentry.context import _command_start_times
 
 pytestmark = pytest.mark.unit
 
@@ -28,7 +28,7 @@ class TestSentryPerformanceTracking:
         assert "test_command" in _command_start_times
         assert isinstance(_command_start_times["test_command"], float)
 
-    @patch("tux.services.sentry.sentry_sdk")
+    @patch("bot.services.sentry.sentry_sdk")
     def test_track_command_start_when_not_initialized(
         self,
         mock_sentry_sdk: MagicMock,
@@ -40,8 +40,8 @@ class TestSentryPerformanceTracking:
 
         mock_sentry_sdk.start_transaction.assert_not_called()
 
-    @patch("tux.services.sentry.context.is_initialized")
-    @patch("tux.services.sentry.context.set_tag")
+    @patch("bot.services.sentry.context.is_initialized")
+    @patch("bot.services.sentry.context.set_tag")
     def test_track_command_end_success(
         self,
         mock_set_tag: MagicMock,
@@ -60,9 +60,9 @@ class TestSentryPerformanceTracking:
         mock_set_tag.assert_any_call("command.success", True)
         mock_set_tag.assert_any_call("command.execution_time_ms", ANY)
 
-    @patch("tux.services.sentry.context.is_initialized")
-    @patch("tux.services.sentry.context.set_tag")
-    @patch("tux.services.sentry.context.set_context")
+    @patch("bot.services.sentry.context.is_initialized")
+    @patch("bot.services.sentry.context.set_tag")
+    @patch("bot.services.sentry.context.set_context")
     def test_track_command_end_failure_with_error(
         self,
         mock_set_context: MagicMock,
@@ -84,7 +84,7 @@ class TestSentryPerformanceTracking:
         mock_set_tag.assert_any_call("command.error_type", "ValueError")
         mock_set_context.assert_called_once()
 
-    @patch("tux.services.sentry.context.is_initialized")
+    @patch("bot.services.sentry.context.is_initialized")
     def test_track_command_end_no_current_span(
         self,
         mock_is_initialized: MagicMock,
@@ -110,9 +110,9 @@ class TestSentryHandlerCog:
         return SentryHandler(mock_bot)
 
     @pytest.mark.asyncio
-    @patch("tux.services.sentry.cog.set_command_context")
-    @patch("tux.services.sentry.cog.set_user_context")
-    @patch("tux.services.sentry.cog.track_command_start")
+    @patch("bot.services.sentry.cog.set_command_context")
+    @patch("bot.services.sentry.cog.set_user_context")
+    @patch("bot.services.sentry.cog.track_command_start")
     async def test_on_command_sets_context_and_tracks(
         self,
         mock_track_start: MagicMock,
@@ -141,12 +141,12 @@ class TestSentryHandlerCog:
         mock_ctx = MagicMock(spec=commands.Context)
         mock_ctx.command = None
 
-        with patch("tux.services.sentry.cog.track_command_start") as mock_track:
+        with patch("bot.services.sentry.cog.track_command_start") as mock_track:
             await sentry_handler.on_command(mock_ctx)
             mock_track.assert_not_called()
 
     @pytest.mark.asyncio
-    @patch("tux.services.sentry.cog.track_command_end")
+    @patch("bot.services.sentry.cog.track_command_end")
     async def test_on_command_completion_tracks_success(
         self,
         mock_track_end: MagicMock,
@@ -170,14 +170,14 @@ class TestSentryHandlerCog:
         mock_ctx = MagicMock(spec=commands.Context)
         mock_ctx.command = None
 
-        with patch("tux.services.sentry.cog.track_command_end") as mock_track:
+        with patch("bot.services.sentry.cog.track_command_end") as mock_track:
             await sentry_handler.on_command_completion(mock_ctx)
             mock_track.assert_not_called()
 
     @pytest.mark.asyncio
-    @patch("tux.services.sentry.cog.set_command_context")
-    @patch("tux.services.sentry.cog.set_user_context")
-    @patch("tux.services.sentry.cog.track_command_end")
+    @patch("bot.services.sentry.cog.set_command_context")
+    @patch("bot.services.sentry.cog.set_user_context")
+    @patch("bot.services.sentry.cog.track_command_end")
     async def test_on_app_command_completion_sets_context_and_tracks(
         self,
         mock_track_end: MagicMock,
@@ -205,7 +205,7 @@ class TestSentryHandlerCog:
         mock_interaction = MagicMock(spec=discord.Interaction)
         mock_interaction.command = None
 
-        with patch("tux.services.sentry.cog.track_command_end") as mock_track:
+        with patch("bot.services.sentry.cog.track_command_end") as mock_track:
             await sentry_handler.on_app_command_completion(mock_interaction)
             mock_track.assert_not_called()
 
@@ -214,8 +214,8 @@ class TestCommandPerformanceIntegration:
     """Test command performance tracking integration."""
 
     @pytest.mark.asyncio
-    @patch("tux.services.sentry.context.is_initialized")
-    @patch("tux.services.sentry.context.set_tag")
+    @patch("bot.services.sentry.context.is_initialized")
+    @patch("bot.services.sentry.context.set_tag")
     async def test_full_command_lifecycle_tracking(
         self,
         mock_set_tag: MagicMock,
@@ -242,9 +242,9 @@ class TestCommandPerformanceIntegration:
         assert command_name not in _command_start_times
 
     @pytest.mark.asyncio
-    @patch("tux.services.sentry.context.set_context")
-    @patch("tux.services.sentry.context.set_tag")
-    @patch("tux.services.sentry.context.is_initialized")
+    @patch("bot.services.sentry.context.set_context")
+    @patch("bot.services.sentry.context.set_tag")
+    @patch("bot.services.sentry.context.is_initialized")
     async def test_command_error_tracking_with_context(
         self,
         mock_is_initialized: MagicMock,
@@ -267,8 +267,8 @@ class TestCommandPerformanceIntegration:
         mock_set_context.assert_called()
 
     @pytest.mark.asyncio
-    @patch("tux.services.sentry.context.set_tag")
-    @patch("tux.services.sentry.context.is_initialized")
+    @patch("bot.services.sentry.context.set_tag")
+    @patch("bot.services.sentry.context.is_initialized")
     async def test_concurrent_command_tracking(
         self,
         mock_is_initialized: MagicMock,

@@ -9,7 +9,7 @@ icon: lucide/vault
 
 # Building Docker Images
 
-Guide for building, optimizing, and customizing Tux Docker images.
+Guide for building, optimizing, and customizing Bot Docker images.
 
 ## Building Images Locally
 
@@ -17,20 +17,20 @@ For development or custom builds:
 
 ```bash
 # Build production image
-docker build -f Containerfile --target production -t tux:local .
+docker build -f Containerfile --target production -t bot:local .
 
 # Build development image (with dev dependencies)
-docker build -f Containerfile --target dev -t tux:dev .
+docker build -f Containerfile --target dev -t bot:dev .
 
 # Build with version info
 docker build -f Containerfile --target production \
   --build-arg VERSION=v1.0.0 \
   --build-arg GIT_SHA=$(git rev-parse HEAD) \
   --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-  -t tux:local .
+  -t bot:local .
 
 # Test the image
-docker run --rm tux:local --help
+docker run --rm bot:local --help
 ```
 
 ## Build Stages
@@ -57,7 +57,7 @@ The production image is optimized for size (~400MB):
 **Verify image size:**
 
 ```bash
-docker images tux --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
+docker images bot --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
 ```
 
 ### Build Optimization Tips
@@ -65,7 +65,7 @@ docker images tux --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
 #### 1. Use BuildKit Cache
 
 ```bash
-DOCKER_BUILDKIT=1 docker build -f Containerfile --target production -t tux:local .
+DOCKER_BUILDKIT=1 docker build -f Containerfile --target production -t bot:local .
 ```
 
 #### 2. Multi-Platform Builds
@@ -73,7 +73,7 @@ DOCKER_BUILDKIT=1 docker build -f Containerfile --target production -t tux:local
 ```bash
 docker buildx build --platform linux/amd64,linux/arm64 \
   -f Containerfile --target production \
-  -t tux:multiarch .
+  -t bot:multiarch .
 ```
 
 #### 3. Layer Caching
@@ -86,23 +86,23 @@ Dependencies are cached separately from source code, so dependency changes don't
 
 ```bash
 # Using dive (install: https://github.com/wagoodman/dive)
-dive tux:latest
+dive bot:latest
 
 # Using docker history
-docker history tux:latest --human --format "table {{.CreatedBy}}\t{{.Size}}"
+docker history bot:latest --human --format "table {{.CreatedBy}}\t{{.Size}}"
 ```
 
 **Check image contents:**
 
 ```bash
 # Explore filesystem
-docker run --rm -it tux:latest sh
+docker run --rm -it bot:latest sh
 
 # Check installed packages
-docker run --rm tux:latest uv pip list
+docker run --rm bot:latest uv pip list
 
 # Verify security
-docker scout cves tux:latest
+docker scout cves bot:latest
 ```
 
 ## Build Troubleshooting
@@ -113,7 +113,7 @@ docker scout cves tux:latest
 
 ```bash
 # Check Docker context
-docker build --no-cache -f Containerfile --target production -t tux:test . 2>&1 | grep -i "permission\|denied"
+docker build --no-cache -f Containerfile --target production -t bot:test . 2>&1 | grep -i "permission\|denied"
 ```
 
 **Build context too large:**
@@ -137,10 +137,10 @@ docker build -f Containerfile --target production . 2>&1 | head -5 | grep -E "Se
 docker compose ps -a
 
 # View exit logs
-docker compose logs tux
+docker compose logs bot
 
 # Run interactively to debug (use --profile dev or --profile production)
-docker compose --profile dev run --rm tux sh
+docker compose --profile dev run --rm bot sh
 ```
 
 **Database connection timeout:**
@@ -149,13 +149,13 @@ The entrypoint script waits up to 60 seconds for PostgreSQL. If timeout occurs:
 
 ```bash
 # Check PostgreSQL is healthy
-docker compose ps tux-postgres
+docker compose ps bot-postgres
 
 # Check network connectivity
-docker compose exec tux ping -c 3 tux-postgres
+docker compose exec bot ping -c 3 bot-postgres
 
 # Verify environment variables
-docker compose exec tux env | grep POSTGRES
+docker compose exec bot env | grep POSTGRES
 ```
 
 ## Related Documentation

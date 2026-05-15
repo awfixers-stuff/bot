@@ -1,18 +1,18 @@
 [project]
-site_name = "Tux"
-site_description = "The all-in-one open source Discord bot for the All Things Linux community."
-site_author = "All Things Linux"
-site_url = "https://tux.atl.dev"
+site_name = "Bot"
+site_description = "The all-in-one open source Discord bot for the AWFixer Enterprising Inc community."
+site_author = "AWFixer Enterprising Inc"
+site_url = "https://github.com/awfixers-stuff/bot"
 
-repo_url = "https://github.com/allthingslinux/tux"
-repo_name = "allthingslinux/tux"
+repo_url = "https://github.com/awfixers-stuff/bot"
+repo_name = "awfixers-stuff/bot"
 edit_uri = "edit/main/docs/"
 
 docs_dir = "docs/content/"
 site_dir = "site/"
 
 copyright = """
-Copyright &copy; 2025 All Things Linux
+Copyright &copy; 2025 AWFixer Enterprising Inc
 """
 
 nav = [
@@ -239,7 +239,7 @@ nav = [
     { "Reference" = [
         "reference/index.md",
         "reference/versioning.md",
-        # "reference/src/tux/",
+        # "reference/src/bot/",
         # "reference/cli.md",
         "reference/env.md",
         # "reference/coverage.md",
@@ -353,11 +353,11 @@ generator = false
 
 [[project.extra.social]]
 icon = "fontawesome/solid/globe"
-link = "https://allthingslinux.org"
+link = "https://github.com/awfixers-stuff/bot"
 
 [[project.extra.social]]
 icon = "fontawesome/brands/github"
-link = "https://github.com/allthingslinux/tux"
+link = "https://github.com/awfixers-stuff/bot"
 
 [[project.extra.social]]
 icon = "fontawesome/brands/discord"
@@ -408,8 +408,8 @@ custom_fences = [
 repo_url_shortener = true
 repo_url_shorthand = true
 provider = "github"
-user = "allthingslinux"
-repo = "tux"
+user = "awfixers-stuff"
+repo = "bot"
 normalize_issue_symbols = true
 
 [project.markdown_extensions.pymdownx.emoji]

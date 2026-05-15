@@ -11,28 +11,28 @@ icon: lucide/star
 # Starboard
 
 The Starboard is a community-driven feature that highlights the best content in your server. When a
-message receives a specific number of reactions (typically stars ⭐), Tux automatically reposts it to
+message receives a specific number of reactions (typically stars ⭐), Bot automatically reposts it to
 a dedicated "starboard" channel. This creates a curated gallery of the most helpful, funny, or
 memorable moments from across your entire server.
 
-The feature is fully automated and updates in real-time. As reactions are added or removed, Tux adjusts the reaction count on the starboard post. If a message falls below the required threshold, it is automatically removed, ensuring only truly popular content remains highlighted.
+The feature is fully automated and updates in real-time. As reactions are added or removed, Bot adjusts the reaction count on the starboard post. If a message falls below the required threshold, it is automatically removed, ensuring only truly popular content remains highlighted.
 
 ## How It Works
 
 ### Mechanics
 
-Tux monitors reaction events on every message in the server. It tracks which messages have reached the server's configured threshold for the designated starboard emoji.
+Bot monitors reaction events on every message in the server. It tracks which messages have reached the server's configured threshold for the designated starboard emoji.
 
 - **Real-time Updates:** The starboard post's reaction count is updated immediately when a new star is added or removed.
 - **Anti-Gaming:** Self-reactions from the message author are automatically ignored and do not count toward the threshold.
-- **Content Preservation:** Tux clones the original message content, including text, images, and attachments, into a clean embed in the starboard channel.
+- **Content Preservation:** Bot clones the original message content, including text, images, and attachments, into a clean embed in the starboard channel.
 
 ### Automation
 
 The system manages the starboard channel entirely without manual intervention:
 
 - **Automatic Posting:** Messages are sent to the starboard as soon as they reach the reaction threshold.
-- **Automatic Deletion:** If users remove their reactions and the count falls below the threshold, Tux deletes the starboard post.
+- **Automatic Deletion:** If users remove their reactions and the count falls below the threshold, Bot deletes the starboard post.
 - **Message Syncing:** Any changes to the original message's reaction count are reflected on the starboard post's embed.
 
 ### Triggers
@@ -95,7 +95,7 @@ This feature provides the following management commands:
 
 ### Bot Permissions
 
-Tux requires the following permissions for this feature:
+Bot requires the following permissions for this feature:
 
 - **Read Message History** - Needed to fetch the content of starred messages.
 - **Send Messages** - Needed to post to the starboard channel.
@@ -120,14 +120,14 @@ None required for starring messages. Only administrators can use the setup comma
 
 **Causes:**
 
-- The author's self-reaction is being counted in the UI but ignored by Tux.
-- Tux does not have "Send Messages" or "Embed Links" permission in the starboard channel.
+- The author's self-reaction is being counted in the UI but ignored by Bot.
+- Bot does not have "Send Messages" or "Embed Links" permission in the starboard channel.
 - The threshold is set higher than you think.
 
 **Solutions:**
 
 1. Check if the reaction count meets the threshold *excluding* the author.
-2. Verify Tux's permissions in the starboard channel.
+2. Verify Bot's permissions in the starboard channel.
 3. Use `/starboard setup` to check or update the current threshold.
 
 ### Issue: Starboard posts are not updating
@@ -138,19 +138,19 @@ None required for starring messages. Only administrators can use the setup comma
 
 **Causes:**
 
-- Tux is missing the "Manage Messages" permission.
+- Bot is missing the "Manage Messages" permission.
 - The bot is experiencing a temporary connection issue with Discord.
 
 **Solutions:**
 
-1. Ensure Tux has "Manage Messages" permission in the starboard channel.
+1. Ensure Bot has "Manage Messages" permission in the starboard channel.
 2. Check if the bot is online and responsive to other commands.
 
 ## Limitations
 
 - **Emoji Types:** Currently only supports default Discord emojis; custom server emojis cannot be used for the starboard.
 - **Single Channel:** Only one starboard channel can be configured per server.
-- **Historical Content:** Starring very old messages may not work if Tux cannot retrieve them from Discord's history.
+- **Historical Content:** Starring very old messages may not work if Bot cannot retrieve them from Discord's history.
 
 ## Related Documentation
 

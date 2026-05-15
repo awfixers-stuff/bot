@@ -1,6 +1,6 @@
 ---
 title: For Developers
-description: Frequently asked questions for Tux developers.
+description: Frequently asked questions for Bot developers.
 parent: FAQ
 icon: lucide/code-2
 ---
@@ -9,8 +9,8 @@ icon: lucide/code-2
 
 ## Can I add my own commands or plugins?
 
-Yes. Self-hosters can add [plugins](../developer/concepts/core/plugins.md) in `src/tux/plugins/`. Plugins are loaded automatically and have the same capabilities as built-in modules (database, config, hot reload).
+Yes. Self-hosters can add [plugins](../developer/concepts/core/plugins.md) in `src/bot/plugins/`. Plugins are loaded automatically and have the same capabilities as built-in modules (database, config, hot reload).
 
-## Do I need Docker to develop Tux?
+## Do I need Docker to develop Bot?
 
-No. You can develop Tux without Docker. However, it is recommended to use Docker for the simplest setup in regards to database support.
+No. You can develop Bot without Docker. However, it is recommended to use Docker for the simplest setup in regards to database support.

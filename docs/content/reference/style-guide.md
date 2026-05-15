@@ -9,7 +9,7 @@ icon: lucide/type
 
 # Style Guide
 
-This guide demonstrates the standard typography, formatting, components, and code styles used throughout the Tux documentation. Use this reference to ensure consistency when writing new content.
+This guide demonstrates the standard typography, formatting, components, and code styles used throughout the Bot documentation. Use this reference to ensure consistency when writing new content.
 
 === "Typography"
 
@@ -129,13 +129,13 @@ This guide demonstrates the standard typography, formatting, components, and cod
     uv sync
 
     # Run the bot
-    uv run tux start
+    uv run bot start
     ```
 
     ### JSON
     ```json title="config.json"
     {
-      "name": "Tux",
+      "name": "Bot",
       "version": "1.0.0",
       "active": true
     }

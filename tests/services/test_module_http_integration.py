@@ -7,8 +7,8 @@ import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
-from tux.modules.utility.wiki import Wiki
-from tux.services.http_client import http_client
+from bot.modules.utility.wiki import Wiki
+from bot.services.http_client import http_client
 
 pytestmark = pytest.mark.integration
 

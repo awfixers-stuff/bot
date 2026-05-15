@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 
-from tux.plugins.v0_1_db_migrate.utils import (
+from bot.plugins.v0_1_db_migrate.utils import (
     convert_prisma_to_sqlmodel_name,
     normalize_datetime,
     safe_json_parse,

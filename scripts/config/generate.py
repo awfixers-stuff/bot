@@ -13,9 +13,9 @@ from pydantic_settings import PydanticBaseSettingsSource, SettingsConfigDict
 from rich.panel import Panel
 from typer import Exit, Option
 
+from bot.shared.config.settings import Config
 from scripts.core import create_app
 from scripts.ui import console
-from tux.shared.config.settings import Config
 
 app = create_app()
 
@@ -256,7 +256,7 @@ def generate_env_example() -> None:
     flat = {ek: ev for ek, ev in flat.items() if _is_env_key(ek)}
     lines = [
         "# Postgres, Valkey, ExternalServices, BOT_TOKEN, DATABASE_URL, DEBUG, LOG_LEVEL, MAINTENANCE_MODE.",
-        "# Used by Tux and Docker Compose. Other settings → config/config.json (config.json.example).",
+        "# Used by Bot and Docker Compose. Other settings → config/config.json (config.json.example).",
         "",
     ]
     for ek, ev in flat.items():
@@ -323,7 +323,7 @@ def generate_env_markdown() -> None:  # noqa: PLR0912, PLR0915
         "",
         "## Config",
         "",
-        "Main Tux configuration using Pydantic Settings (JSON-only file support).",
+        "Main Bot configuration using Pydantic Settings (JSON-only file support).",
         "",
         "Use **.env** for BOT_TOKEN, Postgres (POSTGRES_*), DATABASE_URL, Valkey (VALKEY_*), EXTERNAL_SERVICES, DEBUG, LOG_LEVEL, MAINTENANCE_MODE; put all other settings in **config.json**.",
         "",

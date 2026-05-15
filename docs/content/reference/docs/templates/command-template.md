@@ -116,7 +116,7 @@ This command supports the following flags:
 | Flag | Aliases | Type | Default | Description |
 |------|---------|------|---------|-------------|
 | `-{FLAG_NAME}` | `-{ALIAS1}`, `-{ALIAS2}` | {TYPE} | {DEFAULT} | {Description} |
-| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Tux will not attempt to DM the user. |
+| `-silent` | `-s`, `-quiet` | Boolean | False | If true, Bot will not attempt to DM the user. |
 
 ### --{FLAG_NAME}
 
@@ -142,7 +142,7 @@ Be specific about permission levels or ranks if applicable.
 
 ### Bot Permissions
 
-Tux requires the following permissions to execute this command:
+Bot requires the following permissions to execute this command:
 
 - **{PERMISSION_NAME}** - {Why it's needed}
 - **{PERMISSION_NAME}** - {Why it's needed}
@@ -152,7 +152,7 @@ Tux requires the following permissions to execute this command:
 Users need {PERMISSION_LEVEL} or higher to use this command.
 
 !!! info "Permission System"
-    Command permissions are configured per-guild using Tux's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Command permissions are configured per-guild using Bot's dynamic permission system. Configure via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Usage Examples
 

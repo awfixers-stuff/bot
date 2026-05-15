@@ -121,7 +121,7 @@ This module requires the following configuration:
 
 ### Bot Permissions
 
-Tux requires the following permissions for this module:
+Bot requires the following permissions for this module:
 
 - **Ban Members** - Required for ban and unban commands
 - **Kick Members** - Required for kick commands
@@ -136,7 +136,7 @@ Tux requires the following permissions for this module:
 Users need Moderator rank (typically rank 3-5) or higher to use commands in this module.
 
 !!! tip "Permission System"
-    Tux uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
+    Bot uses a dynamic permission system. Configure command permissions via `/config commands` or see the [Permission Configuration](../../../admin/config/commands.md) guide.
 
 ## Related Documentation
 

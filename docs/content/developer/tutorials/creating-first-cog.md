@@ -1,6 +1,6 @@
 ---
 title: Creating Your First Cog
-description: How to create your first cog for Tux, including creating a new cog file, adding it to the bot, and testing it.
+description: How to create your first cog for Bot, including creating a new cog file, adding it to the bot, and testing it.
 tags:
   - developer-guide
   - tutorials

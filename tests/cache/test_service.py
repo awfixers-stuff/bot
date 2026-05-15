@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from tux.cache.service import CacheService
+from bot.cache.service import CacheService
 
 
 @pytest.mark.unit
@@ -27,7 +27,7 @@ class TestCacheService:
     async def test_connect_with_empty_url_does_nothing(self) -> None:
         """Connect with no URL (CONFIG.valkey_url empty) does not set client."""
         service = CacheService()
-        with patch("tux.cache.service.CONFIG") as mock_config:
+        with patch("bot.cache.service.CONFIG") as mock_config:
             mock_config.valkey_url = None
             await service.connect()
             mock_config.valkey_url = ""
@@ -40,7 +40,7 @@ class TestCacheService:
         """Connect with URL sets client and is_connected True."""
         service = CacheService()
         fake_client = MagicMock()
-        with patch("tux.cache.service.Valkey") as mock_valkey:
+        with patch("bot.cache.service.Valkey") as mock_valkey:
             mock_valkey.from_url.return_value = fake_client
             await service.connect(url="valkey://localhost:6379/0")
         assert service._client is fake_client
@@ -52,9 +52,9 @@ class TestCacheService:
         """Connect with url=None uses CONFIG.valkey_url."""
         service = CacheService()
         fake_client = MagicMock()
-        with patch("tux.cache.service.CONFIG") as mock_config:
+        with patch("bot.cache.service.CONFIG") as mock_config:
             mock_config.valkey_url = "valkey://config:6379/0"
-            with patch("tux.cache.service.Valkey") as mock_valkey:
+            with patch("bot.cache.service.Valkey") as mock_valkey:
                 mock_valkey.from_url.return_value = fake_client
                 await service.connect()
         mock_valkey.from_url.assert_called_once()
@@ -107,7 +107,7 @@ class TestCacheService:
     async def test_connect_raises_on_failure_and_clears_client(self) -> None:
         """Connect that raises leaves _client None."""
         service = CacheService()
-        with patch("tux.cache.service.Valkey") as mock_valkey:
+        with patch("bot.cache.service.Valkey") as mock_valkey:
             mock_valkey.from_url.side_effect = OSError("Connection refused")
             with pytest.raises(OSError, match="Connection refused"):
                 await service.connect(url="valkey://localhost:6379/0")

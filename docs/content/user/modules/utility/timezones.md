@@ -48,7 +48,7 @@ Launch the interactive timezone browser.
 
 ## Dashboard/Interface
 
-When you run the command, Tux opens an interactive dashboard with the following features:
+When you run the command, Bot opens an interactive dashboard with the following features:
 
 - **Continent selection** - A dropdown menu allows you to switch between North America, South America, Europe, Africa, Asia, and Australia/Oceania
 - **Real-time display** - Shows the current hour and minute in both 24-hour (`14:30`) and 12-hour (`02:30 PM`) formats

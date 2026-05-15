@@ -7,11 +7,11 @@ icon: lucide/server
 
 # Self-Hoster Guide
 
-Welcome to the Tux self-hosting guide. Follow the steps below to set up and manage your own instance of Tux.
+Welcome to the Bot self-hosting guide. Follow the steps below to set up and manage your own instance of Bot.
 
 ## 1. Review Requirements
 
-These are the system requirements needed to install and run Tux.
+These are the system requirements needed to install and run Bot.
 
 ### Minimum Requirements
 
@@ -46,9 +46,9 @@ These are the system requirements needed to install and run Tux.
 
 #### Optional: Valkey (cache)
 
-- **Valkey** (Redis-compatible): Optional. When configured, Tux uses it for guild config,
+- **Valkey** (Redis-compatible): Optional. When configured, Bot uses it for guild config,
   jail status, prefix, and permission caches so state can persist across restarts.
-  When not set, Tux uses in-memory cache. See
+  When not set, Bot uses in-memory cache. See
   [Environment Configuration](config/environment.md#optional-valkey-cache) and
   [Docker Installation](install/docker.md#valkey-optional-cache).
 
@@ -67,9 +67,9 @@ Choose the installation method that best suits your environment:
 
 ## 3. First Run
 
-After installation, follow the [First Run Setup](./install/first-run.md) guide to complete the initial configuration and get Tux running.
+After installation, follow the [First Run Setup](./install/first-run.md) guide to complete the initial configuration and get Bot running.
 
 ## Next Steps
 
-- [Configuration Guide](./config/index.md) - Customize Tux to your needs.
+- [Configuration Guide](./config/index.md) - Customize Bot to your needs.
 - [Management Guide](./manage/index.md) - Essential information for ongoing maintenance and operations.
