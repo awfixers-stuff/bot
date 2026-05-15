@@ -34,7 +34,7 @@ The docs monorepo pulls from our repo — we just need to produce valid MDX file
 ### Task 1: Create Initial Changelog MDX
 
 **File**: `docs/content/changelog.mdx`  
-**Status**: ✅ DONE — Cretead with initial v0.1.0 entry using `<Update>` component
+**Status**: ✅ DONE — Created with initial v0.1.0 entry using `<Update>` component
 
 **What it does**: Serves as the changelog page that the docs monorepo picks up. New entries get prepended (via Task 5).
 

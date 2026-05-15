@@ -38,7 +38,11 @@ jobs:
             version="${GITHUB_REF#refs/tags/}"
           fi
           # Strip leading 'v' for cleaner display if present
-          display_version="$version"
+          if [[ "$version" == v* ]]; then
+            display_version="${version#v}"
+          else
+            display_version="$version"
+          fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "display_version=$display_version" >> "$GITHUB_OUTPUT"
           echo "Release version: $version"

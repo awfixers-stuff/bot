@@ -57,7 +57,6 @@ COLLAPSIBLE_MAP: dict[str, str] = {
 # ── Metrics ─────────────────────────────────────────────────────────
 stats = {
     "files_processed": 0,
-    "files_skipped": 0,
     "admonitions_converted": 0,
     "tabs_converted": 0,
     "links_updated": 0,
@@ -79,7 +78,9 @@ ADMONITION_START = re.compile(
 TAB_START = re.compile(r'^[ \t]*=== "(?P<name>[^"]*)"\s*$')
 
 # Internal link: [text](path.md)  but not https:// or /abs/
-INTERNAL_LINK = re.compile(r"(?P<before>\[[^\]]*\]\()(?P<path>[^)]+\.md)(?P<after>\))")
+INTERNAL_LINK = re.compile(
+    r"(?P<before>\[[^\]]*\]\()(?P<path>(?!https?://)(?!/abs/)[^)]+\.md)(?P<after>\))"
+)
 
 # Snippet include
 SNIPPET_INCLUDE = re.compile(r"^--8<--\s*\"([^\"]+)\"\s*$")
@@ -98,6 +99,7 @@ def convert_frontmatter(lines: list[str], filepath: str) -> list[str]:
     """Convert frontmatter: drop 'tags'/'hide', strip 'lucide/' from icon."""
     result: list[str] = []
     in_fm_block = False
+    in_dropped_block = False
 
     for line in lines:
         if FM_START.match(line) and not in_fm_block:
@@ -109,27 +111,27 @@ def convert_frontmatter(lines: list[str], filepath: str) -> list[str]:
                 in_fm_block = False
                 result.append(line)
                 continue
-            # Check if this is a field we should drop
+            # Drop 'tags'/'hide' by checking the YAML key name directly
             stripped = line.strip()
-            if any(stripped.startswith((f"{fld}:", f"  {fld}:")) or any(f"  - {fld}" in stripped for fld in DROP_FM_FIELDS)
-                   for fld in DROP_FM_FIELDS):
-                # Drop the line
-                # But might be multi-line YAML, skip until next top-level key
-                if not stripped.startswith(" ") and stripped.endswith(":"):
-                    # This is a key we're dropping - skip until next key or end
-                    # Actually just skip this line - YAML lists are on same level
+
+            if stripped:
+                is_top_level_key = line[0] not in (' ', '\t', '-')
+                if is_top_level_key:
+                    key = stripped.split(":", 1)[0].strip()
+                    if key in DROP_FM_FIELDS:
+                        in_dropped_block = True
+                        continue
+                    else:
+                        in_dropped_block = False
+                elif in_dropped_block:
                     continue
-                continue
-            # Handle multi-line tags (list items under "tags:")
-            # Actually let's handle it simply
-            if stripped in DROP_FM_FIELDS or any(
-                stripped.startswith(f) for f in DROP_FM_FIELDS
-            ):
-                continue
-            # Strip lucide/ from icon
-            icon_match = ICON_FIELD.match(stripped)
-            if icon_match:
-                result.append(f"icon: {icon_match.group(1)}\n")
+
+                # Strip lucide/ from icon
+                icon_match = ICON_FIELD.match(stripped)
+                if icon_match:
+                    result.append(f"icon: {icon_match.group(1)}\n")
+                    continue
+            elif in_dropped_block:
                 continue
         result.append(line)
 
@@ -432,7 +434,6 @@ def main() -> None:
 
     # Summary
     print(f"  Files processed:  {stats['files_processed']}")
-    print(f"  Files skipped:    {stats['files_skipped']}")
     print(f"  Admonitions:      {stats['admonitions_converted']}")
     print(f"  Tabs converted:   {stats['tabs_converted']}")
     print(f"  Links updated:    {stats['links_updated']}")

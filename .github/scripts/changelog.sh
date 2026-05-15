@@ -91,7 +91,7 @@ generate_entry() {
   fi
 
   # Strip trailing whitespace from each line
-  body="$(echo -e "$body" | sed 's/[[:space:]]*$//')"
+  body="$(printf '%b' "$body" | sed 's/[[:space:]]*$//')"
 
   # Output the <Update> block
   cat << UPDATE
