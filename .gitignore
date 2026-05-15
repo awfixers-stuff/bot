@@ -90,9 +90,6 @@ ipython_config.py
 # Pipenv
 Pipfile.lock
 
-# uv
-uv.lock
-
 # Poetry
 poetry.lock
 
@@ -176,6 +173,7 @@ env/
 venv/
 env.bak
 .env.*
+!.env.example
 
 # Sensitive files
 github-private-key.pem
