@@ -136,7 +136,7 @@ clean_old_versions() {
           done <<< "$untagged_ids"
         fi
         # Re-fetch after removing untagged so keep count applies to remaining
-        versions_json=$(gh api "user/packages/$package_type/$package_name/versions" --paginate 2>/dev/null | jq -s 'add' || echo "[]")
+        versions_json=$(gh api "user/packages/$package_type/$package_name/versions" --paginate 2> /dev/null | jq -s 'add' || echo "[]")
       fi
 
       # Delete old tagged versions beyond the keep limit
