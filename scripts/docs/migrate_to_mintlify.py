@@ -97,7 +97,6 @@ ICON_FIELD = re.compile(r"^icon:\s*lucide/(.+)$")
 def convert_frontmatter(lines: list[str], filepath: str) -> list[str]:
     """Convert frontmatter: drop 'tags'/'hide', strip 'lucide/' from icon."""
     result: list[str] = []
-    in_frontmatter = False
     in_fm_block = False
 
     for line in lines:
