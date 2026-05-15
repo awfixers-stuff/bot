@@ -81,19 +81,32 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Clean Old Versions
         if: steps.params.outputs.cleanup_type != 'build-cache-only'
-        run: ./.github/scripts/cleanup.sh clean-old-versions \ "${{ env.PACKAGE_TYPE }}"
-          \ "${{ env.PACKAGE_NAME }}" \ "${{ steps.params.outputs.keep_versions }}"
-          \ "${{ steps.params.outputs.remove_untagged }}" \ "${{ steps.params.outputs.dry_run }}"
+        run: >-
+          ./.github/scripts/cleanup.sh clean-old-versions
+          "${{ env.PACKAGE_TYPE }}"
+          "${{ env.PACKAGE_NAME }}"
+          "${{ steps.params.outputs.keep_versions }}"
+          "${{ steps.params.outputs.remove_untagged }}"
+          "${{ steps.params.outputs.dry_run }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Clean Build Cache
         if: steps.params.outputs.clean_build_cache == 'true'
-        run: ./.github/scripts/cleanup.sh clean-build-cache \ "${{ env.PACKAGE_TYPE }}"
-          \ "${{ env.PACKAGE_NAME }}" \ "${{ env.BUILD_CACHE_CLEANUP_DAYS }}" \ "${{ steps.params.outputs.dry_run }}"
+        run: >-
+          ./.github/scripts/cleanup.sh clean-build-cache
+          "${{ env.PACKAGE_TYPE }}"
+          "${{ env.PACKAGE_NAME }}"
+          "${{ env.BUILD_CACHE_CLEANUP_DAYS }}"
+          "${{ steps.params.outputs.dry_run }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Cleanup Summary
-        run: ./.github/scripts/cleanup.sh cleanup-summary \ "${{ steps.params.outputs.cleanup_type }}"
-          \ "${{ steps.params.outputs.keep_versions }}" \ "${{ steps.params.outputs.remove_untagged }}"
-          \ "${{ steps.params.outputs.clean_build_cache }}" \ "${{ steps.params.outputs.dry_run }}"
-          \ "${{ env.STANDARD_KEEP_VERSIONS }}" \ "${{ env.BUILD_CACHE_CLEANUP_DAYS }}"
+        run: >-
+          ./.github/scripts/cleanup.sh cleanup-summary
+          "${{ steps.params.outputs.cleanup_type }}"
+          "${{ steps.params.outputs.keep_versions }}"
+          "${{ steps.params.outputs.remove_untagged }}"
+          "${{ steps.params.outputs.clean_build_cache }}"
+          "${{ steps.params.outputs.dry_run }}"
+          "${{ env.STANDARD_KEEP_VERSIONS }}"
+          "${{ env.BUILD_CACHE_CLEANUP_DAYS }}"
