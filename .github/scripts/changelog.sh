@@ -18,7 +18,7 @@ generate_entry() {
 
   # Find the previous tag
   local prev_tag
-  prev_tag="$(git describe --tags --abbrev=0 "${version}"^ 2>/dev/null || echo "")"
+  prev_tag="$(git describe --tags --abbrev=0 "${version}"^ 2> /dev/null || echo "")"
 
   # Gather commits between previous tag and this tag
   local log_range
