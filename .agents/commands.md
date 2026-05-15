@@ -99,12 +99,6 @@ uv run config generate      # Generate configuration example files
 uv run config validate      # Validate the current configuration
 ```
 
-## Cursor
-
-```bash
-uv run ai validate-rules   # Validate Cursor rules and commands
-```
-
 ## Troubleshooting
 
 ```bash
@@ -130,9 +124,6 @@ uv run pytest -v -s          # Verbose pytest output
 uv run dev all                # Run all quality checks
 uv run dev lint-fix           # Auto-fix linting issues
 uv run dev format             # Format code
-
-# Cursor validation
-uv run ai validate-rules      # Validate Cursor rules and commands
 
 # Docker issues
 docker compose logs tux       # View bot logs
