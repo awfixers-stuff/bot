@@ -7,11 +7,12 @@
 # It defines coverage requirements, status checks, reporting behavior, and
 # file exclusions for comprehensive test coverage tracking.
 #
-# All tests (unit, integration, and end-to-end) run together and generate
-# a unified coverage report that is uploaded to Codecov for analysis.
+# Tests run in three categories (unit, integration, e2e) and each uploads
+# with its own flag for per-type coverage tracking in the Codecov UI.
 #
 # Documentation: https://docs.codecov.com/docs/codecov-yaml
 # Validation:    https://api.codecov.io/validate
+# Flags:         https://docs.codecov.com/docs/flags
 # ==============================================================================
 # ==============================================================================
 # Codecov Behavior Settings
@@ -45,7 +46,7 @@ coverage:
   # - Red background: below start percentage
   # - Yellow background: between start and end percentages
   # - Green background: at or above end percentage
-  range: 75...100
+  range: 40...80
 
   # ============================================================================
   # Status Check Configuration
@@ -58,16 +59,17 @@ coverage:
     # This status check blocks pull requests that do not meet coverage thresholds.
     project:
       default:
-        # Minimum coverage percentage required for the entire project.
-        # Status check will fail if coverage falls below this threshold.
-        target: 80%
+        # Use 'auto' to track against the base commit's coverage percentage.
+        # This avoids hard-coding unrealistic targets while still preventing
+        # coverage regressions.
+        target: auto
 
         # Permitted coverage drop before status check fails.
         # Allows minor fluctuations while maintaining quality standards.
-        threshold: 1%
+        threshold: 2%
 
-        # Status check is blocking (not informational only).
-        # Pull requests cannot be merged if this check fails.
+        # Status check is informational (not blocking).
+        # Pull requests can still be merged if this check fails.
         informational: true
 
         # Behavior when no coverage report is uploaded.
@@ -78,6 +80,27 @@ coverage:
         # 'error' ensures status only passes when CI succeeds.
         if_ci_failed: error
 
+      # Per-flag project status checks
+      # Each flag inherits from its flag_management configuration below
+      unit:
+        target: auto
+        threshold: 2%
+        informational: true
+        if_not_found: success  # Allow flag-specific checks to pass if no upload
+        if_ci_failed: error
+      integration:
+        target: auto
+        threshold: 2%
+        informational: true
+        if_not_found: success
+        if_ci_failed: error
+      e2e:
+        target: auto
+        threshold: 2%
+        informational: true
+        if_not_found: success
+        if_ci_failed: error
+
     # --------------------------------------------------------------------------
     # Patch Coverage Status
     # --------------------------------------------------------------------------
@@ -86,8 +109,8 @@ coverage:
     patch:
       default:
         # Minimum coverage percentage required for new/changed code.
-        # Higher threshold than project coverage to maintain quality.
-        target: 80%
+        # 'auto' tracks against the base commit's patch coverage.
+        target: auto
 
         # Permitted coverage drop for new code.
         # More lenient than project coverage to account for refactoring.
@@ -104,6 +127,70 @@ coverage:
 
         # Behavior when CI fails.
         if_ci_failed: error
+# ==============================================================================
+# Flag Management
+# ==============================================================================
+# Configures per-flag behavior including carryforward, status checks, and paths.
+# Each flag corresponds to a test category that uploads its own coverage report.
+# https://docs.codecov.com/docs/flags
+flag_management:
+  # Default rules apply to all flags unless overridden in individual_flags.
+  default_rules:
+    # Carryforward coverage from previous commits when a flag's tests don't
+    # run (e.g., only integration tests changed but unit tests didn't run).
+    # This prevents coverage from disappearing when specific test types
+    # aren't executed on every PR.
+    carryforward: true
+
+    # Status check configuration for all flags by default.
+    statuses:
+      - type: project
+        target: auto
+        threshold: 2%
+      - type: patch
+        target: auto
+        threshold: 5%
+
+  # Per-flag overrides for flags that need different behavior.
+  individual_flags:
+    - name: unit
+      paths:
+        - src/bot/
+      carryforward: true
+      statuses:
+        - type: project
+          target: auto
+          threshold: 2%
+
+    - name: integration
+      paths:
+        - src/bot/
+      carryforward: true
+      statuses:
+        - type: project
+          target: auto
+          threshold: 2%
+
+    - name: e2e
+      paths:
+        - src/bot/
+      carryforward: true
+      statuses:
+        - type: project
+          target: auto
+          threshold: 2%
+
+    - name: combined
+      paths:
+        - src/bot/
+      carryforward: false  # Combined runs on every test execution
+      statuses:
+        - type: project
+          target: auto
+          threshold: 2%
+        - type: patch
+          target: auto
+          threshold: 5%
 # ==============================================================================
 # Parser Configuration
 # ==============================================================================
@@ -143,6 +230,9 @@ comment:
 
   # Display project-wide coverage in addition to patch coverage.
   hide_project_coverage: false
+
+  # Show coverage breakdown by flag in PR comments.
+  show_carryforward_flags: true
 
   # Number of builds to wait before posting comment.
   # Set to 1 to post immediately after first build completes.

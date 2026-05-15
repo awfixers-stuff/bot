@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING, cast
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 from bot.plugins.atl.fact import _substitute_placeholders
 
 if TYPE_CHECKING:

@@ -1,6 +1,9 @@
 """Tests for schema inspector."""
 
 import pytest
+
+pytestmark = pytest.mark.unit
+
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 

@@ -11,6 +11,8 @@ import timeit
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 from bot.cache import JailStatusCache, TTLCache
 
 

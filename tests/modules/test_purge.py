@@ -13,7 +13,7 @@ from discord.ext import commands
 from bot.core.bot import Bot
 from bot.modules.moderation.purge import Purge
 
-pytestmark = pytest.mark.asyncio
+pytestmark = [pytest.mark.asyncio, pytest.mark.unit]
 
 
 @pytest.fixture

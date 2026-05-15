@@ -2,6 +2,8 @@
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 from bot.database.models import AFK, Case
 from bot.plugins.v0_1_db_migrate.mapper import (
     ModelMapper,

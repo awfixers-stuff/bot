@@ -1,5 +1,9 @@
 """Tests for utility functions."""
 
+import pytest
+
+pytestmark = pytest.mark.unit
+
 from datetime import UTC, datetime
 
 from bot.plugins.v0_1_db_migrate.utils import (
