@@ -4,6 +4,16 @@
 
 **Stack:** Python 3.13.2+ • discord.py • PostgreSQL • SQLModel • uv • Docker
 
+> ## Branch and Pull Request Requirement
+>
+> **All changes — including AI-generated changes — MUST be made in a new feature branch and submitted as a pull request.**
+>
+> Direct commits to `main` are strictly prohibited. Every change follows this lifecycle:
+> **Create branch → Develop → Commit → Push → Open PR → Review → Merge → Delete branch**
+>
+> Branch naming: `<type>/<short-description>` (e.g., `feat/add-auth`, `fix/memory-leak`, `docs/update-readme`).
+> See [branch naming conventions](docs/content/developer/best-practices/branch-naming.md) for all types.
+
 ## Quick reference
 
 | Task | Command |

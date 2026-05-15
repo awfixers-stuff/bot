@@ -38,6 +38,8 @@ If review finds issues:
 
 ## Review Checklist
 
+- [ ] Changes are on a feature branch, not `main` (see branch naming: `feat/`, `fix/`, `docs/`, etc.)
+- [ ] A pull request is open and ready for review
 - [ ] Ran `uv run dev all` successfully
 - [ ] Database migrations created if models changed
 - [ ] Tests added/updated for new functionality
