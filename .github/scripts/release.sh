@@ -30,7 +30,7 @@ determine_version() {
   echo "version=$version" >> "$GITHUB_OUTPUT"
 
   # Check if this is a prerelease (contains alpha, beta, rc)
-  if [[ $version =~ (alpha|beta|rc)   ]]; then
+  if [[ $version =~ (alpha|beta|rc) ]]; then
     echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
   else
     echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
