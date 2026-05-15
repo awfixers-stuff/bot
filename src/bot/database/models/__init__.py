@@ -10,10 +10,12 @@ from __future__ import annotations
 
 # Import base classes and enums
 from .base import BaseModel, SoftDeleteMixin, UUIDMixin
-from .enums import CaseType, PermissionType
+from .enums import CaseType, OnboardingStage, PermissionType
 from .models import (
     AFK,
     Case,
+    Guild,
+    GuildConfig,
     Levels,
     PermissionAssignment,
     PermissionCommand,
@@ -31,7 +33,11 @@ __all__ = [
     "UUIDMixin",
     # Enums
     "CaseType",
+    "OnboardingStage",
     "PermissionType",
+    # Guild models
+    "Guild",
+    "GuildConfig",
     # User features
     "AFK",
     "Levels",

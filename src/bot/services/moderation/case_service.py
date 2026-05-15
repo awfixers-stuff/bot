@@ -35,7 +35,6 @@ class CaseService:
 
     async def create_case(
         self,
-        guild_id: int,
         user_id: int,
         moderator_id: int,
         case_type: DBCaseType,
@@ -47,8 +46,6 @@ class CaseService:
 
         Parameters
         ----------
-        guild_id : int
-            ID of the guild.
         user_id : int
             ID of the target user.
         moderator_id : int
@@ -71,7 +68,6 @@ class CaseService:
             case_type=case_type.value,
             case_user_id=user_id,
             case_moderator_id=moderator_id,
-            guild_id=guild_id,
             case_reason=reason,
             **kwargs,
         )
@@ -92,41 +88,37 @@ class CaseService:
         """
         return await self._case_controller.get_case_by_id(case_id)
 
-    async def get_user_cases(self, user_id: int, guild_id: int) -> list[Case]:
+    async def get_user_cases(self, user_id: int) -> list[Case]:
         """
-        Get all cases for a user in a guild.
+        Get all cases for a user.
 
         Parameters
         ----------
         user_id : int
             The user ID.
-        guild_id : int
-            The guild ID.
 
         Returns
         -------
         list[Case]
             List of cases for the user.
         """
-        return await self._case_controller.get_cases_by_user(user_id, guild_id)
+        return await self._case_controller.get_cases_by_user(user_id)
 
-    async def get_active_cases(self, user_id: int, guild_id: int) -> list[Case]:
+    async def get_active_cases(self, user_id: int) -> list[Case]:
         """
-        Get active cases for a user in a guild.
+        Get active cases for a user.
 
         Parameters
         ----------
         user_id : int
             The user ID.
-        guild_id : int
-            The guild ID.
 
         Returns
         -------
         list[Case]
             List of active cases for the user.
         """
-        return await self._case_controller.get_active_cases_by_user(user_id, guild_id)
+        return await self._case_controller.get_active_cases_by_user(user_id)
 
     async def update_mod_log_message_id(
         self,

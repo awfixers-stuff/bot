@@ -182,7 +182,6 @@ class ModerationCogBase(BaseCog):
             True if user is poll banned, False otherwise
         """
         latest_case = await self.db.case.get_latest_case_by_user(
-            guild_id=guild_id,
             user_id=user_id,
         )
         return bool(latest_case and latest_case.case_type == DBCaseType.POLLBAN)

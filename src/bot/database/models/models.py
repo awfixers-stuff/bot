@@ -20,15 +20,166 @@ from sqlalchemy import (
     Integer,
 )
 from sqlalchemy import Enum as PgEnum
+from sqlalchemy import Enum as PgEnum
 from sqlalchemy.orm import relationship
 from sqlmodel import Field, Relationship
 
 from .base import BaseModel
-from .enums import CaseType
+from .enums import CaseType, OnboardingStage
 
 # =============================================================================
-# PERMISSION SYSTEM MODELS
+# CORE GUILD MODELS
 # =============================================================================
+
+
+class Guild(BaseModel, table=True):
+    """Discord guild/server model.
+
+    Attributes
+    ----------
+    id : int
+        Discord guild ID (primary key).
+    guild_joined_at : datetime, optional
+        When the bot joined this guild.
+    case_count : int
+        Running count of moderation cases.
+    """
+
+    __tablename__ = "guild"  # pyright: ignore[reportAssignmentType]
+
+    id: int = Field(
+        primary_key=True,
+        sa_type=BigInteger,
+        description="Discord guild (server) ID",
+    )
+    guild_joined_at: datetime | None = Field(
+        default_factory=lambda: datetime.now(UTC).replace(tzinfo=None),
+        description="Timestamp when the bot joined this guild",
+    )
+    case_count: int = Field(
+        default=0,
+        ge=0,
+        sa_type=Integer,
+        description="Running count of moderation cases",
+    )
+
+    __table_args__ = (
+        CheckConstraint("case_count >= 0", name="check_case_count_positive"),
+        CheckConstraint("id > 0", name="check_guild_id_valid"),
+    )
+
+    def __repr__(self) -> str:
+        """Return string representation showing guild ID."""
+        return f"<Guild id={self.id}>"
+
+
+class GuildConfig(BaseModel, table=True):
+    """Guild-specific configuration settings.
+
+    Attributes
+    ----------
+    id : int
+        Discord guild ID (primary key, foreign key to guild table).
+    prefix : str
+        Command prefix for this guild.
+    mod_log_id : int, optional
+        Channel ID for moderation logs.
+    audit_log_id : int, optional
+        Channel ID for audit logs.
+    join_log_id : int, optional
+        Channel ID for member join/leave logs.
+    private_log_id : int, optional
+        Channel ID for private moderation logs.
+    report_log_id : int, optional
+        Channel ID for user reports.
+    dev_log_id : int, optional
+        Channel ID for development/debug logs.
+    jail_channel_id : int, optional
+        Channel ID for jailed users.
+    jail_role_id : int, optional
+        Role ID assigned to jailed users.
+    onboarding_completed : bool
+        Whether guild onboarding setup is complete.
+    onboarding_stage : OnboardingStage, optional
+        Current stage of guild onboarding process.
+    """
+
+    __tablename__ = "guild_config"  # pyright: ignore[reportAssignmentType]
+
+    id: int = Field(
+        primary_key=True,
+        foreign_key="guild.id",
+        ondelete="CASCADE",
+        sa_type=BigInteger,
+        description="Discord guild ID (links to guild table)",
+    )
+    prefix: str = Field(
+        default="$",
+        min_length=1,
+        max_length=3,
+        description="Command prefix for this guild",
+    )
+    mod_log_id: int | None = Field(
+        default=None,
+        sa_type=BigInteger,
+        description="Channel ID for moderation action logs",
+    )
+    audit_log_id: int | None = Field(
+        default=None,
+        sa_type=BigInteger,
+        description="Channel ID for detailed audit logs",
+    )
+    join_log_id: int | None = Field(
+        default=None,
+        sa_type=BigInteger,
+        description="Channel ID for member join/leave logs",
+    )
+    private_log_id: int | None = Field(
+        default=None,
+        sa_type=BigInteger,
+        description="Channel ID for private/sensitive moderation logs",
+    )
+    report_log_id: int | None = Field(
+        default=None,
+        sa_type=BigInteger,
+        description="Channel ID for user-submitted reports",
+    )
+    dev_log_id: int | None = Field(
+        default=None,
+        sa_type=BigInteger,
+        description="Channel ID for development/debug logs",
+    )
+    jail_channel_id: int | None = Field(
+        default=None,
+        sa_type=BigInteger,
+        description="Channel ID where jailed users can communicate",
+    )
+    jail_role_id: int | None = Field(
+        default=None,
+        sa_type=BigInteger,
+        description="Role ID assigned to jailed users",
+    )
+    onboarding_completed: bool = Field(
+        default=False,
+        description="Whether the guild has completed initial setup",
+    )
+    onboarding_stage: OnboardingStage | None = Field(
+        default=None,
+        sa_column=Column(
+            PgEnum(OnboardingStage, name="onboarding_stage_enum"),
+            nullable=True,
+        ),
+        description="Current stage of the onboarding wizard",
+    )
+
+    __table_args__ = (
+        CheckConstraint("id > 0", name="check_guild_config_id_valid"),
+        CheckConstraint("length(prefix) > 0", name="check_prefix_not_empty"),
+    )
+
+    def __repr__(self) -> str:
+        """Return string representation showing guild ID and prefix."""
+        return f"<GuildConfig id={self.id} prefix={self.prefix!r}>"
 
 
 # =============================================================================

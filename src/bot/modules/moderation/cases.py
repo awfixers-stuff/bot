@@ -269,7 +269,7 @@ class Cases(ModerationCogBase):
         """
         assert ctx.guild
 
-        case = await self.db.case.get_case_by_number(case_number, ctx.guild.id)
+        case = await self.db.case.get_case_by_number(case_number)
         if not case:
             if ctx.interaction:
                 await ctx.interaction.followup.send("Case not found.", ephemeral=True)
@@ -326,7 +326,7 @@ class Cases(ModerationCogBase):
     async def _view_all_cases(self, ctx: commands.Context[Bot]) -> None:
         """View all cases in the server."""
         assert ctx.guild
-        cases = await self.db.case.get_all_cases(ctx.guild.id)
+        cases = await self.db.case.get_all_cases()
 
         if not cases:
             if ctx.interaction:
@@ -354,7 +354,7 @@ class Cases(ModerationCogBase):
         """
         assert ctx.guild
 
-        case = await self.db.case.get_case_by_number(case_number, ctx.guild.id)
+        case = await self.db.case.get_case_by_number(case_number)
         if not case:
             if ctx.interaction:
                 await ctx.interaction.followup.send("Case not found.", ephemeral=True)
@@ -392,7 +392,7 @@ class Cases(ModerationCogBase):
         if hasattr(flags, "moderator") and flags.moderator:
             options["moderator_id"] = flags.moderator.id
 
-        cases = await self.db.case.get_cases_by_options(ctx.guild.id, options)
+        cases = await self.db.case.get_cases_by_options(options)
 
         if not cases:
             if ctx.interaction:
@@ -407,7 +407,7 @@ class Cases(ModerationCogBase):
             total_cases = len(cases)
         else:
             # No filters, get total count of all cases
-            all_cases = await self.db.case.get_all_cases(ctx.guild.id)
+            all_cases = await self.db.case.get_all_cases()
             total_cases = len(all_cases)
 
         await self._handle_case_list_response(ctx, cases, total_cases, options)
@@ -434,7 +434,6 @@ class Cases(ModerationCogBase):
         assert case.case_number is not None
 
         updated_case = await self.db.case.update_case_by_number(
-            ctx.guild.id,
             case.case_number,
             case_reason=flags.reason if flags.reason is not None else case.case_reason,
             case_status=flags.status if flags.status is not None else case.case_status,

@@ -582,9 +582,7 @@ class ConfigDashboard(discord.ui.LayoutView):
                     f"Fetching ranks for guild {self.guild.id} (guild name: {self.guild.name})",
                 )
                 ranks = (
-                    await self.bot.db.permission_ranks.get_permission_ranks_by_guild(
-                        self.guild.id,
-                    )
+                    await self.bot.db.permission_ranks.get_all_permission_ranks()
                 )
                 self._ranks_data = ranks
                 logger.debug(f"Found {len(ranks)} ranks for guild {self.guild.id}")
@@ -875,12 +873,8 @@ class ConfigDashboard(discord.ui.LayoutView):
                 )
             else:
                 ranks, assignments = await asyncio.gather(
-                    self.bot.db.permission_ranks.get_permission_ranks_by_guild(
-                        self.guild.id,
-                    ),
-                    self.bot.db.permission_assignments.get_assignments_by_guild(
-                        self.guild.id,
-                    ),
+                    self.bot.db.permission_ranks.get_all_permission_ranks(),
+                    self.bot.db.permission_assignments.get_all_assignments(),
                 )
                 self._roles_data = (ranks, assignments)
                 assignments_by_rank = self._group_assignments_by_rank(
@@ -984,9 +978,7 @@ class ConfigDashboard(discord.ui.LayoutView):
 
     async def _validate_rank_for_assignment(self, rank_id: int) -> int | None:
         """Validate rank exists and return its database ID."""
-        ranks = await self.bot.db.permission_ranks.get_permission_ranks_by_guild(
-            self.guild.id,
-        )
+        ranks = await self.bot.db.permission_ranks.get_all_permission_ranks()
         rank_obj = next((r for r in ranks if r.rank == rank_id), None)
         return rank_obj.id if rank_obj and rank_obj.id is not None else None
 
@@ -1198,9 +1190,7 @@ class ConfigDashboard(discord.ui.LayoutView):
         rank_id = int(custom_id.split("_")[-1])
 
         # Get the PermissionRank object to get its database ID
-        ranks = await self.bot.db.permission_ranks.get_permission_ranks_by_guild(
-            self.guild.id,
-        )
+        ranks = await self.bot.db.permission_ranks.get_all_permission_ranks()
         rank_obj = next((r for r in ranks if r.rank == rank_id), None)
         if not rank_obj:
             await interaction.response.send_message(
@@ -1215,9 +1205,7 @@ class ConfigDashboard(discord.ui.LayoutView):
         # Get current assignments for this rank
         try:
             assignments = (
-                await self.bot.db.permission_assignments.get_assignments_by_guild(
-                    self.guild.id,
-                )
+                await self.bot.db.permission_assignments.get_all_assignments()
             )
             rank_assignments = [
                 a for a in assignments if a.permission_rank_id == rank_db_id
@@ -1339,9 +1327,7 @@ class ConfigDashboard(discord.ui.LayoutView):
         rank_id = int(custom_id.split("_")[-1])
 
         # Validate rank exists
-        ranks = await self.bot.db.permission_ranks.get_permission_ranks_by_guild(
-            self.guild.id,
-        )
+        ranks = await self.bot.db.permission_ranks.get_all_permission_ranks()
         rank_obj = next((r for r in ranks if r.rank == rank_id), None)
         if not rank_obj or rank_obj.id is None:
             await interaction.followup.send(
@@ -1588,15 +1574,9 @@ class ConfigDashboard(discord.ui.LayoutView):
             ranks,
             assignments,
         ) = await asyncio.gather(
-            self.bot.db.command_permissions.get_all_command_permissions(
-                self.guild.id,
-            ),
-            self.bot.db.permission_ranks.get_permission_ranks_by_guild(
-                self.guild.id,
-            ),
-            self.bot.db.permission_assignments.get_assignments_by_guild(
-                self.guild.id,
-            ),
+            self.bot.db.command_permissions.get_all_command_permissions(),
+            self.bot.db.permission_ranks.get_all_permission_ranks(),
+            self.bot.db.permission_assignments.get_all_assignments(),
         )
         logger.debug(
             f"Commands list for guild {self.guild.id}: "
@@ -2412,9 +2392,7 @@ class ConfigDashboard(discord.ui.LayoutView):
 
         # Determine available ranks for creation
         existing_ranks = (
-            await self.bot.db.permission_ranks.get_permission_ranks_by_guild(
-                self.guild.id,
-            )
+            await self.bot.db.permission_ranks.get_all_permission_ranks()
         )
         existing_rank_values = {rank.rank for rank in existing_ranks}
 
@@ -2472,9 +2450,7 @@ class ConfigDashboard(discord.ui.LayoutView):
             # Check if ranks already exist
             logger.trace(f"Checking existing ranks for guild {self.guild.id}")
             existing_ranks = (
-                await self.bot.db.permission_ranks.get_permission_ranks_by_guild(
-                    self.guild.id,
-                )
+                await self.bot.db.permission_ranks.get_all_permission_ranks()
             )
             logger.trace(
                 f"Found {len(existing_ranks)} existing ranks for guild {self.guild.id}",
@@ -2693,15 +2669,9 @@ class ConfigDashboard(discord.ui.LayoutView):
         try:
             # Fetch in parallel to reduce latency in production
             existing_permissions, ranks, assignments = await asyncio.gather(
-                self.bot.db.command_permissions.get_all_command_permissions(
-                    self.guild.id,
-                ),
-                self.bot.db.permission_ranks.get_permission_ranks_by_guild(
-                    self.guild.id,
-                ),
-                self.bot.db.permission_assignments.get_assignments_by_guild(
-                    self.guild.id,
-                ),
+                self.bot.db.command_permissions.get_all_command_permissions(),
+                self.bot.db.permission_ranks.get_all_permission_ranks(),
+                self.bot.db.permission_assignments.get_all_assignments(),
             )
             permission_map = {perm.command_name: perm for perm in existing_permissions}
             perm = permission_map.get(cmd_name)

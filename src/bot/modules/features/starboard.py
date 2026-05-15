@@ -390,7 +390,7 @@ class Starboard(BaseCog):
             await ctx.defer(ephemeral=True)
 
         try:
-            result = await self.db.starboard.delete_starboard_by_guild_id(ctx.guild.id)
+            result = await self.db.starboard.delete_starboard()
 
             embed = (
                 EmbedCreator.create_embed(
@@ -507,9 +507,7 @@ class Starboard(BaseCog):
             return
 
         try:
-            starboard = await self.db.starboard.get_starboard_by_guild_id(
-                original_message.guild.id,
-            )
+            starboard = await self.db.starboard.get_starboard()
             if not starboard:
                 return
 
@@ -586,7 +584,7 @@ class Starboard(BaseCog):
         if not payload.guild_id:
             return
 
-        starboard = await self.db.starboard.get_starboard_by_guild_id(payload.guild_id)
+        starboard = await self.db.starboard.get_starboard()
         if not starboard or str(payload.emoji) != starboard.starboard_emoji:
             return
 
@@ -668,9 +666,7 @@ class Starboard(BaseCog):
                 return
 
             message: discord.Message = await channel.fetch_message(payload.message_id)
-            starboard = await self.db.starboard.get_starboard_by_guild_id(
-                payload.guild_id,
-            )
+            starboard = await self.db.starboard.get_starboard()
 
             if not starboard or (emoji and str(emoji) != starboard.starboard_emoji):
                 return

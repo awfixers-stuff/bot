@@ -40,9 +40,7 @@ class RankManager(BaseConfigManager):
         try:
             # Check if ranks already exist
             existing_ranks = (
-                await self.bot.db.permission_ranks.get_permission_ranks_by_guild(
-                    ctx.guild.id,
-                )
+                await self.bot.db.permission_ranks.get_all_permission_ranks()
             )
             if existing_ranks:
                 embed = self.create_warning_embed(

@@ -203,9 +203,7 @@ def create_role_update_callback(
 
             # Get current assignments for this rank
             existing_assignments = (
-                await dashboard.bot.db.permission_assignments.get_assignments_by_guild(
-                    dashboard.guild.id,
-                )
+                await dashboard.bot.db.permission_assignments.get_all_assignments()
             )
             current_role_ids = {
                 assignment.role_id
@@ -223,15 +221,13 @@ def create_role_update_callback(
             # Add new roles
             for role_id in roles_to_add:
                 await dashboard.bot.db.permission_assignments.assign_permission_rank(
-                    dashboard.guild.id,
-                    rank_db_id,
-                    role_id,
+                    permission_rank_id=rank_db_id,
+                    role_id=role_id,
                 )
 
             # Remove unselected roles (use remove_role_assignment so controller cache is invalidated)
             for role_id in roles_to_remove:
                 removed = await dashboard.bot.db.permission_assignments.remove_role_assignment(
-                    dashboard.guild.id,
                     role_id,
                 )
                 if removed:
@@ -294,14 +290,12 @@ def create_command_rank_callback(dashboard: ConfigDashboard, command_name: str) 
                 # Remove command permission
                 await dashboard.bot.db.command_permissions.delete_where(
                     filters=(
-                        PermissionCommand.guild_id == dashboard.guild.id,
                         PermissionCommand.command_name == command_name,
                     ),
                 )
                 # Invalidate both caches so next check sees fresh data
                 await (
                     dashboard.bot.db.command_permissions.invalidate_command_permission(
-                        dashboard.guild.id,
                         command_name,
                     )
                 )
@@ -314,9 +308,7 @@ def create_command_rank_callback(dashboard: ConfigDashboard, command_name: str) 
                 rank_value = int(selected_value)
 
                 # Validate rank exists
-                ranks = await dashboard.bot.db.permission_ranks.get_permission_ranks_by_guild(
-                    dashboard.guild.id,
-                )
+                ranks = await dashboard.bot.db.permission_ranks.get_all_permission_ranks()
                 rank_obj = next((r for r in ranks if r.rank == rank_value), None)
                 if not rank_obj:
                     await interaction.followup.send(
@@ -326,7 +318,6 @@ def create_command_rank_callback(dashboard: ConfigDashboard, command_name: str) 
                     return
 
                 await get_permission_system().set_command_permission(
-                    dashboard.guild.id,
                     command_name,
                     rank_value,
                 )
@@ -746,9 +737,7 @@ def create_confirm_assignment_callback(
         try:
             assigned_count = 0
             existing_assignments = (
-                await dashboard.bot.db.permission_assignments.get_assignments_by_guild(
-                    dashboard.guild.id,
-                )
+                await dashboard.bot.db.permission_assignments.get_all_assignments()
             )
 
             for role in selected_roles:
@@ -760,9 +749,8 @@ def create_confirm_assignment_callback(
                 if not existing:
                     await (
                         dashboard.bot.db.permission_assignments.assign_permission_rank(
-                            dashboard.guild.id,
-                            rank_db_id,
-                            role.id,
+                            permission_rank_id=rank_db_id,
+                            role_id=role.id,
                         )
                     )
                     assigned_count += 1

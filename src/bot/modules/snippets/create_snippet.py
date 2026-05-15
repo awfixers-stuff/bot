@@ -71,10 +71,7 @@ class CreateSnippet(SnippetsBaseCog):
 
         # Check if a snippet with this name already exists
         try:
-            existing_snippet = await self.db.snippet.get_snippet_by_name_and_guild_id(
-                name,
-                guild_id,
-            )
+            existing_snippet = await self.db.snippet.get_snippet_by_name(name)
             if existing_snippet is not None:
                 await self.send_snippet_error(
                     ctx,
@@ -100,17 +97,13 @@ class CreateSnippet(SnippetsBaseCog):
         # Check if content matches another snippet name to automatically create an alias
         try:
             existing_snippet_for_alias = (
-                await self.db.snippet.get_snippet_by_name_and_guild_id(
-                    content,
-                    guild_id,
-                )
+                await self.db.snippet.get_snippet_by_name(content)
             )
 
             if existing_snippet_for_alias:
                 await self.db.snippet.create_snippet_alias(
                     original_name=content,
                     alias_name=name,
-                    guild_id=guild_id,
                 )
 
                 await ctx.send(

@@ -77,9 +77,7 @@ class EditRankModal(discord.ui.Modal):
 
             # Check if name already exists (but allow keeping the same name)
             all_ranks = (
-                await self.bot.db.permission_ranks.get_permission_ranks_by_guild(
-                    self.guild.id,
-                )
+                await self.bot.db.permission_ranks.get_all_permission_ranks()
             )
             if any(
                 rank.name.lower() == self.rank_name.value.lower()
@@ -95,7 +93,6 @@ class EditRankModal(discord.ui.Modal):
             # Update the rank
             description = self.rank_description.value or None
             updated = await self.bot.db.permission_ranks.update_permission_rank(
-                guild_id=self.guild.id,
                 rank=self.rank_value,
                 name=self.rank_name.value,
                 description=description,
@@ -212,9 +209,7 @@ class CreateRankModal(discord.ui.Modal):
 
             # Double-check availability (in case of race conditions or UI inconsistencies)
             existing_ranks = (
-                await self.bot.db.permission_ranks.get_permission_ranks_by_guild(
-                    self.guild.id,
-                )
+                await self.bot.db.permission_ranks.get_all_permission_ranks()
             )
             existing_rank_values = {rank.rank for rank in existing_ranks}
 
@@ -233,9 +228,7 @@ class CreateRankModal(discord.ui.Modal):
 
             # Check if name already exists
             all_ranks = (
-                await self.bot.db.permission_ranks.get_permission_ranks_by_guild(
-                    self.guild.id,
-                )
+                await self.bot.db.permission_ranks.get_all_permission_ranks()
             )
             if any(
                 rank.name.lower() == self.rank_name.value.lower() for rank in all_ranks
@@ -249,7 +242,6 @@ class CreateRankModal(discord.ui.Modal):
             # Create the rank
             description = self.rank_description.value or None
             await self.bot.db.permission_ranks.create_permission_rank(
-                guild_id=self.guild.id,
                 rank=rank_value,
                 name=self.rank_name.value,
                 description=description,

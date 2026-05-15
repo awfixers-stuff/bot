@@ -34,19 +34,18 @@ PERM_USER_RANK_TTL = 7200.0  # 2 hours
 
 
 class PermissionRankController(BaseController[PermissionRank]):
-    """Controller for managing guild permission ranks."""
+    """Controller for managing permission ranks."""
 
     # Shared cache for permission ranks when no backend
     _ranks_cache: TTLCache = TTLCache(ttl=PERM_RANKS_TTL, max_size=1000)
-    _guild_ranks_cache: TTLCache = TTLCache(ttl=PERM_RANKS_TTL, max_size=500)
+    _all_ranks_cache: TTLCache = TTLCache(ttl=PERM_RANKS_TTL, max_size=5)
 
     def __init__(
         self,
         db: DatabaseService | None = None,
         cache_backend: AsyncCacheBackendProtocol | None = None,
     ) -> None:
-        """
-        Initialize the guild permission rank controller.
+        """Initialize the permission rank controller.
 
         Parameters
         ----------
@@ -60,131 +59,100 @@ class PermissionRankController(BaseController[PermissionRank]):
 
     async def create_permission_rank(
         self,
-        guild_id: int,
         rank: int,
         name: str,
         description: str | None = None,
     ) -> PermissionRank:
-        """
-        Create a new permission rank for a guild.
+        """Create a new permission rank.
 
         Returns
         -------
         PermissionRank
             The newly created permission rank.
         """
-        logger.debug(
-            f"Creating permission rank: guild_id={guild_id}, rank={rank}, name={name}",
-        )
+        logger.debug(f"Creating permission rank: rank={rank}, name={name}")
         try:
             result = await self.create(
-                guild_id=guild_id,
                 rank=rank,
                 name=name,
                 description=description,
             )
-            # Invalidate cache for this guild
+            # Invalidate cache
             if self._backend is not None:
-                await self._backend.delete(
-                    f"{PERM_KEY_PREFIX}permission_ranks:{guild_id}",
-                )
+                await self._backend.delete(f"{PERM_KEY_PREFIX}permission_ranks")
                 if result.id is not None:
                     await self._backend.delete(
                         f"{PERM_KEY_PREFIX}permission_rank:{result.id}",
                     )
             else:
-                self._guild_ranks_cache.invalidate(f"permission_ranks:{guild_id}")
+                self._all_ranks_cache.invalidate("permission_ranks")
                 if result.id:
                     self._ranks_cache.invalidate(f"permission_rank:{result.id}")
-            logger.trace(f"Invalidated permission rank cache for guild {guild_id}")
+            logger.trace("Invalidated permission rank cache")
         except Exception as e:
-            logger.error(
-                f"Error creating permission rank {rank} for guild {guild_id}: {e}",
-            )
-
+            logger.error(f"Error creating permission rank {rank}: {e}")
             capture_exception_safe(
                 e,
                 extra_context={
                     "operation": "create_permission_rank",
-                    "guild_id": str(guild_id),
                     "rank": str(rank),
                 },
             )
             raise
         else:
-            logger.debug(
-                f"Successfully created permission rank {rank} for guild {guild_id}",
-            )
+            logger.debug(f"Successfully created permission rank {rank}")
             return result
 
-    async def get_permission_ranks_by_guild(
-        self,
-        guild_id: int,
-    ) -> list[PermissionRank]:
-        """
-        Get all permission ranks for a guild.
+    async def get_all_permission_ranks(self) -> list[PermissionRank]:
+        """Get all permission ranks.
 
         Returns
         -------
         list[PermissionRank]
             List of permission ranks ordered by rank value.
         """
-        backend_key = f"{PERM_KEY_PREFIX}permission_ranks:{guild_id}"
+        cache_key = f"{PERM_KEY_PREFIX}permission_ranks"
         if self._backend is not None:
-            raw = await self._backend.get(backend_key)
+            raw = await self._backend.get(cache_key)
             if raw is not None and isinstance(raw, list):
-                logger.trace(f"Cache hit for permission ranks (guild {guild_id})")
+                logger.trace("Cache hit for permission ranks")
                 items = cast(list[dict[str, Any]], raw)
                 return [PermissionRank.model_validate(d) for d in items]
         else:
-            cache_key = f"permission_ranks:{guild_id}"
-            cached = self._guild_ranks_cache.get(cache_key)
+            cached = self._all_ranks_cache.get("permission_ranks")
             if cached is not None:
-                logger.trace(f"Cache hit for permission ranks (guild {guild_id})")
+                logger.trace("Cache hit for permission ranks")
                 return cached
 
-        result = await self.find_all(
-            filters=PermissionRank.guild_id == guild_id,
-            order_by=PermissionRank.rank,
-        )
+        result = await self.find_all(order_by=PermissionRank.rank)
         if self._backend is not None:
             await self._backend.set(
-                backend_key,
+                cache_key,
                 [m.model_dump() for m in result],
                 ttl_sec=PERM_RANKS_TTL,
             )
         else:
-            self._guild_ranks_cache.set(f"permission_ranks:{guild_id}", result)
-        logger.trace(f"Cached permission ranks for guild {guild_id}")
+            self._all_ranks_cache.set("permission_ranks", result)
+        logger.trace("Cached permission ranks")
         return result
 
-    async def get_permission_rank(
-        self,
-        guild_id: int,
-        rank: int,
-    ) -> PermissionRank | None:
-        """
-        Get a specific permission rank.
+    async def get_permission_rank(self, rank: int) -> PermissionRank | None:
+        """Get a specific permission rank by its numeric level.
 
         Returns
         -------
         PermissionRank | None
             The permission rank if found, None otherwise.
         """
-        return await self.find_one(
-            filters=(PermissionRank.guild_id == guild_id)
-            & (PermissionRank.rank == rank),
-        )
+        return await self.find_one(filters=PermissionRank.rank == rank)
 
     async def update_permission_rank(
         self,
-        guild_id: int,
         rank: int,
         name: str | None = None,
         description: str | None = discord.utils.MISSING,
     ) -> PermissionRank | None:
-        """
-        Update a permission rank.
+        """Update a permission rank.
 
         Pass ``description=None`` to clear the description; omit the argument
         to leave it unchanged.
@@ -194,50 +162,41 @@ class PermissionRankController(BaseController[PermissionRank]):
         PermissionRank | None
             The updated permission rank, or None if not found.
         """
-        # Find the record first
-        record = await self.find_one(
-            filters=(PermissionRank.guild_id == guild_id)
-            & (PermissionRank.rank == rank),
-        )
+        record = await self.find_one(filters=PermissionRank.rank == rank)
         if not record:
             return None
 
-        # Update the record
         update_data: dict[str, str | None] = {}
         if name is not None:
             update_data["name"] = name
         if description is not discord.utils.MISSING:
-            update_data["description"] = description  # None clears it
-        # Note: updated_at is automatically managed by the database via TimestampMixin
+            update_data["description"] = description
 
         result = await self.update_by_id(record.id, **update_data)
         # Invalidate cache
         if self._backend is not None:
-            await self._backend.delete(
-                f"{PERM_KEY_PREFIX}permission_ranks:{guild_id}",
-            )
+            await self._backend.delete(f"{PERM_KEY_PREFIX}permission_ranks")
             if record.id is not None:
                 await self._backend.delete(
                     f"{PERM_KEY_PREFIX}permission_rank:{record.id}",
                 )
         else:
-            self._guild_ranks_cache.invalidate(f"permission_ranks:{guild_id}")
+            self._all_ranks_cache.invalidate("permission_ranks")
             if record.id:
                 self._ranks_cache.invalidate(f"permission_rank:{record.id}")
-        logger.trace(f"Invalidated permission rank cache for guild {guild_id}")
+        logger.trace("Invalidated permission rank cache")
         return result
 
     async def bulk_create_permission_ranks(
         self,
         ranks_data: list[dict[str, Any]],
     ) -> list[PermissionRank]:
-        """
-        Bulk create multiple permission ranks in a single transaction.
+        """Bulk create multiple permission ranks in a single transaction.
 
         Parameters
         ----------
         ranks_data : list[dict[str, Any]]
-            List of rank data dictionaries, each containing guild_id, rank, name, description
+            List of rank data dictionaries, each containing rank, name, description
 
         Returns
         -------
@@ -255,35 +214,22 @@ class PermissionRankController(BaseController[PermissionRank]):
 
                 await session.commit()
 
-                # Refresh all instances to get auto-generated fields
                 for instance in instances:
                     try:
                         await session.refresh(instance)
                     except Exception as e:
                         logger.warning(f"Refresh failed for {self.model.__name__}: {e}")
 
-                # Expunge all instances
                 for instance in instances:
                     session.expunge(instance)
 
-                # Invalidate cache for all affected guilds
-                affected_guild_ids = {instance.guild_id for instance in instances}
+                # Invalidate cache
                 if self._backend is not None:
-                    for guild_id in affected_guild_ids:
-                        await self._backend.delete(
-                            f"{PERM_KEY_PREFIX}permission_ranks:{guild_id}",
-                        )
-                        logger.trace(
-                            f"Invalidated permission ranks cache for guild {guild_id}",
-                        )
+                    await self._backend.delete(f"{PERM_KEY_PREFIX}permission_ranks")
+                    logger.trace("Invalidated permission ranks cache")
                 else:
-                    for guild_id in affected_guild_ids:
-                        self._guild_ranks_cache.invalidate(
-                            f"permission_ranks:{guild_id}",
-                        )
-                        logger.trace(
-                            f"Invalidated permission ranks cache for guild {guild_id}",
-                        )
+                    self._all_ranks_cache.invalidate("permission_ranks")
+                    logger.trace("Invalidated permission ranks cache")
 
                 logger.debug(
                     f"Successfully bulk created {len(instances)} permission ranks",
@@ -301,43 +247,35 @@ class PermissionRankController(BaseController[PermissionRank]):
             )
             raise
 
-    async def delete_permission_rank(self, guild_id: int, rank: int) -> bool:
-        """
-        Delete a permission rank.
+    async def delete_permission_rank(self, rank: int) -> bool:
+        """Delete a permission rank.
 
         Returns
         -------
         bool
             True if deleted successfully, False otherwise.
         """
-        # Get the record first to invalidate cache
-        record = await self.find_one(
-            filters=(PermissionRank.guild_id == guild_id)
-            & (PermissionRank.rank == rank),
-        )
+        record = await self.find_one(filters=PermissionRank.rank == rank)
         deleted_count = await self.delete_where(
-            filters=(PermissionRank.guild_id == guild_id)
-            & (PermissionRank.rank == rank),
+            filters=PermissionRank.rank == rank,
         )
         if deleted_count > 0:
             if self._backend is not None:
-                await self._backend.delete(
-                    f"{PERM_KEY_PREFIX}permission_ranks:{guild_id}",
-                )
+                await self._backend.delete(f"{PERM_KEY_PREFIX}permission_ranks")
                 if record is not None and record.id is not None:
                     await self._backend.delete(
                         f"{PERM_KEY_PREFIX}permission_rank:{record.id}",
                     )
             else:
-                self._guild_ranks_cache.invalidate(f"permission_ranks:{guild_id}")
+                self._all_ranks_cache.invalidate("permission_ranks")
                 if record and record.id:
                     self._ranks_cache.invalidate(f"permission_rank:{record.id}")
-            logger.trace(f"Invalidated permission rank cache for guild {guild_id}")
+            logger.trace("Invalidated permission rank cache")
         return deleted_count > 0
 
 
 class PermissionAssignmentController(BaseController[PermissionAssignment]):
-    """Controller for managing guild permission assignments."""
+    """Controller for managing permission assignments."""
 
     # Shared cache when no backend
     _assignments_cache: TTLCache = TTLCache(ttl=PERM_RANKS_TTL, max_size=500)
@@ -348,7 +286,7 @@ class PermissionAssignmentController(BaseController[PermissionAssignment]):
         db: DatabaseService | None = None,
         cache_backend: AsyncCacheBackendProtocol | None = None,
     ) -> None:
-        """Initialize the guild permission assignment controller.
+        """Initialize the permission assignment controller.
 
         Parameters
         ----------
@@ -362,12 +300,10 @@ class PermissionAssignmentController(BaseController[PermissionAssignment]):
 
     async def assign_permission_rank(
         self,
-        guild_id: int,
         permission_rank_id: int,
         role_id: int,
     ) -> PermissionAssignment:
-        """
-        Assign a permission level to a role.
+        """Assign a permission level to a role.
 
         Returns
         -------
@@ -375,72 +311,55 @@ class PermissionAssignmentController(BaseController[PermissionAssignment]):
             The newly created permission assignment.
         """
         result = await self.create(
-            guild_id=guild_id,
             permission_rank_id=permission_rank_id,
             role_id=role_id,
         )
         if self._backend is not None:
-            await self._backend.delete(
-                f"{PERM_KEY_PREFIX}permission_assignments:{guild_id}",
-            )
+            await self._backend.delete(f"{PERM_KEY_PREFIX}permission_assignments")
         else:
-            self._assignments_cache.invalidate(
-                f"permission_assignments:{guild_id}",
-            )
-        logger.trace(f"Invalidated permission assignment cache for guild {guild_id}")
+            self._assignments_cache.invalidate("permission_assignments")
+        logger.trace("Invalidated permission assignment cache")
         return result
 
-    async def get_assignments_by_guild(
-        self,
-        guild_id: int,
-    ) -> list[PermissionAssignment]:
-        """
-        Get all permission assignments for a guild.
+    async def get_all_assignments(self) -> list[PermissionAssignment]:
+        """Get all permission assignments.
 
         Returns
         -------
         list[PermissionAssignment]
-            List of all permission assignments for the guild.
+            List of all permission assignments.
         """
-        backend_key = f"{PERM_KEY_PREFIX}permission_assignments:{guild_id}"
+        cache_key = f"{PERM_KEY_PREFIX}permission_assignments"
         if self._backend is not None:
-            raw = await self._backend.get(backend_key)
+            raw = await self._backend.get(cache_key)
             if raw is not None and isinstance(raw, list):
-                logger.trace(
-                    f"Cache hit for permission assignments (guild {guild_id})",
-                )
+                logger.trace("Cache hit for permission assignments")
                 items = cast(list[dict[str, Any]], raw)
                 return [PermissionAssignment.model_validate(d) for d in items]
             if raw is not None:
                 logger.warning(
-                    "Malformed cache entry for permission assignments (guild {}), "
-                    "fetching from DB",
-                    guild_id,
+                    "Malformed cache entry for permission assignments, fetching from DB",
                 )
-        cache_key = f"permission_assignments:{guild_id}"
         if self._backend is None:
-            cached = self._assignments_cache.get(cache_key)
+            cached = self._assignments_cache.get("permission_assignments")
             if cached is not None:
-                logger.trace(
-                    f"Cache hit for permission assignments (guild {guild_id})",
-                )
+                logger.trace("Cache hit for permission assignments")
                 return cached
 
-        result = await self.find_all(filters=PermissionAssignment.guild_id == guild_id)
+        result = await self.find_all()
         if self._backend is not None:
             await self._backend.set(
-                backend_key,
+                cache_key,
                 [m.model_dump() for m in result],
                 ttl_sec=PERM_RANKS_TTL,
             )
         else:
-            self._assignments_cache.set(cache_key, result)
-        logger.trace(f"Cached permission assignments for guild {guild_id}")
+            self._assignments_cache.set("permission_assignments", result)
+        logger.trace("Cached permission assignments")
         return result
 
-    async def remove_role_assignment(self, guild_id: int, role_id: int) -> bool:
-        """
-        Remove a permission level assignment from a role.
+    async def remove_role_assignment(self, role_id: int) -> bool:
+        """Remove a permission level assignment from a role.
 
         Returns
         -------
@@ -448,34 +367,25 @@ class PermissionAssignmentController(BaseController[PermissionAssignment]):
             True if removed successfully, False otherwise.
         """
         deleted_count = await self.delete_where(
-            filters=(PermissionAssignment.guild_id == guild_id)
-            & (PermissionAssignment.role_id == role_id),
+            filters=PermissionAssignment.role_id == role_id,
         )
         if deleted_count > 0:
             if self._backend is not None:
-                await self._backend.delete(
-                    f"{PERM_KEY_PREFIX}permission_assignments:{guild_id}",
-                )
+                await self._backend.delete(f"{PERM_KEY_PREFIX}permission_assignments")
             else:
-                self._assignments_cache.invalidate(
-                    f"permission_assignments:{guild_id}",
-                )
-            logger.trace(
-                f"Invalidated permission assignment cache for guild {guild_id}",
-            )
+                self._assignments_cache.invalidate("permission_assignments")
+            logger.trace("Invalidated permission assignment cache")
         return deleted_count > 0
 
     async def remove_role_assignments_from_rank(
         self,
-        guild_id: int,
         permission_rank_id: int,
         role_ids: list[int],
     ) -> int:
-        """
-        Remove permission level assignments for multiple roles from a single rank.
+        """Remove permission level assignments for multiple roles from a single rank.
 
         Only deletes assignments for the given permission_rank_id, so roles are
-        removed from that rank only, not from every rank in the guild.
+        removed from that rank only, not from every rank.
 
         Invalidates the permission assignments cache once after all deletions.
 
@@ -487,39 +397,28 @@ class PermissionAssignmentController(BaseController[PermissionAssignment]):
         if not role_ids:
             return 0
         deleted_count = await self.delete_where(
-            filters=(PermissionAssignment.guild_id == guild_id)
-            & (PermissionAssignment.permission_rank_id == permission_rank_id)
+            filters=(PermissionAssignment.permission_rank_id == permission_rank_id)
             & (PermissionAssignment.role_id.in_(role_ids)),  # type: ignore[attr-defined]
         )
         if deleted_count > 0:
             if self._backend is not None:
-                await self._backend.delete(
-                    f"{PERM_KEY_PREFIX}permission_assignments:{guild_id}",
-                )
+                await self._backend.delete(f"{PERM_KEY_PREFIX}permission_assignments")
             else:
-                self._assignments_cache.invalidate(
-                    f"permission_assignments:{guild_id}",
-                )
-            logger.trace(
-                f"Invalidated permission assignment cache for guild {guild_id}",
-            )
+                self._assignments_cache.invalidate("permission_assignments")
+            logger.trace("Invalidated permission assignment cache")
         return deleted_count
 
     async def get_user_permission_rank(  # noqa: PLR0911, PLR0912
         self,
-        guild_id: int,
         user_id: int,
         user_roles: list[int],
     ) -> int:
-        """
-        Get the highest permission rank a user has based on their roles.
+        """Get the highest permission rank a user has based on their roles.
 
         Parameters
         ----------
-        guild_id : int
-            The guild ID to check permissions for.
         user_id : int
-            The user ID (currently unused, kept for API consistency).
+            The user ID.
         user_roles : list[int]
             List of role IDs the user has.
 
@@ -532,34 +431,27 @@ class PermissionAssignmentController(BaseController[PermissionAssignment]):
             return 0
 
         sorted_roles = tuple(sorted(user_roles))
-        backend_key = (
-            f"{PERM_KEY_PREFIX}user_permission_rank:{guild_id}:{user_id}:{sorted_roles}"
-        )
-        cache_key = f"user_permission_rank:{guild_id}:{user_id}:{sorted_roles}"
+        cache_key = f"{PERM_KEY_PREFIX}user_permission_rank:{user_id}:{sorted_roles}"
         if self._backend is not None:
-            raw = await self._backend.get(backend_key)
+            raw = await self._backend.get(cache_key)
             if raw is not None and isinstance(raw, int):
                 logger.trace(
-                    f"Cache hit for user permission rank (guild {guild_id}, user {user_id})",
+                    f"Cache hit for user permission rank (user {user_id})",
                 )
                 return raw
         else:
             cached = self._user_rank_cache.get(cache_key)
             if cached is not None:
                 logger.trace(
-                    f"Cache hit for user permission rank (guild {guild_id}, user {user_id})",
+                    f"Cache hit for user permission rank (user {user_id})",
                 )
                 return cached
 
-        # Get all permission assignments for this guild (uses cache)
-        assignments = await self.get_assignments_by_guild(guild_id)
+        # Get all permission assignments (uses cache)
+        assignments = await self.get_all_assignments()
         if not assignments:
             if self._backend is not None:
-                await self._backend.set(
-                    backend_key,
-                    0,
-                    ttl_sec=PERM_USER_RANK_TTL,
-                )
+                await self._backend.set(cache_key, 0, ttl_sec=PERM_USER_RANK_TTL)
             else:
                 self._user_rank_cache.set(cache_key, 0)
             return 0
@@ -569,11 +461,7 @@ class PermissionAssignmentController(BaseController[PermissionAssignment]):
         user_assigned_roles = set(user_roles) & assigned_role_ids
         if not user_assigned_roles:
             if self._backend is not None:
-                await self._backend.set(
-                    backend_key,
-                    0,
-                    ttl_sec=PERM_USER_RANK_TTL,
-                )
+                await self._backend.set(cache_key, 0, ttl_sec=PERM_USER_RANK_TTL)
             else:
                 self._user_rank_cache.set(cache_key, 0)
             return 0
@@ -585,11 +473,7 @@ class PermissionAssignmentController(BaseController[PermissionAssignment]):
         }
         if not permission_rank_ids:
             if self._backend is not None:
-                await self._backend.set(
-                    backend_key,
-                    0,
-                    ttl_sec=PERM_USER_RANK_TTL,
-                )
+                await self._backend.set(cache_key, 0, ttl_sec=PERM_USER_RANK_TTL)
             else:
                 self._user_rank_cache.set(cache_key, 0)
             return 0
@@ -609,15 +493,13 @@ class PermissionAssignmentController(BaseController[PermissionAssignment]):
 
         if self._backend is not None:
             await self._backend.set(
-                backend_key,
+                cache_key,
                 max_rank,
                 ttl_sec=PERM_USER_RANK_TTL,
             )
         else:
             self._user_rank_cache.set(cache_key, max_rank)
-        logger.trace(
-            f"Cached user permission rank {max_rank} for guild {guild_id}, user {user_id}",
-        )
+        logger.trace(f"Cached user permission rank {max_rank} for user {user_id}")
         return max_rank
 
 
@@ -648,7 +530,7 @@ class PermissionCommandController(BaseController[PermissionCommand]):
         db: DatabaseService | None = None,
         cache_backend: AsyncCacheBackendProtocol | None = None,
     ) -> None:
-        """Initialize the guild command permission controller.
+        """Initialize the command permission controller.
 
         Parameters
         ----------
@@ -662,15 +544,11 @@ class PermissionCommandController(BaseController[PermissionCommand]):
 
     async def set_command_permission(
         self,
-        guild_id: int,
         command_name: str,
         required_rank: int,
         description: str | None = None,
-    ) -> (
-        PermissionCommand
-    ):  # sourcery skip: hoist-similar-statement-from-if, hoist-statement-from-if
-        """
-        Set the permission rank required for a command.
+    ) -> PermissionCommand:
+        """Set the permission rank required for a command.
 
         Returns
         -------
@@ -678,42 +556,34 @@ class PermissionCommandController(BaseController[PermissionCommand]):
             The command permission record (created or updated).
         """
         result = await self.upsert(
-            filters={"guild_id": guild_id, "command_name": command_name},
-            guild_id=guild_id,
+            filters={"command_name": command_name},
             command_name=command_name,
             required_rank=required_rank,
             description=description,
         )
         if self._backend is not None:
             await self._backend.delete(
-                f"{PERM_KEY_PREFIX}command_permission:{guild_id}:{command_name}",
+                f"{PERM_KEY_PREFIX}command_permission:{command_name}",
             )
             parts = command_name.split()
             for i in range(len(parts) - 1, 0, -1):
                 parent_name = " ".join(parts[:i])
                 await self._backend.delete(
-                    f"{PERM_KEY_PREFIX}command_permission:{guild_id}:{parent_name}",
+                    f"{PERM_KEY_PREFIX}command_permission:{parent_name}",
                 )
         else:
-            cache_key = f"command_permission:{guild_id}:{command_name}"
+            cache_key = f"command_permission:{command_name}"
             self._command_permissions_cache.invalidate(cache_key)
             parts = command_name.split()
             for i in range(len(parts) - 1, 0, -1):
                 parent_name = " ".join(parts[:i])
-                parent_cache_key = f"command_permission:{guild_id}:{parent_name}"
+                parent_cache_key = f"command_permission:{parent_name}"
                 self._command_permissions_cache.invalidate(parent_cache_key)
-        logger.trace(
-            f"Invalidated command permission cache for {command_name} (guild {guild_id})",
-        )
+        logger.trace(f"Invalidated command permission cache for {command_name}")
         return result[0]  # upsert returns (record, created)
 
-    async def invalidate_command_permission(
-        self,
-        guild_id: int,
-        command_name: str,
-    ) -> None:
-        """
-        Invalidate the command permission cache for a command and its parents.
+    async def invalidate_command_permission(self, command_name: str) -> None:
+        """Invalidate the command permission cache for a command and its parents.
 
         Call after removing a command permission (e.g. delete_where) so the next
         get_command_permission sees fresh data.
@@ -728,85 +598,72 @@ class PermissionCommandController(BaseController[PermissionCommand]):
         """
         if self._backend is not None:
             await self._backend.delete(
-                f"{PERM_KEY_PREFIX}command_permission:{guild_id}:{command_name}",
+                f"{PERM_KEY_PREFIX}command_permission:{command_name}",
             )
             parts = command_name.split()
             for i in range(len(parts) - 1, 0, -1):
                 parent_name = " ".join(parts[:i])
                 await self._backend.delete(
-                    f"{PERM_KEY_PREFIX}command_permission:{guild_id}:{parent_name}",
+                    f"{PERM_KEY_PREFIX}command_permission:{parent_name}",
                 )
         else:
-            cache_key = f"command_permission:{guild_id}:{command_name}"
+            cache_key = f"command_permission:{command_name}"
             self._command_permissions_cache.invalidate(cache_key)
             parts = command_name.split()
             for i in range(len(parts) - 1, 0, -1):
                 parent_name = " ".join(parts[:i])
-                parent_cache_key = f"command_permission:{guild_id}:{parent_name}"
+                parent_cache_key = f"command_permission:{parent_name}"
                 self._command_permissions_cache.invalidate(parent_cache_key)
-        logger.trace(
-            f"Invalidated command permission cache for {command_name} (guild {guild_id})",
-        )
+        logger.trace(f"Invalidated command permission cache for {command_name}")
 
     async def get_command_permission(
         self,
-        guild_id: int,
         command_name: str,
     ) -> PermissionCommand | None:
-        """
-        Get the permission requirement for a specific command.
+        """Get the permission requirement for a specific command.
 
         Returns
         -------
         PermissionCommand | None
             The command permission record if found, None otherwise.
         """
-        backend_key = f"{PERM_KEY_PREFIX}command_permission:{guild_id}:{command_name}"
-        cache_key = f"command_permission:{guild_id}:{command_name}"
+        cache_key = f"{PERM_KEY_PREFIX}command_permission:{command_name}"
         if self._backend is not None:
-            raw = await self._backend.get(backend_key)
+            raw = await self._backend.get(cache_key)
             if raw is not None:
-                logger.trace(
-                    f"Cache hit for command permission {command_name} (guild {guild_id})",
-                )
+                logger.trace(f"Cache hit for command permission {command_name}")
                 return unwrap_optional_perm(raw)
         else:
-            cached = self._command_permissions_cache.get(cache_key)
+            cached = self._command_permissions_cache.get(
+                f"command_permission:{command_name}",
+            )
             if cached is not None:
-                logger.trace(
-                    f"Cache hit for command permission {command_name} (guild {guild_id})",
-                )
+                logger.trace(f"Cache hit for command permission {command_name}")
                 return unwrap_optional_perm(cached)
 
         result = await self.find_one(
-            filters=(PermissionCommand.guild_id == guild_id)
-            & (PermissionCommand.command_name == command_name),
+            filters=PermissionCommand.command_name == command_name,
         )
         wrapped = wrap_optional_perm(result)
         if self._backend is not None:
             await self._backend.set(
-                backend_key,
+                cache_key,
                 wrapped,
                 ttl_sec=PERM_RANKS_TTL,
             )
         else:
-            self._command_permissions_cache.set(cache_key, wrapped)
-        logger.trace(f"Cached command permission for {command_name} (guild {guild_id})")
+            self._command_permissions_cache.set(
+                f"command_permission:{command_name}", wrapped,
+            )
+        logger.trace(f"Cached command permission for {command_name}")
         return result
 
-    async def get_all_command_permissions(
-        self,
-        guild_id: int,
-    ) -> list[PermissionCommand]:
-        """
-        Get all command permissions for a guild.
+    async def get_all_command_permissions(self) -> list[PermissionCommand]:
+        """Get all command permissions.
 
         Returns
         -------
         list[PermissionCommand]
             List of all command permissions ordered by name.
         """
-        return await self.find_all(
-            filters=PermissionCommand.guild_id == guild_id,
-            order_by=PermissionCommand.command_name,
-        )
+        return await self.find_all(order_by=PermissionCommand.command_name)

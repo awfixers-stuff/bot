@@ -424,7 +424,6 @@ class ModerationCoordinator:
     ) -> Case:
         """Create a case asynchronously (helper for parallel execution)."""
         case = await self._case_service.create_case(
-            guild_id=ctx.guild.id if ctx.guild else 0,
             user_id=user.id,
             moderator_id=ctx.author.id,
             case_type=case_type,

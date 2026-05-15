@@ -65,8 +65,7 @@ class ListSnippets(SnippetsBaseCog):
             )
             filtered_snippets.sort(key=lambda s: s.uses, reverse=True)
         else:
-            filtered_snippets = await self.db.snippet.get_all_snippets_by_guild_id(
-                ctx.guild.id,
+            filtered_snippets = await self.db.snippet.get_all_snippets(
                 order_by=desc(Snippet.__table__.c.uses),  # type: ignore[attr-defined]
             )
 

@@ -1,28 +1,25 @@
 """
-Guild and guild configuration management controller.
+Guild controller for Bot Bot.
 
-This controller manages Discord guild records and their associated configuration
-settings, providing methods for guild lifecycle management and configuration updates.
+Provides database operations for the Guild model, including creation,
+lookup, and guild-level aggregates.
 """
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import select
-from sqlalchemy.orm import noload
+from loguru import logger
 
 from bot.database.controllers.base import BaseController
-from bot.database.models import Guild, GuildConfig
+from bot.database.models import Guild
 
 if TYPE_CHECKING:
-    from sqlalchemy.ext.asyncio import AsyncSession
-
     from bot.database.service import DatabaseService
 
 
 class GuildController(BaseController[Guild]):
-    """Clean Guild controller using the new BaseController pattern."""
+    """Controller for guild-level database operations."""
 
     def __init__(self, db: DatabaseService | None = None) -> None:
         """Initialize the guild controller.
@@ -30,194 +27,45 @@ class GuildController(BaseController[Guild]):
         Parameters
         ----------
         db : DatabaseService | None, optional
-            The database service instance. If None, uses the default service.
+            The database service instance.
         """
         super().__init__(Guild, db)
 
-    # Simple, clean methods that use BaseController's CRUD operations
-    async def get_guild_by_id(self, guild_id: int) -> Guild | None:
-        """
-        Get a guild by its ID.
-
-        Returns
-        -------
-        Guild | None
-            The guild if found, None otherwise.
-        """
-        return await self.get_by_id(guild_id)
-
     async def get_or_create_guild(self, guild_id: int) -> Guild:
         """
-        Get a guild by ID, or create it if it doesn't exist.
+        Get a guild by ID or create one if it doesn't exist.
+
+        Parameters
+        ----------
+        guild_id : int
+            The Discord guild ID.
 
         Returns
         -------
         Guild
-            The guild (existing or newly created).
+            The guild record (existing or newly created).
         """
         guild, _ = await self.get_or_create(id=guild_id)
         return guild
 
-    async def create_guild(self, guild_id: int) -> Guild:
-        """
-        Create a new guild.
-
-        Returns
-        -------
-        Guild
-            The newly created guild.
-        """
-        return await self.create(id=guild_id)
-
-    async def delete_guild(self, guild_id: int) -> bool:
-        """
-        Delete a guild by ID.
-
-        Returns
-        -------
-        bool
-            True if deleted successfully, False otherwise.
-        """
-        return await self.delete_by_id(guild_id)
-
-    # GuildConfig methods using with_session for cross-model operations
-    async def get_guild_config(self, guild_id: int) -> GuildConfig | None:
-        """
-        Get guild configuration.
-
-        Returns
-        -------
-        GuildConfig | None
-            The guild configuration if found, None otherwise.
-        """
-
-        async def _op(session: AsyncSession) -> GuildConfig | None:
-            """Get guild config by guild ID.
-
-            Parameters
-            ----------
-            session : AsyncSession
-                The database session to use.
-
-            Returns
-            -------
-            GuildConfig | None
-                The guild configuration or None if not found.
-            """
-            return await session.get(GuildConfig, guild_id)
-
-        return await self.with_session(_op)
-
-    async def update_guild_config(
+    async def insert_guild_by_id(
         self,
         guild_id: int,
-        data: dict[str, Any],
-    ) -> GuildConfig:
+        **kwargs: Any,
+    ) -> Guild:
         """
-        Update guild configuration.
-
-        Uses row-level locking to prevent race conditions when multiple
-        coroutines update different fields concurrently.
-
-        Returns
-        -------
-        GuildConfig
-            The updated guild configuration.
-        """
-
-        async def _op(session: AsyncSession) -> GuildConfig:
-            """Update or create guild configuration with locking.
-
-            Parameters
-            ----------
-            session : AsyncSession
-                The database session to use.
-
-            Returns
-            -------
-            GuildConfig
-                The updated or created guild configuration.
-            """
-            # Lock the row to prevent concurrent updates from overwriting each other
-            stmt = (
-                select(GuildConfig)
-                .where(GuildConfig.id == guild_id)  # type: ignore[arg-type]
-                .options(noload("*"))  # Don't load any relationships
-                .with_for_update()
-            )
-            result = await session.execute(stmt)
-            config = result.scalar_one_or_none()
-
-            if config is None:
-                config = GuildConfig(id=guild_id, **data)
-                session.add(config)
-            else:
-                # Update only the fields provided in data
-                for key, value in data.items():
-                    setattr(config, key, value)
-            await session.flush()
-            await session.refresh(config)
-            return config
-
-        return await self.with_session(_op)
-
-    async def get_all_guilds(self) -> list[Guild]:
-        """
-        Get all guilds.
-
-        Returns
-        -------
-        list[Guild]
-            List of all guilds.
-        """
-        return await self.find_all()
-
-    async def get_guild_count(self) -> int:
-        """
-        Get the total number of guilds.
-
-        Returns
-        -------
-        int
-            The total count of guilds.
-        """
-        return await self.count()
-
-    # Additional methods that module files expect
-    async def find_many(self, **filters: Any) -> list[Guild]:
-        """
-        Find many guilds with optional filters - alias for find_all.
+        Insert a new guild record by ID.
 
         Parameters
         ----------
-        **filters : Any
-            Filter keyword arguments (currently unused, kept for API consistency).
-
-        Returns
-        -------
-        list[Guild]
-            List of guilds matching the filters.
-        """
-        return await self.find_all()
-
-    async def insert_guild_by_id(self, guild_id: int, **kwargs: Any) -> Guild:
-        """
-        Insert a new guild by ID.
+        guild_id : int
+            The Discord guild ID.
+        **kwargs : Any
+            Additional fields to set on the guild record.
 
         Returns
         -------
         Guild
-            The newly created guild.
+            The newly created guild record.
         """
         return await self.create(id=guild_id, **kwargs)
-
-    async def delete_guild_by_id(self, guild_id: int) -> bool:
-        """
-        Delete a guild by ID.
-
-        Returns
-        -------
-        bool
-            True if deleted successfully, False otherwise.
-        """
-        return await self.delete_by_id(guild_id)

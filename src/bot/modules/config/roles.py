@@ -73,13 +73,11 @@ class RoleManager(BaseConfigManager):
             # Remove existing assignment if any
             if existing:
                 await self.bot.db.permission_assignments.remove_role_assignment(
-                    ctx.guild.id,
                     role.id,
                 )
 
             # Create new assignment
             await self.bot.db.permission_assignments.assign_permission_rank(
-                guild_id=ctx.guild.id,
                 permission_rank_id=rank,
                 role_id=role.id,
             )

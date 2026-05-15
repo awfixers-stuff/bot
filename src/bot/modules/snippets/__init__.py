@@ -202,10 +202,7 @@ class SnippetsBaseCog(BaseCog):
             The fetched Snippet object, or None if not found.
         """
         assert ctx.guild
-        snippet = await self.db.snippet.get_snippet_by_name_and_guild_id(
-            name,
-            ctx.guild.id,
-        )
+        snippet = await self.db.snippet.get_snippet_by_name(name)
         if snippet is None:
             await self.send_snippet_error(ctx, description="Snippet not found.")
             return None
@@ -281,10 +278,7 @@ class SnippetsBaseCog(BaseCog):
             return snippet, False
 
         # Fetch the target snippet
-        target = await self.db.snippet.get_snippet_by_name_and_guild_id(
-            snippet.alias,
-            guild_id,
-        )
+        target = await self.db.snippet.get_snippet_by_name(snippet.alias)
 
         # Return target if found, None if broken alias
         return (target, True) if target is not None else (None, True)

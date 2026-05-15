@@ -159,7 +159,7 @@ class PermissionSystem:
         logger.trace(f"Checking existing ranks for guild {guild_id}")
         try:
             existing_ranks = (
-                await self.db.permission_ranks.get_permission_ranks_by_guild(guild_id)
+                await self.db.permission_ranks.get_all_permission_ranks()
             )
             existing_rank_numbers = {r.rank for r in existing_ranks}
             logger.trace(
@@ -194,7 +194,6 @@ class PermissionSystem:
         # Prepare bulk data
         bulk_data = [
             {
-                "guild_id": guild_id,
                 "rank": rank,
                 "name": default_data["name"],
                 "description": default_data["description"],
@@ -324,14 +323,13 @@ class PermissionSystem:
             If the specified rank doesn't exist for the guild.
         """
         # Verify rank exists before creating assignment
-        rank_info = await self.db.permission_ranks.get_permission_rank(guild_id, rank)
+        rank_info = await self.db.permission_ranks.get_permission_rank(rank)
         if not rank_info or rank_info.id is None:
             error_msg = f"Permission rank {rank} does not exist for guild {guild_id}"
             raise ValueError(error_msg)
 
         # Create role-to-rank assignment
         assignment = await self.db.permission_assignments.assign_permission_rank(
-            guild_id=guild_id,
             permission_rank_id=rank_info.id,
             role_id=role_id,
         )
@@ -359,7 +357,6 @@ class PermissionSystem:
             True if an assignment was removed, False if no assignment existed.
         """
         removed = await self.db.permission_assignments.remove_role_assignment(
-            guild_id,
             role_id,
         )
 
@@ -413,7 +410,6 @@ class PermissionSystem:
 
         # Create custom rank
         permission_rank = await self.db.permission_ranks.create_permission_rank(
-            guild_id=guild_id,
             rank=rank,
             name=name,
             description=description,
@@ -494,7 +490,6 @@ class PermissionSystem:
 
         # Set command permission in database (this will invalidate cache)
         command_perm = await self.db.command_permissions.set_command_permission(
-            guild_id=guild_id,
             command_name=command_name,
             required_rank=required_rank,
         )
@@ -558,7 +553,6 @@ class PermissionSystem:
         parts = command_name.split()
         if len(parts) == 1:
             result = await self.db.command_permissions.get_command_permission(
-                guild_id,
                 command_name,
             )
             await self._cache_backend.set(
@@ -580,7 +574,6 @@ class PermissionSystem:
         async with self.db.command_permissions.db.session() as session:
             stmt = (
                 select(PermissionCommand)
-                .where(PermissionCommand.guild_id == guild_id)
                 .where(
                     PermissionCommand.command_name.in_(command_names_to_check),  # type: ignore[attr-defined]
                 )
@@ -682,7 +675,6 @@ class PermissionSystem:
         async with self.db.command_permissions.db.session() as session:
             stmt = (
                 select(PermissionCommand)
-                .where(PermissionCommand.guild_id == guild_id)
                 .where(
                     PermissionCommand.command_name.in_(all_names_to_check),  # type: ignore[attr-defined]
                 )
@@ -739,7 +731,7 @@ class PermissionSystem:
         list[PermissionRank]
             List of all permission ranks for the guild.
         """
-        return await self.db.permission_ranks.get_permission_ranks_by_guild(guild_id)
+        return await self.db.permission_ranks.get_all_permission_ranks()
 
     async def get_guild_assignments(self, guild_id: int) -> list[PermissionAssignment]:
         """
@@ -755,7 +747,7 @@ class PermissionSystem:
         list[PermissionAssignment]
             List of all role assignments for the guild.
         """
-        return await self.db.permission_assignments.get_assignments_by_guild(guild_id)
+        return await self.db.permission_assignments.get_all_assignments()
 
     async def get_guild_command_permissions(
         self,
@@ -774,7 +766,7 @@ class PermissionSystem:
         list[PermissionCommand]
             List of all command permission overrides for the guild.
         """
-        return await self.db.command_permissions.get_all_command_permissions(guild_id)
+        return await self.db.command_permissions.get_all_command_permissions()
 
     def _get_all_command_names(self) -> set[str]:
         """
@@ -822,8 +814,8 @@ class PermissionSystem:
         try:
             # Load ranks and assignments first (these are needed for command permission lookups)
             await asyncio.gather(
-                self.db.permission_ranks.get_permission_ranks_by_guild(guild_id),
-                self.db.permission_assignments.get_assignments_by_guild(guild_id),
+                self.db.permission_ranks.get_all_permission_ranks(),
+                self.db.permission_assignments.get_all_assignments(),
                 return_exceptions=True,
             )
 
@@ -913,7 +905,6 @@ class PermissionSystem:
         if "permission_ranks" in config:
             for rank_config in config["permission_ranks"]:
                 await self.create_custom_permission_rank(
-                    guild_id=guild_id,
                     rank=rank_config["rank"],
                     name=rank_config["name"],
                     description=rank_config.get("description"),
@@ -929,7 +920,6 @@ class PermissionSystem:
             for assignment in config["role_assignments"]:
                 if all_ranks.get(assignment["rank"]):
                     await self.assign_permission_rank(
-                        guild_id=guild_id,
                         rank=assignment["rank"],
                         role_id=assignment["role_id"],
                     )
@@ -951,7 +941,6 @@ class PermissionSystem:
                     continue
 
                 await self.set_command_permission(
-                    guild_id=guild_id,
                     command_name=command_name,
                     required_rank=cmd_perm["rank"],
                 )
