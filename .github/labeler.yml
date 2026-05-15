@@ -2,7 +2,7 @@
 # Used by .github/workflows/pr-label.yml with actions/labeler@v6
 # See: https://github.com/actions/labeler
 
-bot:
+tux:
   - src/bot/**/*
 
 tests:
