@@ -1,0 +1,137 @@
+---
+name: Maintenance
+on:
+  push:
+    branches: [main, 'v[0-9]+.[0-9]+.[0-9]+*']
+  workflow_dispatch:
+    inputs:
+      cleanup_images:
+        description: Clean up old Docker images
+        type: boolean
+        default: false
+      keep_amount:
+        description: Number of images to keep
+        required: false
+        default: '10'
+      remove_untagged:
+        description: Remove untagged images
+        type: boolean
+        default: false
+      manual_commit_ref:
+        description: SHA to compare for TODOs
+        required: false
+      manual_base_ref:
+        description: Optional earlier SHA for TODOs
+        required: false
+  schedule:
+    - cron: 0 3 1 * *  # Monthly: Comprehensive health check (1st at 3 AM UTC)
+    - cron: 0 2 * * 0  # Weekly: Light maintenance (Sundays at 2 AM UTC)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  ADMIN_PAT: ${{ secrets.ADMIN_PAT }}
+  PACKAGE_NAME: tux
+  REGISTRY_SIZE_WARNING_GB: 5
+  BUILD_CACHE_CLEANUP_DAYS: 30
+  DEFAULT_KEEP_VERSIONS: 15
+  LARGE_FILE_THRESHOLD_MB: 50
+  BRANCH_LIMIT: 10
+  ACTIVITY_LIMIT: 10
+  ACTIVITY_SINCE: 1 week ago
+jobs:
+  todos:
+    name: TODOs
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.manual_commit_ref)
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          fetch-depth: 0
+      - name: Convert
+        uses: alstr/todo-to-issue-action@64aca8fda7023259aada83ba44ad988c4c443657  # v5.1.14
+        with:
+          CLOSE_ISSUES: true
+          INSERT_ISSUE_URLS: true
+          AUTO_ASSIGN: true
+          IDENTIFIERS: |
+            [{"name": "TODO", "labels": ["todo-to-issue"]}, {"name": "FIXME", "labels": ["todo-to-issue"]}]
+          ESCAPE: true
+          IGNORE: |
+            .github/,node_modules/,dist/,build/,vendor/,uv.lock
+          PROJECTS_SECRET: ${{ env.ADMIN_PAT }}
+        env:
+          MANUAL_COMMIT_REF: ${{ github.event.inputs.manual_commit_ref }}
+          MANUAL_BASE_REF: ${{ github.event.inputs.manual_base_ref }}
+  cleanup:
+    name: Cleanup
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch'
+      && github.event.inputs.cleanup_images == 'true')
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - name: Registry Size Check
+        id: registry_size
+        run: ./.github/scripts/maintenance.sh registry-size-check \ "${{ env.PACKAGE_NAME }}"
+          \ "${{ env.REGISTRY_SIZE_WARNING_GB }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clean Old Images
+        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55  # v5
+        with:
+          package-name: tux
+          package-type: container
+          min-versions-to-keep: ${{ github.event.inputs.keep_amount || env.DEFAULT_KEEP_VERSIONS }}
+          delete-only-untagged-versions: ${{ github.event.inputs.remove_untagged || 'true' }}
+      - name: Clean Build Cache Images
+        run: ./.github/scripts/maintenance.sh clean-build-cache-images \ "${{ env.PACKAGE_NAME }}"
+          \ "${{ env.BUILD_CACHE_CLEANUP_DAYS }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Registry Cleanup Summary
+        run: ./.github/scripts/maintenance.sh registry-cleanup-summary \ "${{ steps.registry_size.outputs.size_gb }}"
+          \ "${{ steps.registry_size.outputs.size_warning }}" \ "${{ env.DEFAULT_KEEP_VERSIONS }}"
+          \ "${{ env.BUILD_CACHE_CLEANUP_DAYS }}"
+  health:
+    name: Health Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: github.event_name == 'schedule'
+    permissions:
+      contents: read
+      issues: write
+      packages: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          fetch-depth: 0
+      - name: Repository Health Summary
+        run: ./.github/scripts/maintenance.sh health-repository-summary
+      - name: Check Large Files
+        run: ./.github/scripts/maintenance.sh check-large-files "${{ env.LARGE_FILE_THRESHOLD_MB }}"
+      - name: Check Dependencies
+        run: ./.github/scripts/maintenance.sh check-dependencies
+      - name: Check Repository Size
+        run: ./.github/scripts/maintenance.sh check-repository-size
+      - name: Check Stale Branches
+        run: ./.github/scripts/maintenance.sh check-stale-branches "${{ env.BRANCH_LIMIT }}"
+      - name: Check Registry Health
+        run: ./.github/scripts/maintenance.sh check-registry-health \ "${{ env.PACKAGE_NAME }}"
+          \ "${{ env.REGISTRY_SIZE_WARNING_GB }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check Recent Activity
+        run: ./.github/scripts/maintenance.sh check-recent-activity "${{ env.ACTIVITY_SINCE }}"
+          "${{ env.ACTIVITY_LIMIT }}"

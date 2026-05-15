@@ -1,0 +1,83 @@
+{
+  "BOT_INFO": {
+    "BOT_NAME": "Tux",
+    "ACTIVITIES": [
+      {
+        "name": "with Linux",
+        "type": "playing"
+      }
+    ],
+    "HIDE_BOT_OWNER": false,
+    "PREFIX": "$"
+  },
+  "BOT_INTENTS": {
+    "presences": true,
+    "members": true,
+    "message_content": true
+  },
+  "USER_IDS": {
+    "BOT_OWNER_ID": 0,
+    "SYSADMINS": [
+      123456789012345678,
+      987654321098765432
+    ]
+  },
+  "ALLOW_SYSADMINS_EVAL": false,
+  "STATUS_ROLES": {
+    "MAPPINGS": [
+      {
+        "role_id": 123456789012345678,
+        "status": ".gg/linux"
+      }
+    ]
+  },
+  "TEMPVC": {
+    "TEMPVC_CHANNEL_ID": null,
+    "TEMPVC_CATEGORY_ID": null
+  },
+  "GIF_LIMITER": {
+    "RECENT_GIF_AGE": 60,
+    "GIF_LIMITS_USER": {
+      "123456789012345678": 5
+    },
+    "GIF_LIMITS_CHANNEL": {
+      "123456789012345678": 10
+    },
+    "GIF_LIMIT_EXCLUDE": [
+      123456789012345678
+    ]
+  },
+  "XP_CONFIG": {
+    "XP_BLACKLIST_CHANNELS": [
+      123456789012345678
+    ],
+    "XP_ROLES": [
+      {
+        "level": 5,
+        "role_id": 123456789012345678
+      }
+    ],
+    "XP_MULTIPLIERS": [
+      {
+        "multiplier": 1.5,
+        "role_id": 123456789012345678
+      }
+    ],
+    "XP_COOLDOWN": 1,
+    "LEVELS_EXPONENT": 2.0,
+    "SHOW_XP_PROGRESS": true,
+    "ENABLE_XP_CAP": false
+  },
+  "SNIPPETS": {
+    "LIMIT_TO_ROLE_IDS": false,
+    "ACCESS_ROLE_IDS": [
+      123456789012345678,
+      987654321098765432
+    ]
+  },
+  "IRC_CONFIG": {
+    "BRIDGE_WEBHOOK_IDS": [
+      123456789012345678
+    ]
+  }
+}

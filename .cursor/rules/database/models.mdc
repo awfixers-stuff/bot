@@ -1,0 +1,387 @@
+---
+description: SQLModel database model patterns, BaseModel usage, relationships, and field definitions for Tux
+globs: src/tux/database/models/**/*.py
+alwaysApply: false
+---
+
+# SQLModel Database Models
+
+## Overview
+
+Tux uses SQLModel (SQLAlchemy + Pydantic) for type-safe database models with automatic validation and serialization. Most models inherit from `BaseModel` which provides automatic timestamp management. Some utility models inherit directly from `SQLModel` when timestamps aren't needed.
+
+## Base Model Pattern
+
+Most database models should inherit from `BaseModel` for automatic timestamps:
+
+```python
+from tux.database.models import BaseModel
+
+class MyModel(BaseModel, table=True):
+    """Model description with NumPy docstring format."""
+
+    id: int = Field(
+        primary_key=True,
+        sa_type=BigInteger,
+        description="Primary key description"
+    )
+```
+
+**For utility models without timestamps**, inherit directly from `SQLModel`:
+
+```python
+from sqlmodel import SQLModel
+
+class UtilityModel(SQLModel, table=True):
+    """Utility model without timestamps."""
+    id: int = Field(primary_key=True, sa_type=BigInteger)
+```
+
+✅ **GOOD:** Inherits from BaseModel (or SQLModel for utilities), includes docstring, proper field definitions
+
+❌ **BAD:** Missing docstrings, wrong base class for use case
+
+```python
+# ❌ BAD: Missing docstring, should use BaseModel for entities with timestamps
+class MyModel(SQLModel, table=True):
+    id: int = Field(primary_key=True)
+```
+
+## Field Definitions
+
+### Primary Keys
+
+**Integer IDs (Discord entities):**
+
+```python
+id: int = Field(
+    primary_key=True,
+    sa_type=BigInteger,
+    description="Discord guild ID"
+)
+```
+
+**UUID IDs (internal entities):**
+
+```python
+from tux.database.models import UUIDMixin
+
+class MyModel(BaseModel, UUIDMixin, table=True):
+    # id is automatically provided by UUIDMixin
+    pass
+```
+
+✅ **GOOD:** Appropriate ID type for entity type, proper sa_type
+
+❌ **BAD:** Wrong ID type, missing sa_type for BigInteger
+
+### Timestamps
+
+Timestamps are automatically managed by `BaseModel`:
+
+```python
+# ✅ GOOD: BaseModel provides created_at and updated_at automatically
+class MyModel(BaseModel, table=True):
+    name: str
+
+# Timestamps are database-managed:
+# - created_at: Set on insert
+# - updated_at: Updated on every update
+```
+
+❌ **BAD:** Manually defining timestamp fields
+
+```python
+# ❌ BAD: Don't manually define timestamps
+class MyModel(BaseModel, table=True):
+    created_at: datetime = Field(...)  # Already in BaseModel!
+```
+
+### Field Types and Constraints
+
+```python
+# String fields
+name: str = Field(
+    max_length=255,
+    description="Human-readable name"
+)
+
+# Optional fields
+description: str | None = Field(
+    default=None,
+    nullable=True,
+    description="Optional description"
+)
+
+# Integer with constraints
+count: int = Field(
+    default=0,
+    ge=0,  # Greater than or equal to 0
+    description="Non-negative count"
+)
+
+# Enum fields
+status: CaseType = Field(
+    sa_type=PgEnum(CaseType, name="case_type"),
+    description="Case type enum"
+)
+
+# JSON fields
+metadata: dict[str, Any] = Field(
+    default_factory=dict,
+    sa_type=JSON,
+    description="JSON metadata"
+)
+
+# DateTime with timezone
+created_at: datetime | None = Field(
+    sa_type=DateTime(timezone=True),
+    description="Creation timestamp"
+)
+```
+
+✅ **GOOD:** Proper types, constraints, descriptions, nullable handling
+
+❌ **BAD:** Missing constraints, wrong types, no descriptions
+
+## Relationships
+
+### One-to-Many
+
+```python
+from sqlalchemy.orm import Mapped, relationship
+from sqlmodel import Relationship
+
+class Guild(BaseModel, table=True):
+    id: int = Field(primary_key=True, sa_type=BigInteger)
+
+    # Relationship definition using Relationship with sa_relationship
+    cases = Relationship(
+        sa_relationship=relationship(
+            "Case",
+            back_populates="guild",
+            cascade="all, delete",
+            passive_deletes=True,
+            lazy="selectin",
+        ),
+    )
+
+class Case(BaseModel, table=True):
+    guild_id: int = Field(
+        foreign_key="guild.id",
+        ondelete="CASCADE",
+        sa_type=BigInteger,
+        description="Foreign key to guild"
+    )
+
+    guild: Mapped["Guild"] = Relationship(
+        sa_relationship=relationship(
+            "Guild",
+            back_populates="cases"
+        ),
+    )
+```
+
+✅ **GOOD:** Uses `Relationship` with `sa_relationship`, proper cascade, `passive_deletes`, lazy loading strategy
+
+❌ **BAD:** Missing `sa_relationship` wrapper, no cascade, missing `passive_deletes`
+
+### Many-to-Many
+
+Use association tables for many-to-many relationships:
+
+```python
+class PermissionAssignment(BaseModel, UUIDMixin, table=True):
+    rank_id: UUID = Field(foreign_key="permission_rank.id")
+    command_id: UUID = Field(foreign_key="permission_command.id")
+
+    # Composite unique constraint
+    __table_args__ = (
+        UniqueConstraint("rank_id", "command_id", name="uq_rank_command"),
+    )
+```
+
+### Table Configuration
+
+Use `__table_args__` for indexes, constraints, and table-level settings:
+
+```python
+class MyModel(BaseModel, table=True):
+    id: int = Field(primary_key=True, sa_type=BigInteger)
+    status: bool = Field(default=False)
+    value: int = Field(ge=0)
+
+    __table_args__ = (
+        # Check constraints
+        CheckConstraint("id > 0", name="check_id_valid"),
+        CheckConstraint("value >= 0", name="check_value_positive"),
+        # Indexes
+        Index("idx_model_status", "status"),
+        Index("idx_model_value", "value"),
+        # Composite index
+        Index("idx_model_status_value", "status", "value"),
+        # Partial index (PostgreSQL-specific)
+        Index(
+            "idx_model_active",
+            "id",
+            postgresql_where="status = TRUE",
+        ),
+        # Unique constraint
+        UniqueConstraint("id", "status", name="uq_model_id_status"),
+    )
+```
+
+✅ **GOOD:** Proper indexes, check constraints, partial indexes for performance
+
+❌ **BAD:** Missing indexes on frequently queried columns, no constraints
+
+## Mixins
+
+### UUIDMixin
+
+For models needing UUID primary keys:
+
+```python
+from tux.database.models import BaseModel, UUIDMixin
+
+class MyModel(BaseModel, UUIDMixin, table=True):
+    # id: UUID is automatically provided by UUIDMixin
+    name: str
+```
+
+### SoftDeleteMixin
+
+For models needing soft delete functionality:
+
+```python
+from tux.database.models import BaseModel, SoftDeleteMixin
+
+class MyModel(BaseModel, SoftDeleteMixin, table=True):
+    name: str
+
+# Usage
+model.soft_delete()  # Sets is_deleted=True, deleted_at=now()
+model.restore()     # Sets is_deleted=False, deleted_at=None
+```
+
+## Model Organization
+
+### File Structure
+
+```text
+src/tux/database/models/
+├── __init__.py          # Exports all models
+├── base.py              # BaseModel, TimestampMixin, UUIDMixin, SoftDeleteMixin
+├── enums.py             # Database enums (CaseType, OnboardingStage, etc.)
+└── models.py            # All model definitions
+```
+
+### Import Pattern
+
+```python
+# ✅ GOOD: Import from models package
+from tux.database.models import Guild, Case, BaseModel, UUIDMixin
+
+# ❌ BAD: Direct imports from files
+from tux.database.models.models import Guild
+```
+
+### Custom Table Names
+
+```python
+# ✅ GOOD: Use __tablename__ when needed
+class GuildConfig(BaseModel, table=True):
+    __tablename__ = "guild_config"  # Custom table name
+
+    id: int = Field(primary_key=True, sa_type=BigInteger)
+```
+
+### Model Representation
+
+```python
+# ✅ GOOD: Add __repr__ for debugging
+class MyModel(BaseModel, table=True):
+    id: int = Field(primary_key=True, sa_type=BigInteger)
+    name: str
+
+    def __repr__(self) -> str:
+        return f"<MyModel id={self.id} name={self.name!r}>"
+```
+
+## Validation and Serialization
+
+### Pydantic Validation
+
+SQLModel models automatically validate on creation:
+
+```python
+# ✅ GOOD: Validation happens automatically
+guild = Guild(id=123456789, case_count=0)
+
+# ❌ BAD: Invalid data raises ValidationError
+guild = Guild(id=-1)  # Fails if ge=0 constraint exists
+```
+
+### Serialization
+
+Use `to_dict()` method from BaseModel:
+
+```python
+# ✅ GOOD: Use built-in serialization
+guild_dict = guild.to_dict()
+guild_dict_with_all_rels = guild.to_dict(include_relationships=True)
+guild_dict_with_specific_rels = guild.to_dict(
+    include_relationships=True,
+    relationships=["cases", "config"]  # Only include specific relationships
+)
+
+# ❌ BAD: Manual dict conversion
+guild_dict = {"id": guild.id, "name": guild.name}  # Misses timestamps, relationships
+```
+
+**Note:** The `to_dict()` method automatically:
+
+- Serializes enums to their name (string)
+- Converts datetimes to ISO format strings
+- Converts UUIDs to strings
+- Handles nested relationships recursively
+- Skips private attributes (starting with `_`)
+
+## Best Practices
+
+1. **Inherit from BaseModel** for automatic timestamps (or SQLModel for utilities)
+2. **Use appropriate ID types**: BigInteger for Discord IDs, UUIDMixin for internal UUIDs
+3. **Add constraints**: Use `ge`, `le`, `max_length`, CheckConstraint where appropriate
+4. **Document fields**: Include description in Field() definitions
+5. **Use Relationship with sa_relationship**: Proper relationship definitions with cascade options
+6. **Add indexes**: Index frequently queried columns, use partial indexes for filtered queries
+7. **Use CheckConstraint**: Database-level validation for data integrity
+8. **Configure cascade deletes**: Use `cascade="all, delete"` and `passive_deletes=True`
+9. **Set lazy loading strategy**: Use `lazy="selectin"` for collections, `lazy="joined"` for one-to-one
+10. **Validate with Pydantic**: Let SQLModel handle validation automatically
+11. **Use to_dict() for serialization**: Don't manually convert to dict
+12. **Add **repr** methods**: Helpful for debugging and logging
+13. **Use mixins appropriately**: UUIDMixin for UUID keys, SoftDeleteMixin for recoverable data
+
+## Anti-Patterns
+
+1. ❌ **Using BaseModel for utility models** - Use SQLModel directly when timestamps aren't needed
+2. ❌ **Manual timestamp fields** - BaseModel provides them automatically
+3. ❌ **Missing field descriptions** - Always document fields with description parameter
+4. ❌ **Wrong ID types** - Use BigInteger for Discord IDs, UUIDMixin for UUIDs
+5. ❌ **Missing constraints** - Add CheckConstraint for database-level validation
+6. ❌ **Missing indexes** - Index frequently queried columns, especially foreign keys
+7. ❌ **Manual serialization** - Use to_dict() method, don't manually build dicts
+8. ❌ **Wrong relationship syntax** - Use `Relationship(sa_relationship=...)` not direct `relationship()`
+9. ❌ **Missing cascade options** - Configure cascade deletes properly
+10. ❌ **No **repr** methods** - Add **repr** for better debugging
+11. ❌ **Missing foreign key ondelete** - Use `ondelete="CASCADE"` for foreign keys
+12. ❌ **Not using mixins** - Use UUIDMixin and SoftDeleteMixin when appropriate
+
+## See Also
+
+- @database/migrations.mdc - Migration patterns
+- @database/controllers.mdc - Controller patterns
+- @database/services.mdc - Service layer patterns
+- @AGENTS.md - General coding standards
+- @rules.mdc - Complete catalog of all rules and commands

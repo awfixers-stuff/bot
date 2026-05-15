@@ -1,0 +1,555 @@
+---
+name: Docker
+on:
+  push:
+    tags: [v*]
+  pull_request:
+    branches: [main, 'v[0-9]+.[0-9]+.[0-9]+*']
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  DOCKER_BUILD_SUMMARY: true
+  DOCKER_BUILD_CHECKS_ANNOTATIONS: true
+  # renovate: datasource=python-version depName=python
+  PYTHON_VERSION: 3.13.11
+  SHA_PREFIX_LENGTH: 7
+  VALIDATE_TIMEOUT_MINUTES: 10
+  BUILD_TIMEOUT_MINUTES: 15
+  DOCKER_IMAGE_TITLE: Tux
+  DOCKER_IMAGE_DESCRIPTION: Tux - The all in one discord bot for the All Things Linux
+    Community
+  DOCKER_IMAGE_SOURCE: https://github.com/allthingslinux/tux
+  DOCKER_IMAGE_LICENSE: GPL-3.0
+  DOCKER_IMAGE_AUTHORS: All Things Linux
+  DOCKER_IMAGE_VENDOR: All Things Linux
+  DOCKER_IMAGE_DOCS: https://github.com/allthingslinux/tux/blob/main/README.md
+jobs:
+  changes:
+    name: File Detection
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      # For tags (immutable), always return true to allow build
+      # For other events, use the actual changed-files output
+      # Note: workflow_dispatch sets github.ref to refs/heads/<tag>, so check ref_name instead
+      docker: >-
+        ${{ (startsWith(github.ref, 'refs/tags/')
+        || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name,
+        'v')))
+        && 'true' || steps.docker_changes.outputs.any_changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          fetch-depth: 0
+      - name: Check Docker
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47
+        id: docker_changes
+        with:
+          files: |
+            Containerfile
+            compose.yaml
+            .dockerignore
+            docker/**
+  validate:
+    name: Validate
+    needs: [changes]
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request'
+      && needs.changes.outputs.docker == 'true')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      packages: write  # Required for registry cache backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      # Set up Docker Buildx for advanced build features
+      # Uses docker/setup-buildx-action@v3 to create and boot a builder
+      # Docs: https://github.com/docker/setup-buildx-action
+      #
+      # Default behavior (no explicit config needed):
+      # - Creates builder with docker-container driver (enables BuildKit features)
+      # - Supports registry cache and GitHub Actions cache for faster builds
+      # - Caches buildx binary to GitHub Actions cache backend
+      # - Automatically cleans up builder and temp files at end of job
+      # - Switches to this builder instance for subsequent build steps
+      #
+      # Why we use Buildx:
+      # - Required for docker/build-push-action@v6 advanced features
+      # - Enables hybrid cache (registry + GHA cache) for better cache persistence
+      # - Supports build-time features (secrets, remote cache, etc.)
+      # - Future-proof for multi-platform builds if needed
+      #
+      # Optional enhancements (not currently needed):
+      # - Multi-platform: Add docker/setup-qemu-action@v3 for ARM support
+      # - Version pinning: Add version: v0.x.x to pin Buildx version
+      # - Custom builder name: Add name: my-builder for persistent builders
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd  # v4
+
+      # Login to registry for registry cache access and Docker Scout (read/write cache, not pushing images)
+      # Docker Scout requires authentication to access environments and compare images
+      - name: Login to Registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121  # v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Extract Docker image metadata for PR validation builds
+      # Uses docker/metadata-action@v5 to generate tags and labels
+      # Docs: https://github.com/docker/metadata-action
+      #
+      # Purpose: Generate consistent metadata (tags/labels) for PR validation builds
+      # - PR builds use simple tags (pr-123) for identification
+      # - Full OCI labels for image metadata and traceability
+      # - Labels follow Open Containers Initiative (OCI) specification
+      #
+      # Tag strategy for PR builds:
+      # - type=ref,event=pr: Auto-generates pr-<number> tag from PR event
+      #
+      # Label strategy:
+      # - Custom OCI labels using environment variables
+      # - Overrides default generated labels with our custom values
+      # - Includes: title, description, source, license, authors, vendor, revision, docs
+      #
+      # Note: Image name is local-only (tux) since PR builds don't push to registry
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf  # v6
+        with:
+          # Local image name (no registry prefix needed for validation builds)
+          images: tux
+          tags: |
+            type=ref,event=pr
+          labels: |
+            org.opencontainers.image.title=${{ env.DOCKER_IMAGE_TITLE }}
+            org.opencontainers.image.description=${{ env.DOCKER_IMAGE_DESCRIPTION }}
+            org.opencontainers.image.source=${{ env.DOCKER_IMAGE_SOURCE }}
+            org.opencontainers.image.licenses=${{ env.DOCKER_IMAGE_LICENSE }}
+            org.opencontainers.image.authors=${{ env.DOCKER_IMAGE_AUTHORS }}
+            org.opencontainers.image.vendor=${{ env.DOCKER_IMAGE_VENDOR }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.documentation=${{ env.DOCKER_IMAGE_DOCS }}
+      - name: Generate PR Version
+        id: pr_version
+        run: ./.github/scripts/docker.sh generate-pr-version "${{ github.event.number }}"
+          "${{ github.sha }}" "${{ env.SHA_PREFIX_LENGTH }}"
+      - name: Generate Build Date
+        id: build_date
+        run: echo "date=$(./.github/scripts/docker.sh generate-build-date)" >> "$GITHUB_OUTPUT"
+
+      # Build Docker image for validation (does not push to registry)
+      # Uses docker/build-push-action@v6 with Buildx for advanced features
+      # Docs: https://github.com/docker/build-push-action
+      # Features used:
+      # - Hybrid cache (registry + GHA) for faster builds with better persistence
+      # - Load into Docker daemon (load: true) for image scanning
+      # - Build metadata (tags/labels) for image identification
+      # - Build-time variables for versioning and traceability
+      - name: Build
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7
+        timeout-minutes: 10
+        with:
+          # Build context directory (current directory)
+          context: .
+          # Path to Containerfile (Dockerfile)
+          file: Containerfile
+          # Target stage to build (production stage in Containerfile)
+          target: production
+          # Don't push to registry (validation builds only)
+          push: false
+          # Load image into Docker daemon for scanning with Docker Scout
+          load: true
+          # Hybrid cache: Registry cache (persistent, shared) + GHA cache (fast fallback)
+          # Registry cache persists across all builds/branches/PRs for better cache hits
+          # GHA cache provides fast local fallback if registry cache unavailable
+          cache-from: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+            type=gha
+          cache-to: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+            type=gha,mode=max
+          # Image tags for identification (from metadata extraction step)
+          tags: ${{ steps.meta.outputs.tags }}
+          # OCI labels for image metadata (title, description, source, etc.)
+          labels: ${{ steps.meta.outputs.labels }}
+          # Disable attestations to prevent unknown/unknown architecture in GHCR UI
+          # See: https://github.com/orgs/community/discussions/45969
+          provenance: false
+          sbom: false
+          # Build-time variables passed to Containerfile
+          build-args: |
+            VERSION=${{ steps.pr_version.outputs.version }}
+            GIT_SHA=${{ github.sha }}
+            BUILD_DATE=${{ steps.build_date.outputs.date }}
+      # Check if Docker Hub secrets are configured (secrets context not allowed in steps.if)
+      - name: Check Docker Hub secrets
+        id: docker_hub_check
+        run: |
+          if [ -n "${DOCKER_USER:-}" ] && [ -n "${DOCKER_PAT:-}" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PAT: ${{ secrets.DOCKER_PAT }}
+      # Authenticate to Docker Hub (required for Docker Scout when using a non-Docker-Hub registry like GHCR)
+      # See: https://docs.docker.com/scout/integrations/ci/gha/
+      - name: Authenticate to Docker Hub
+        if: steps.docker_hub_check.outputs.enabled == 'true'
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121  # v4
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PAT }}
+      # Run Docker Scout analysis for vulnerability scanning
+      # For PRs: Compare against production environment to show what changed
+      # For other events: Run quickview and recommendations for general analysis
+      - name: Docker Scout Compare
+        if: github.event_name == 'pull_request'
+        uses: docker/scout-action@bacf462e8d090c09660de30a6ccc718035f961e3  # v1
+        continue-on-error: true
+        with:
+          command: compare
+          image: ${{ steps.meta.outputs.tags }}
+          to-env: production
+          ignore-unchanged: true
+          only-severities: critical,high
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker Scout Quickview
+        if: github.event_name != 'pull_request'
+        uses: docker/scout-action@bacf462e8d090c09660de30a6ccc718035f961e3  # v1
+        continue-on-error: true
+        with:
+          command: quickview
+          image: ${{ steps.meta.outputs.tags }}
+          only-severities: critical,high
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Docker Scout Recommendations
+        if: github.event_name != 'pull_request'
+        uses: docker/scout-action@bacf462e8d090c09660de30a6ccc718035f961e3  # v1
+        continue-on-error: true
+        with:
+          command: recommendations
+          image: ${{ steps.meta.outputs.tags }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+  build:
+    name: Build & Push
+    runs-on: ubuntu-latest
+    needs: [changes]
+    # Run for tag pushes or workflow_dispatch on version tags (v*)
+    # Note: workflow_dispatch sets github.ref to refs/heads/<tag> instead of refs/tags/<tag>
+    # So we check github.ref_name (just the tag name) instead
+    if: |
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
+      (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'v'))
+    permissions:
+      contents: read
+      packages: write
+      # Required for BuildKit provenance signing (provenance: mode=max) via OIDC
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      # Set up Docker Buildx for advanced build features
+      # Uses docker/setup-buildx-action@v3 to create and boot a builder
+      # Docs: https://github.com/docker/setup-buildx-action
+      #
+      # Default behavior (no explicit config needed):
+      # - Creates builder with docker-container driver (enables BuildKit features)
+      # - Supports registry cache and GitHub Actions cache for faster builds
+      # - Caches buildx binary to GitHub Actions cache backend
+      # - Automatically cleans up builder and temp files at end of job
+      # - Switches to this builder instance for subsequent build steps
+      #
+      # Why we use Buildx:
+      # - Required for docker/build-push-action@v6 advanced features
+      # - Enables hybrid cache (registry + GHA cache) for better cache persistence
+      # - Supports build-time features (secrets, remote cache, etc.)
+      # - Future-proof for multi-platform builds if needed
+      #
+      # Optional enhancements (not currently needed):
+      # - Multi-platform: Add docker/setup-qemu-action@v3 for ARM support
+      # - Version pinning: Add version: v0.x.x to pin Buildx version
+      # - Custom builder name: Add name: my-builder for persistent builders
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd  # v4
+      - name: Login to Registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121  # v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Extract Docker image metadata for production release builds
+      # Uses docker/metadata-action@v5 to generate tags and labels
+      # Docs: https://github.com/docker/metadata-action
+      #
+      # Purpose: Generate consistent metadata (tags/labels) for production images
+      # - Semantic versioning tags from Git tags (v1.2.3 → 1.2.3, 1.2, latest)
+      # - Full OCI labels for image metadata and traceability
+      # - Labels follow Open Containers Initiative (OCI) specification
+      #
+      # Tag strategy for release builds:
+      # - type=semver,pattern={{version}}: Full version tag (e.g., 1.2.3)
+      # - type=semver,pattern={{major}}.{{minor}}: Minor version tag (e.g., 1.2)
+      # - type=raw,value=latest,enable={{is_default_branch}}: Latest tag only for default branch
+      #
+      # Semver tag behavior:
+      # - Git tag v1.2.3 generates: 1.2.3 (full version), 1.2 (minor), latest (if default branch)
+      # - Pre-release tags (alpha, beta, rc) only generate full version tag (not minor/major)
+      # - Tags are automatically sanitized to comply with Docker tag specifications
+      #
+      # Label strategy:
+      # - Custom OCI labels using environment variables
+      # - Overrides default generated labels with our custom values
+      # - Includes: title, description, source, license, authors, vendor, revision, docs
+      # - Auto-generated by metadata-action: created (build timestamp), version (from semver)
+      #
+      # Best practices:
+      # - Full registry path (ghcr.io/owner/repo) for production images
+      # - Multiple tags for flexibility (full version, minor version, latest)
+      # - Comprehensive OCI labels for traceability and compliance
+      #
+      # Note: We extract metadata twice - once for validation (manifest-only annotations
+      # since index annotations aren't supported when loading to Docker daemon) and once
+      # for push (manifest+index annotations for full registry support).
+      - name: Extract metadata for validation
+        id: meta_validate
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf  # v6
+        with:
+          # Full registry path for production images (ghcr.io/owner/repo)
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+          labels: |
+            org.opencontainers.image.title=${{ env.DOCKER_IMAGE_TITLE }}
+            org.opencontainers.image.description=${{ env.DOCKER_IMAGE_DESCRIPTION }}
+            org.opencontainers.image.source=${{ env.DOCKER_IMAGE_SOURCE }}
+            org.opencontainers.image.licenses=${{ env.DOCKER_IMAGE_LICENSE }}
+            org.opencontainers.image.authors=${{ env.DOCKER_IMAGE_AUTHORS }}
+            org.opencontainers.image.vendor=${{ env.DOCKER_IMAGE_VENDOR }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.documentation=${{ env.DOCKER_IMAGE_DOCS }}
+          # GHCR often reads description from OCI annotations (manifest/index)
+          # rather than only image config labels, especially when Buildx produces
+          # an OCI index (e.g. when provenance/attestations are attached).
+          # For validation builds (load: true), we only use manifest annotations
+          # since index annotations aren't supported for single-platform Docker exports.
+          annotations: |
+            org.opencontainers.image.title=${{ env.DOCKER_IMAGE_TITLE }}
+            org.opencontainers.image.description=${{ env.DOCKER_IMAGE_DESCRIPTION }}
+            org.opencontainers.image.source=${{ env.DOCKER_IMAGE_SOURCE }}
+            org.opencontainers.image.licenses=${{ env.DOCKER_IMAGE_LICENSE }}
+            org.opencontainers.image.authors=${{ env.DOCKER_IMAGE_AUTHORS }}
+            org.opencontainers.image.vendor=${{ env.DOCKER_IMAGE_VENDOR }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.documentation=${{ env.DOCKER_IMAGE_DOCS }}
+        env:
+          # Only manifest annotations for validation builds (load: true)
+          # Index annotations aren't supported when loading to Docker daemon
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest
+      - name: Extract metadata for push
+        id: meta_push
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf  # v6
+        with:
+          # Full registry path for production images (ghcr.io/owner/repo)
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+          labels: |
+            org.opencontainers.image.title=${{ env.DOCKER_IMAGE_TITLE }}
+            org.opencontainers.image.description=${{ env.DOCKER_IMAGE_DESCRIPTION }}
+            org.opencontainers.image.source=${{ env.DOCKER_IMAGE_SOURCE }}
+            org.opencontainers.image.licenses=${{ env.DOCKER_IMAGE_LICENSE }}
+            org.opencontainers.image.authors=${{ env.DOCKER_IMAGE_AUTHORS }}
+            org.opencontainers.image.vendor=${{ env.DOCKER_IMAGE_VENDOR }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.documentation=${{ env.DOCKER_IMAGE_DOCS }}
+          # GHCR often reads description from OCI annotations (manifest/index)
+          # rather than only image config labels, especially when Buildx produces
+          # an OCI index (e.g. when provenance/attestations are attached).
+          annotations: |
+            org.opencontainers.image.title=${{ env.DOCKER_IMAGE_TITLE }}
+            org.opencontainers.image.description=${{ env.DOCKER_IMAGE_DESCRIPTION }}
+            org.opencontainers.image.source=${{ env.DOCKER_IMAGE_SOURCE }}
+            org.opencontainers.image.licenses=${{ env.DOCKER_IMAGE_LICENSE }}
+            org.opencontainers.image.authors=${{ env.DOCKER_IMAGE_AUTHORS }}
+            org.opencontainers.image.vendor=${{ env.DOCKER_IMAGE_VENDOR }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.documentation=${{ env.DOCKER_IMAGE_DOCS }}
+        env:
+          # Place annotations on both the manifest and (when present) the index.
+          # Index annotations are supported when pushing to registry.
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
+      - name: Generate Release Version
+        id: release_version
+        run: ./.github/scripts/docker.sh generate-release-version "${{ github.ref_name }}"
+      - name: Validate Build Configuration
+        run: ./.github/scripts/docker.sh validate-build-config "${{ github.sha }}"
+      # docker.sh handles empty commit timestamp (e.g. workflow_dispatch has no head_commit)
+      # by using repository.created_at or date +%s as fallback.
+      - name: Calculate SOURCE_DATE_EPOCH
+        id: source_date
+        run: ./.github/scripts/docker.sh calculate-source-date-epoch "${{ github.event.head_commit.timestamp }}"
+          "${{ github.event.repository.created_at }}"
+      - name: Generate Build Date
+        id: build_date
+        run: echo "date=$(./.github/scripts/docker.sh generate-build-date)" >> "$GITHUB_OUTPUT"
+      # Build Docker image for validation (does not push to registry)
+      # Test-before-push pattern: Build, validate, then push only if validation passes
+      # Uses docker/build-push-action@v6 with Buildx for advanced features
+      # Docs: https://github.com/docker/build-push-action
+      # Features used:
+      # - Hybrid cache (registry + GHA) for faster builds
+      # - Load into Docker daemon (load: true) for image scanning
+      # - Build metadata (tags/labels) for image identification
+      # - Build-time variables for versioning and traceability
+      - name: Build for Validation
+        id: build_validate
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7
+        timeout-minutes: 15
+        env:
+          # Set SOURCE_DATE_EPOCH for reproducible builds
+          SOURCE_DATE_EPOCH: ${{ steps.source_date.outputs.epoch }}
+        with:
+          # Build context directory (current directory)
+          context: .
+          # Path to Containerfile (Dockerfile)
+          file: Containerfile
+          # Target stage to build (production stage in Containerfile)
+          target: production
+          # Don't push to registry yet (validation builds only)
+          push: false
+          # Load image into Docker daemon for scanning with Docker Scout
+          load: true
+          # Hybrid cache: Registry cache (persistent, shared) + GHA cache (fast fallback)
+          # Registry cache persists across all builds/branches/PRs for better cache hits
+          # GHA cache provides fast local fallback if registry cache unavailable
+          cache-from: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+            type=gha
+          cache-to: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+            type=gha,mode=max
+          # Image tags for identification (semver versions + latest from metadata extraction)
+          # Multiple tags created: v1.2.3, 1.2, 1, latest (for default branch)
+          tags: ${{ steps.meta_validate.outputs.tags }}
+          # OCI labels for image metadata (title, description, source, license, etc.)
+          labels: ${{ steps.meta_validate.outputs.labels }}
+          # OCI annotations for registry UIs (e.g. GHCR package description)
+          # Using manifest-only annotations since index annotations aren't supported when loading
+          annotations: ${{ steps.meta_validate.outputs.annotations }}
+          # Disable attestations for validation build (faster validation, attestations added in push step)
+          # Note: Attestations (SBOM/provenance) are only generated when pushing, not when loading to daemon
+          provenance: false
+          sbom: false
+          # Always pull base images to ensure we get latest security updates
+          pull: true
+          # Build-time variables passed to Containerfile
+          build-args: |
+            VERSION=${{ steps.release_version.outputs.version }}
+            GIT_SHA=${{ github.sha }}
+            BUILD_DATE=${{ steps.build_date.outputs.date }}
+      # Check if Docker Hub secrets are configured (secrets context not allowed in steps.if)
+      - name: Check Docker Hub secrets
+        id: docker_hub_check
+        run: |
+          if [ -n "${DOCKER_USER:-}" ] && [ -n "${DOCKER_PAT:-}" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PAT: ${{ secrets.DOCKER_PAT }}
+      # Authenticate to Docker Hub (required for Docker Scout when using GHCR)
+      # See: https://docs.docker.com/scout/integrations/ci/gha/
+      - name: Authenticate to Docker Hub
+        if: steps.docker_hub_check.outputs.enabled == 'true'
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121  # v4
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PAT }}
+      # Validate image before pushing (test-before-push pattern)
+      # Run Docker Scout CVE scan to ensure image is safe before pushing to registry
+      # Fails the workflow if critical or high-severity vulnerabilities are found
+      # Note: continue-on-error allows workflow to proceed if Docker Scout authentication fails
+      # Note: image input requires a single image reference, so we construct it from registry, image name, and version
+      - name: Docker Scout CVEs Before Push
+        uses: docker/scout-action@bacf462e8d090c09660de30a6ccc718035f961e3  # v1
+        continue-on-error: true
+        with:
+          command: cves
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.release_version.outputs.version
+            }}
+          only-severities: critical,high
+          exit-code: 1
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          summary: true
+          format: json
+          write-comment: true
+      # Push validated image to GitHub Container Registry (GHCR) with SBOM and provenance
+      # Only runs if validation step passed (implicit dependency via step order)
+      # Rebuild with push enabled to generate and push SBOM/provenance attestations
+      # This second build will be fast due to BuildKit cache from validation build
+      - name: Push Validated Image with Attestations
+        if: success()
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7
+        timeout-minutes: 5
+        env:
+          # Set SOURCE_DATE_EPOCH for reproducible builds
+          SOURCE_DATE_EPOCH: ${{ steps.source_date.outputs.epoch }}
+        with:
+          # Build context directory (current directory)
+          context: .
+          # Path to Containerfile (Dockerfile)
+          file: Containerfile
+          # Target stage to build (production stage in Containerfile)
+          target: production
+          # Push image to GitHub Container Registry (ghcr.io)
+          push: true
+          # Don't load into Docker daemon (just push)
+          load: false
+          # Hybrid cache: Registry cache (persistent, shared) + GHA cache (fast fallback)
+          # Registry cache persists across all builds/branches/PRs for better cache hits
+          # GHA cache provides fast local fallback if registry cache unavailable
+          cache-from: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+            type=gha
+          cache-to: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+            type=gha,mode=max
+          # Image tags for identification (semver versions + latest from metadata extraction)
+          # Multiple tags created: v1.2.3, 1.2, 1, latest (for default branch)
+          tags: ${{ steps.meta_push.outputs.tags }}
+          # OCI labels for image metadata (title, description, source, license, etc.)
+          labels: ${{ steps.meta_push.outputs.labels }}
+          # OCI annotations for registry UIs (e.g. GHCR package description)
+          # Using manifest+index annotations for full registry support
+          annotations: ${{ steps.meta_push.outputs.annotations }}
+          # Enable SBOM and provenance for supply chain security
+          # SBOM: Software Bill of Materials for dependency tracking
+          # Provenance: Build attestations for supply chain security (mode=max includes all metadata)
+          provenance: mode=max
+          sbom: true
+          # Always pull base images to ensure we get latest security updates
+          pull: true
+          # Build-time variables passed to Containerfile
+          build-args: |-
+            VERSION=${{ steps.release_version.outputs.version }}
+            GIT_SHA=${{ github.sha }}
+            BUILD_DATE=${{ steps.build_date.outputs.date }}

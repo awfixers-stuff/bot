@@ -1,0 +1,264 @@
+---
+name: CI
+on:
+  # Only trigger push on main and version branches to avoid duplicates with PR events
+  # PR events will handle all pull requests (including forks)
+  push:
+    branches: [main, 'v[0-9]+.[0-9]+.[0-9]+*']
+  pull_request:
+    branches: [main, 'v[0-9]+.[0-9]+.[0-9]+*']
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+env:
+  # renovate: datasource=python-version depName=python
+  PYTHON_VERSION: 3.13.11
+  REVIEWDOG_LEVEL: warning
+  REVIEWDOG_REPORTER: github-pr-review
+  REVIEWDOG_FILTER_MODE: file
+  REVIEWDOG_FAIL_LEVEL: none
+  HADOLINT_IGNORE: DL3008 DL3009
+jobs:
+  changes:
+    name: File Detection
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      python: ${{ steps.python_changes.outputs.any_changed }}
+      markdown: ${{ steps.markdown_changes.outputs.any_changed }}
+      shell: ${{ steps.shell_changes.outputs.any_changed }}
+      workflows: ${{ steps.workflow_changes.outputs.any_changed }}
+      docker: ${{ steps.docker_changes.outputs.any_changed }}
+      yaml: ${{ steps.yaml_changes.outputs.any_changed }}
+      any: ${{ steps.python_changes.outputs.any_changed == 'true' || steps.markdown_changes.outputs.any_changed == 'true' || steps.shell_changes.outputs.any_changed == 'true' || steps.workflow_changes.outputs.any_changed == 'true' || steps.docker_changes.outputs.any_changed == 'true' || steps.yaml_changes.outputs.any_changed == 'true' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          fetch-depth: 0
+      - name: Check Python
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47
+        id: python_changes
+        with:
+          files: |
+            **/*.py
+            pyproject.toml
+            uv.lock
+          files_ignore: |
+            tests/**/*.py
+            **/tests/**/*.py
+            **/migrations/**/*.py
+            src/tux/database/migrations/**/*.py
+      - name: Check Markdown
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47
+        id: markdown_changes
+        with:
+          files: '**/*.md'
+      - name: Check Shell
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47
+        id: shell_changes
+        with:
+          files: |
+            **/*.sh
+            **/*.bash
+            **/*.zsh
+            scripts/**
+      - name: Check Workflows
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47
+        id: workflow_changes
+        with:
+          files: .github/workflows/**
+      - name: Check Docker
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47
+        id: docker_changes
+        with:
+          files: |
+            Containerfile
+            compose.yaml
+            .dockerignore
+      - name: Check YAML
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47
+        id: yaml_changes
+        with:
+          files: |
+            **/*.yml
+            **/*.yaml
+            .github/**
+  quality:
+    name: Python
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.python == 'true' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+      - name: Setup Reviewdog
+        uses: reviewdog/action-setup@0dd4b8fe6186a79b3e27819169b1b570895086f0
+        with:
+          reviewdog_version: latest
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Type Check
+        uses: ./.github/actions/action-basedpyright
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          level: ${{ env.REVIEWDOG_LEVEL }}
+          reporter: ${{ env.REVIEWDOG_REPORTER }}
+          filter_mode: ${{ env.REVIEWDOG_FILTER_MODE }}
+          fail_level: ${{ env.REVIEWDOG_FAIL_LEVEL }}
+      - name: Run ruff with reviewdog
+        run: |
+          echo "Running ruff with reviewdog..."
+          uv run ruff check --config pyproject.toml --output-format rdjson . | \
+          reviewdog -f=rdjson \
+            -name=ruff \
+            -reporter=${{ env.REVIEWDOG_REPORTER }} \
+            -level=${{ env.REVIEWDOG_LEVEL }} \
+            -filter-mode=${{ env.REVIEWDOG_FILTER_MODE }} \
+            -fail-level=${{ env.REVIEWDOG_FAIL_LEVEL }}
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Optimize cache for CI: Remove pre-built wheels, keep source-built wheels
+      # This improves cache efficiency by only keeping wheels that take time to build
+      # Docs: https://docs.astral.sh/uv/concepts/cache/#caching-in-continuous-integration
+      - name: Prune uv cache for CI
+        if: always()
+        run: uv cache prune --ci
+  markdown:
+    name: Markdown
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.markdown == 'true'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - name: Lint
+        uses: reviewdog/action-markdownlint@3667398db9118d7e78f7a63d10e26ce454ba5f58  # v0.26.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          level: ${{ env.REVIEWDOG_LEVEL }}
+          reporter: ${{ env.REVIEWDOG_REPORTER }}
+          filter_mode: ${{ env.REVIEWDOG_FILTER_MODE }}
+          fail_level: ${{ env.REVIEWDOG_FAIL_LEVEL }}
+          markdownlint_flags: -c .markdownlint.yaml
+  shell:
+    name: Shell
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.shell == 'true'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - name: Lint
+        uses: reviewdog/action-shellcheck@4c07458293ac342d477251099501a718ae5ef86e  # v1.32
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          level: ${{ env.REVIEWDOG_LEVEL }}
+          reporter: ${{ env.REVIEWDOG_REPORTER }}
+          filter_mode: ${{ env.REVIEWDOG_FILTER_MODE }}
+          fail_level: ${{ env.REVIEWDOG_FAIL_LEVEL }}
+      - name: Format
+        uses: reviewdog/action-shfmt@d8f080930b9be5847b4f97e9f4122b81a82aaeac  # v1.0.4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          level: ${{ env.REVIEWDOG_LEVEL }}
+          filter_mode: ${{ env.REVIEWDOG_FILTER_MODE }}
+          shfmt_flags: -ln bash -i 2 -ci -bn -sr -kp -w -s
+  workflows:
+    name: Workflows
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.workflows == 'true'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - name: Validate
+        uses: reviewdog/action-actionlint@6fb7acc99f4a1008869fa8a0f09cfca740837d9d  # v1.72.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          level: ${{ env.REVIEWDOG_LEVEL }}
+          reporter: ${{ env.REVIEWDOG_REPORTER }}
+          filter_mode: ${{ env.REVIEWDOG_FILTER_MODE }}
+          fail_level: ${{ env.REVIEWDOG_FAIL_LEVEL }}
+  docker:
+    name: Docker
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.docker == 'true'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - name: Lint
+        uses: reviewdog/action-hadolint@921946a7ebaaf08ac72607bad67209f4e52b5407  # v1.50.5
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          level: ${{ env.REVIEWDOG_LEVEL }}
+          reporter: ${{ env.REVIEWDOG_REPORTER }}
+          filter_mode: ${{ env.REVIEWDOG_FILTER_MODE }}
+          fail_level: ${{ env.REVIEWDOG_FAIL_LEVEL }}
+          hadolint_ignore: ${{ env.HADOLINT_IGNORE }}
+          include: Containerfile
+  yaml:
+    name: YAML
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.yaml == 'true'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - name: Lint
+        uses: reviewdog/action-yamllint@f01d8a48fd8d89f89895499fca2cff09f9e9e8c0  # v1.21.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          level: ${{ env.REVIEWDOG_LEVEL }}
+          reporter: ${{ env.REVIEWDOG_REPORTER }}
+          filter_mode: ${{ env.REVIEWDOG_FILTER_MODE }}
+          fail_level: ${{ env.REVIEWDOG_FAIL_LEVEL }}
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: always()
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - name: Scan
+        uses: reviewdog/action-gitleaks@2b7b5685e3e3eecddab5d30cfa04f18123031421  # v1.8
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          level: error
+          reporter: ${{ env.REVIEWDOG_REPORTER }}
+          filter_mode: ${{ env.REVIEWDOG_FILTER_MODE }}
+          fail_level: error
+          gitleaks_flags: --verbose

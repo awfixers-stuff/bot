@@ -1,0 +1,285 @@
+---
+description: Database query patterns, optimization, filtering, joins, and performance best practices for Tux
+globs: src/tux/database/**/*.py
+alwaysApply: false
+---
+
+# Database Query Patterns
+
+## Overview
+
+Tux uses SQLAlchemy async queries with SQLModel for type-safe database operations. Queries should be optimized, use proper filtering, and avoid N+1 problems. Prefer using controller methods (`find_one`, `find_all`, `count`) over direct SQL when possible.
+
+## Basic Query Patterns
+
+### Select Queries
+
+```python
+from sqlmodel import select, SQLModel
+
+# ✅ GOOD: Use select() from sqlmodel with async session
+async with db.session() as session:
+    stmt = select(MyModel).where(MyModel.status == "active")
+    result = await session.execute(stmt)
+    models = result.scalars().all()
+    # Instances are automatically expunged for use outside session
+```
+
+**Note:** Import `select` from `sqlmodel`, not `sqlalchemy` (SQLModel re-exports it with type hints).
+
+❌ **BAD:** Using deprecated query API
+
+```python
+# ❌ BAD: Old query API (not available in async)
+models = await session.query(MyModel).all()  # Doesn't exist!
+```
+
+### Using Controllers for Queries
+
+```python
+# ✅ GOOD: Use controller methods for common queries
+controller = BaseController(MyModel, db)
+
+# Find one record
+model = await controller.find_one(filters={"status": "active"})
+
+# Find all with pagination
+models = await controller.find_all(
+    filters={"status": "active"},
+    order_by=[MyModel.created_at.desc()],
+    limit=20,
+    offset=0
+)
+
+# Count records
+count = await controller.count(filters={"status": "active"})
+```
+
+### Filtering
+
+```python
+# ✅ GOOD: Use dict filters (converted to AND conditions)
+stmt = select(MyModel).where(
+    MyModel.status == "active",
+    MyModel.created_at >= datetime.now() - timedelta(days=7)
+)
+
+# ✅ GOOD: Use dict with controller (auto-converted to AND)
+models = await controller.find_all(filters={"status": "active", "verified": True})
+
+# ✅ GOOD: Use SQL expressions for complex conditions
+stmt = select(MyModel).where(
+    (MyModel.status == "active") | (MyModel.status == "pending")
+)
+
+# ✅ GOOD: Use SQL expressions with controller
+models = await controller.find_all(
+    filters=(MyModel.status == "active") & (MyModel.user_id == 123)
+)
+```
+
+**Note:** Controllers accept both dict filters (converted to AND) and SQL expression filters for complex logic.
+
+### Ordering
+
+```python
+# ✅ GOOD: Use order_by() with single expression
+from sqlalchemy import desc
+
+stmt = select(MyModel).order_by(desc(MyModel.created_at))
+
+# ✅ GOOD: Use order_by() with multiple columns (tuple/list)
+stmt = select(MyModel).order_by(
+    desc(MyModel.created_at),  # Newest first
+    MyModel.name  # Then by name
+)
+
+# ✅ GOOD: Use order_by with controller (accepts tuple/list)
+models = await controller.find_all(
+    order_by=[MyModel.created_at.desc(), MyModel.name.asc()]
+)
+```
+
+## Relationship Queries
+
+### Eager Loading
+
+```python
+# ✅ GOOD: Use selectinload or joinedload to avoid N+1
+from sqlalchemy.orm import selectinload
+
+stmt = select(Guild).options(
+    selectinload(Guild.cases)  # Load cases in one query
+)
+result = await session.execute(stmt)
+guilds = result.scalars().all()
+
+# Access relationships without additional queries
+for guild in guilds:
+    print(guild.cases)  # Already loaded!
+
+# ✅ GOOD: Use find_all_with_options for relationship loading
+guilds = await controller.find_all_with_options(
+    filters={"active": True},
+    load_relationships=["cases", "config"]  # Load multiple relationships
+)
+```
+
+❌ **BAD:** Lazy loading causing N+1 queries
+
+```python
+# ❌ BAD: Lazy loading (N+1 problem)
+guilds = await session.execute(select(Guild)).scalars().all()
+for guild in guilds:
+    cases = guild.cases  # Additional query per guild!
+
+# ❌ BAD: Not using relationship loading in controllers
+guilds = await controller.find_all()  # Missing load_relationships
+for guild in guilds:
+    cases = guild.cases  # N+1 queries!
+```
+
+### Joins
+
+```python
+# ✅ GOOD: Use joins for filtering related data
+from sqlalchemy.orm import joinedload
+
+stmt = select(Case).join(Guild).where(
+    Guild.id == 123456789
+).options(joinedload(Case.guild))
+
+result = await session.execute(stmt)
+cases = result.scalars().all()
+```
+
+## Query Optimization
+
+### Indexes
+
+Always use indexes for frequently queried columns:
+
+```python
+# ✅ GOOD: Model defines indexes
+class MyModel(BaseModel, table=True):
+    name: str = Field(index=True)  # Indexed for fast lookups
+    status: str = Field(index=True)  # Indexed for filtering
+```
+
+❌ **BAD:** Missing indexes on frequently queried columns
+
+### Limit and Offset
+
+```python
+# ✅ GOOD: Use limit() and offset() for pagination
+stmt = select(MyModel).limit(20).offset(0)
+```
+
+For better performance, use cursor-based pagination:
+
+```python
+# ✅ GOOD: Cursor-based pagination (better performance)
+stmt = select(MyModel).where(
+    MyModel.id > last_id
+).order_by(MyModel.id).limit(20)
+```
+
+### Count Queries
+
+```python
+# ✅ GOOD: Use count() for counting
+from sqlalchemy import func
+
+stmt = select(func.count()).select_from(MyModel).where(MyModel.status == "active")
+result = await session.execute(stmt)
+count = result.scalar() or 0
+
+# ✅ GOOD: Use controller count() method
+count = await controller.count(filters={"status": "active"})
+```
+
+❌ **BAD:** Loading all records to count
+
+```python
+# ❌ BAD: Loading all records
+models = await session.execute(select(MyModel)).scalars().all()
+count = len(models)  # Loads all records into memory!
+
+# ❌ BAD: Using find_all to count
+models = await controller.find_all()
+count = len(models)  # Loads all records!
+```
+
+## Aggregations
+
+```python
+# ✅ GOOD: Use SQL aggregations
+from sqlalchemy import func
+
+stmt = select(
+    func.count(MyModel.id),
+    func.avg(MyModel.value),
+    func.max(MyModel.created_at)
+).where(MyModel.status == "active")
+
+result = await session.execute(stmt)
+count, avg_value, max_date = result.one()
+```
+
+## Subqueries
+
+```python
+# ✅ GOOD: Use subqueries for complex queries
+subquery = select(func.count(Case.id)).where(
+    Case.guild_id == Guild.id
+).scalar_subquery()
+
+stmt = select(
+    Guild,
+    subquery.label("case_count")
+)
+```
+
+## Instance Expunging
+
+Controllers automatically expunge instances from sessions so they can be used outside the session context:
+
+```python
+# ✅ GOOD: Instances are automatically expunged
+models = await controller.find_all()
+# Models can be used after session closes - no lazy loading issues
+for model in models:
+    print(model.name)  # Safe to access attributes
+```
+
+## Best Practices
+
+1. **Use controllers when possible** - Prefer `find_one`, `find_all`, `count` over direct SQL
+2. **Use select() from sqlmodel** - Import `select` from `sqlmodel` for type hints
+3. **Eager load relationships** - Use `find_all_with_options` or `selectinload`/`joinedload` to avoid N+1
+4. **Add indexes** - Index frequently queried columns
+5. **Use limit/offset** - Don't load all records, use pagination
+6. **Use aggregations** - Let database do aggregations with `func.count()`, `func.avg()`, etc.
+7. **Optimize joins** - Use appropriate join types
+8. **Avoid N+1 queries** - Always eager load relationships when iterating
+9. **Use dict filters for simple queries** - Controllers convert dicts to AND conditions automatically
+10. **Use SQL expressions for complex logic** - Use `&`, `|` operators for complex filters
+
+## Anti-Patterns
+
+1. ❌ **N+1 queries** - Always eager load relationships with `find_all_with_options` or `selectinload`
+2. ❌ **Loading all records** - Use `limit`/`offset` parameters in `find_all()`
+3. ❌ **Missing indexes** - Index frequently queried columns in model definitions
+4. ❌ **Manual counting** - Use `controller.count()` or `func.count()`, not `len(find_all())`
+5. ❌ **Lazy loading** - Use eager loading with `load_relationships` parameter
+6. ❌ **Complex Python filtering** - Filter in SQL, not in Python loops
+7. ❌ **Bypassing controllers** - Use controller methods instead of direct session access
+8. ❌ **Importing select from sqlalchemy** - Import from `sqlmodel` for type hints
+9. ❌ **Not expunging instances** - Controllers handle this automatically, but be aware when using direct sessions
+
+## See Also
+
+- @database/controllers.mdc - Controller query patterns
+- @database/models.mdc - Model patterns with relationships
+- @AGENTS.md - General coding standards
+- @rules.mdc - Complete catalog of all rules and commands

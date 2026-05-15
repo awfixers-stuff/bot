@@ -1,0 +1,129 @@
+---
+name: Docker Push (Manual)
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to build and push (e.g., v0.1.0)
+        required: true
+        type: string
+permissions:
+  contents: read
+  packages: write
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  DOCKER_BUILD_SUMMARY: true
+  DOCKER_BUILD_CHECKS_ANNOTATIONS: true
+  PYTHON_VERSION: 3.13.11
+  SHA_PREFIX_LENGTH: 7
+  VALIDATE_TIMEOUT_MINUTES: 10
+  BUILD_TIMEOUT_MINUTES: 15
+  DOCKER_IMAGE_TITLE: Tux
+  DOCKER_IMAGE_DESCRIPTION: Tux - The all in one discord bot for the All Things Linux
+    Community
+  DOCKER_IMAGE_SOURCE: https://github.com/allthingslinux/tux
+  DOCKER_IMAGE_LICENSE: GPL-3.0
+  DOCKER_IMAGE_AUTHORS: All Things Linux
+  DOCKER_IMAGE_VENDOR: All Things Linux
+  DOCKER_IMAGE_DOCS: https://github.com/allthingslinux/tux/blob/main/README.md
+jobs:
+  build:
+    name: Build & Push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      # Required for BuildKit provenance signing (provenance: mode=max) via OIDC
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          ref: refs/tags/${{ inputs.tag }}
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd  # v4
+      - name: Login to Registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121  # v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract version from tag
+        id: version
+        run: |
+          # Remove 'v' prefix if present (v0.1.0 -> 0.1.0)
+          VERSION="${INPUT_TAG#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          # Extract major.minor (0.1.0 -> 0.1)
+          MAJOR_MINOR=$(echo "$VERSION" | cut -d. -f1,2)
+          echo "major_minor=$MAJOR_MINOR" >> "$GITHUB_OUTPUT"
+          echo "Extracted version: $VERSION (major.minor: $MAJOR_MINOR)"
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf  # v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ steps.version.outputs.version }}
+            type=raw,value=${{ steps.version.outputs.major_minor }}
+            type=raw,value=latest
+          labels: |
+            org.opencontainers.image.title=${{ env.DOCKER_IMAGE_TITLE }}
+            org.opencontainers.image.description=${{ env.DOCKER_IMAGE_DESCRIPTION }}
+            org.opencontainers.image.source=${{ env.DOCKER_IMAGE_SOURCE }}
+            org.opencontainers.image.licenses=${{ env.DOCKER_IMAGE_LICENSE }}
+            org.opencontainers.image.authors=${{ env.DOCKER_IMAGE_AUTHORS }}
+            org.opencontainers.image.vendor=${{ env.DOCKER_IMAGE_VENDOR }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.documentation=${{ env.DOCKER_IMAGE_DOCS }}
+          annotations: |
+            org.opencontainers.image.title=${{ env.DOCKER_IMAGE_TITLE }}
+            org.opencontainers.image.description=${{ env.DOCKER_IMAGE_DESCRIPTION }}
+            org.opencontainers.image.source=${{ env.DOCKER_IMAGE_SOURCE }}
+            org.opencontainers.image.licenses=${{ env.DOCKER_IMAGE_LICENSE }}
+            org.opencontainers.image.authors=${{ env.DOCKER_IMAGE_AUTHORS }}
+            org.opencontainers.image.vendor=${{ env.DOCKER_IMAGE_VENDOR }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.documentation=${{ env.DOCKER_IMAGE_DOCS }}
+          context: workflow
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
+      - name: Validate Build Configuration
+        run: ./.github/scripts/docker.sh validate-build-config "${{ github.sha }}"
+      - name: Calculate SOURCE_DATE_EPOCH
+        id: source_date
+        run: ./.github/scripts/docker.sh calculate-source-date-epoch \ "$(git log
+          -1 --format=%ci ${{ github.sha }})" \ "${{ github.event.repository.created_at }}"
+      - name: Generate Build Date
+        id: build_date
+        run: echo "date=$(./.github/scripts/docker.sh generate-build-date)" >> "$GITHUB_OUTPUT"
+      - name: Build and Push
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7
+        timeout-minutes: 15
+        env:
+          SOURCE_DATE_EPOCH: ${{ steps.source_date.outputs.epoch }}
+        with:
+          context: .
+          file: Containerfile
+          target: production
+          push: true
+          load: false
+          cache-from: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+            type=gha
+          cache-to: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+            type=gha,mode=max
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
+          provenance: mode=max
+          sbom: true
+          pull: true
+          build-args: |-
+            VERSION=${{ steps.version.outputs.version }}
+            GIT_SHA=${{ github.sha }}
+            BUILD_DATE=${{ steps.build_date.outputs.date }}

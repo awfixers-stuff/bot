@@ -1,0 +1,245 @@
+---
+title: Self-Host Configuration
+tags:
+  - selfhost
+  - configuration
+icon: lucide/cog
+---
+
+# Self-Host Configuration
+
+Configure your Tux self-hosted instance to match your server's needs. This section covers all configuration aspects from bot tokens to database settings.
+
+## Configuration Overview
+
+Tux uses a flexible configuration system that supports multiple sources:
+
+1. **Environment Variables** - Highest priority, loaded from `.env` or system environment
+2. **JSON Configuration** - `config/config.json` or `config.json` for structured settings
+3. **File Secrets** - Docker secrets or mounted secret files
+4. **Defaults** - Built-in defaults when no other source provides a value
+
+See [Environment Configuration](environment.md) for details on configuration priority and loading order.
+
+## Essential Configuration
+
+### [Bot Token](bot-token.md)
+
+Configure your Discord bot token and permissions. This is required for Tux to connect to Discord.
+
+**Quick Setup:**
+
+1. Get token from [Discord Developer Portal](https://discord.com/developers/applications)
+2. Add to `.env`: `BOT_TOKEN=your_token_here`
+3. Invite bot to your server with appropriate permissions
+
+### [Database Configuration](database.md)
+
+Configure PostgreSQL connection settings. Tux requires PostgreSQL 17+.
+
+**Quick Setup:**
+
+- **Docker**: Set `POSTGRES_PASSWORD` in `.env` - database configures automatically
+- **Bare Metal**: Configure `POSTGRES_*` variables or use `DATABASE_URL`
+
+### [Environment Variables](environment.md)
+
+Complete guide to environment variable configuration, including:
+
+- Configuration priority and loading order
+- Essential variables
+- Optional Valkey (cache) backend
+- Docker-specific configuration
+- Validation and testing
+
+## Configuration Files
+
+### `.env` File
+
+Primary configuration file for environment variables:
+
+```env
+# Required
+BOT_TOKEN=your_bot_token_here
+
+# Database (optional - defaults provided)
+POSTGRES_PASSWORD=your_secure_password_here
+
+# Optional
+LOG_LEVEL=INFO
+DEBUG=false
+```
+
+!!! note "Bot owner, sysadmins, prefix"
+    Set `USER_IDS.BOT_OWNER_ID`, `USER_IDS.SYSADMINS`, and `BOT_INFO.PREFIX` in
+    `config/config.json`, not in `.env`. See the JSON example below.
+
+### `config/config.json`
+
+JSON configuration file for structured settings (bot owner, sysadmins, prefix, intents, etc.):
+
+```json
+{
+  "BOT_INFO": {
+    "BOT_NAME": "Tux",
+    "PREFIX": "$"
+  },
+  "BOT_INTENTS": {
+    "presences": true,
+    "members": true,
+    "message_content": true
+  },
+  "USER_IDS": {
+    "BOT_OWNER_ID": 123456789012345678,
+    "SYSADMINS": [123456789012345678, 987654321098765432]
+  }
+}
+```
+
+Generate example files:
+
+```bash
+uv run config generate
+```
+
+## Configuration Validation
+
+Always validate your configuration before starting:
+
+```bash
+# Validate configuration
+uv run config validate
+
+# Test database connection
+uv run db health
+```
+
+## Configuration Priority
+
+Configuration is loaded in this order (highest to lowest priority):
+
+1. **Init settings** - Programmatic overrides
+2. **Environment variables** - System environment
+3. **`.env` file** - Local environment file
+4. **`config/config.json`** or **`config.json`** - JSON configuration
+5. **File secrets** - Docker secrets (`/run/secrets`)
+6. **Defaults** - Built-in default values
+
+## Common Configuration Tasks
+
+### Change Bot Prefix
+
+```env
+# In .env
+BOT_INFO__PREFIX=!
+```
+
+Or in `config/config.json`:
+
+```json
+{
+  "BOT_INFO": {
+    "PREFIX": "!"
+  }
+}
+```
+
+### Configure Bot Intents
+
+```json
+{
+  "BOT_INTENTS": {
+    "presences": true,
+    "members": true,
+    "message_content": true
+  }
+}
+```
+
+All three privileged intents are required for full functionality:
+
+- **presences**: Required for status_roles feature
+- **members**: Required for on_member_join, jail, tty_roles
+- **message_content**: Required for prefix commands and most features
+
+### Enable optional Valkey cache
+
+To use Valkey (Redis-compatible) for shared cache across restarts:
+
+```env
+# With Docker (start tux-valkey with --profile valkey)
+VALKEY_HOST=tux-valkey
+VALKEY_PORT=6379
+
+# Or use a URL
+VALKEY_URL=valkey://localhost:6379/0
+```
+
+Leave Valkey unset to use in-memory cache. See [Environment Configuration](environment.md#optional-valkey-cache).
+
+### Set Log Level
+
+```env
+# In .env
+LOG_LEVEL=DEBUG
+```
+
+Valid levels: `TRACE`, `DEBUG`, `INFO`, `SUCCESS`, `WARNING`, `ERROR`, `CRITICAL`
+
+### Configure HTTP Client
+
+Tux automatically configures the HTTP client with optimized settings for your environment:
+
+- **High-latency environments**: Automatically detects and adjusts timeouts and connection pooling
+- **Connection pooling**: Reuses connections for better performance
+- **Retry logic**: Handles transient network failures automatically
+- **Timeout management**: Prevents hanging requests
+
+No manual configuration needed. The HTTP client is automatically configured based on your environment and network conditions.
+
+## Docker-Specific Configuration
+
+When using Docker Compose:
+
+- Variables in `.env` are automatically loaded
+- `compose.yaml` sets `POSTGRES_HOST=tux-postgres` automatically
+- Use profiles (`--profile dev` or `--profile production`) to select deployment mode
+- See [Docker Installation](../install/docker.md) for details
+
+## Troubleshooting
+
+### Configuration Not Loading
+
+```bash
+# Check what's being loaded
+uv run config validate
+
+# Verify file paths
+ls -la .env config/config.json
+
+# Check file encoding (must be UTF-8)
+file .env
+```
+
+### Environment Variables Not Working
+
+- Use `__` (double underscore) for nested keys: `BOT_INFO__PREFIX`
+- Check variable names match exactly (case-insensitive)
+- Verify `.env` file is in the correct location
+- For Docker, ensure variables are in `.env` file
+
+### Database Configuration Issues
+
+- Verify `POSTGRES_*` variables or `DATABASE_URL` is set
+- Check database is running and accessible
+- Test connection: `uv run db health`
+- For Docker, `POSTGRES_HOST` is set automatically
+
+## Related Documentation
+
+- [Environment Variables](environment.md) - Complete environment variable guide
+- [Database Configuration](database.md) - Database setup and configuration
+- [Bot Token Setup](bot-token.md) - Obtaining and configuring bot token
+- [ENV Reference](../../reference/env.md) - Auto-generated reference for all variables
+- [Docker Installation](../install/docker.md) - Docker-specific configuration
+- [First Run Setup](../install/first-run.md) - Initial configuration verification

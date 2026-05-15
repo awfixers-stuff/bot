@@ -1,0 +1,7 @@
+.md-grid {
+  max-width: 70rem !important;
+}
+
+.md-typeset__table {
+  text-wrap: nowrap !important;
+}

@@ -1,0 +1,232 @@
+---
+# Docker Compose — Development and Production
+#
+# One file, two modes. Profiles select which app variant runs (dev vs production);
+# tux-postgres has no profile and is always started. See:
+# https://docs.docker.com/compose/how-tos/profiles/
+#
+#   Development (build from source, hot reload):
+#     docker compose --profile dev up -d
+#     docker compose --profile dev up --watch
+#     COMPOSE_PROFILES=dev docker compose up -d
+#
+#   Production (pre-built image, security hardening):
+#     docker compose --profile production up -d
+#     COMPOSE_PROFILES=production docker compose up -d
+#
+#   Add Adminer (DB UI): use --profile adminer with dev or production.
+#
+# Without --profile dev or --profile production, only tux-postgres starts.
+# Do not use --profile production and --profile dev together (same container name).
+# Set RESTART_POLICY=unless-stopped in .env for production.
+#
+name: tux
+services:
+  tux-postgres:
+    container_name: tux-postgres
+    hostname: tux-postgres
+    image: postgres:17-alpine@sha256:778d0b486d6daa02b77434d0358ec57a1b21fd8b6d22ac2eef56a33e816928f6
+    restart: ${RESTART_POLICY:-no}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tuxdb}
+      POSTGRES_USER: ${POSTGRES_USER:-tuxuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ChangeThisToAStrongPassword123!}
+      POSTGRES_INITDB_ARGS: --encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    ports: ['127.0.0.1:${POSTGRES_PORT:-5432}:5432']
+    volumes:
+      - tux_postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+        compress: 'true'
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER:-tuxuser} -d ${POSTGRES_DB:-tuxdb} -h localhost
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    stop_grace_period: 30s
+  tux-valkey:
+    profiles: [valkey]
+    container_name: tux-valkey
+    hostname: tux-valkey
+    image: valkey/valkey:9.1-alpine@sha256:355ae2c6c965769a0d9b9810711e6befd5b79fe676d1faa848247733ad6a4408
+    restart: ${RESTART_POLICY:-no}
+    ports: [127.0.0.1:6379:6379]
+    volumes:
+      - tux_valkey_data:/data
+    command: valkey-server --save 60 1 --loglevel warning
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+        compress: 'true'
+    healthcheck:
+      test: [CMD, valkey-cli, ping]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # Init container: ensure bind-mount directories have correct ownership.
+  # Docker creates host dirs as root:root; nonroot (1001) cannot write to them.
+  tux-init:
+    image: busybox:latest@sha256:1487d0af5f52b4ba31c7e465126ee2123fe3f2305d638e7827681e7cf6c83d5e
+    profiles: [production, dev]
+    volumes:
+      - ./data/cache:/app/.cache
+      - ./data/temp:/app/temp
+      - ./data/user-home:/home/nonroot
+    entrypoint:
+      - sh
+      - -c
+      - |
+        mkdir -p /app/.cache/tldr /app/temp /home/nonroot
+        chown -R 1001:1001 /app/.cache /app/temp /home/nonroot
+
+  # Production app: pre-built image, no build, security hardening.
+  # Use: docker compose --profile production up -d
+  tux:
+    container_name: tux
+    hostname: tux
+    profiles: [production]
+    image: ${TUX_IMAGE:-ghcr.io/allthingslinux/tux}:${TUX_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file: &tux-envfile
+      - path: .env
+        required: true
+    environment: &tux-env
+      TUX_VERSION: ${VERSION:-}
+      DEBUG: ${DEBUG:-false}
+      MAX_STARTUP_ATTEMPTS: ${MAX_STARTUP_ATTEMPTS:-3}
+      STARTUP_DELAY: ${STARTUP_DELAY:-5}
+      POSTGRES_HOST: tux-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-tuxdb}
+      POSTGRES_USER: ${POSTGRES_USER:-tuxuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ChangeThisToAStrongPassword123!}
+    volumes:
+      - ./config:/app/config:ro
+      - ./src/tux/plugins:/app/tux/plugins:ro
+      - ./assets:/app/assets:ro
+      - ./data/cache:/app/.cache
+      - ./data/temp:/app/temp
+      - ./data/user-home:/home/nonroot
+    depends_on: &tux-depends
+      tux-postgres:
+        condition: service_healthy
+      tux-init:
+        condition: service_completed_successfully
+    healthcheck: &tux-health
+      test:
+        - CMD-SHELL
+        - ps aux | grep -v grep | grep -q "tux start" || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    stop_grace_period: 30s
+    security_opt: [no-new-privileges:true]
+    read_only: true
+    tmpfs: [/tmp:size=100m, /var/tmp:size=50m]
+    logging: &tux-logging
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+        compress: 'true'
+
+  # Development app: build from source, hot reload, no security hardening.
+  # Use: docker compose --profile dev up -d  or  --profile dev up --watch
+  tux-dev:
+    container_name: tux
+    hostname: tux
+    profiles: [dev]
+    image: ${TUX_IMAGE:-ghcr.io/allthingslinux/tux}:${TUX_IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Containerfile
+      target: production
+      args:
+        VERSION: ${VERSION:-dev}
+        GIT_SHA: ${GIT_SHA:-}
+        BUILD_DATE: ${BUILD_DATE:-}
+    restart: 'no'
+    env_file: *tux-envfile
+    environment: *tux-env
+    volumes:
+      - ./config:/app/config:ro
+      - ./src/tux/plugins:/app/tux/plugins:ro
+      - ./assets:/app/assets:ro
+      - ./docker/entrypoint.sh:/entrypoint.sh:ro
+      - ./data/cache:/app/.cache
+      - ./data/temp:/app/temp
+      - ./data/user-home:/home/nonroot
+    depends_on: *tux-depends
+    healthcheck: *tux-health
+    stop_grace_period: 30s
+    logging: *tux-logging
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+          ignore:
+            - __pycache__/
+            - '*.pyc'
+            - '*.pyo'
+            - '*.pyd'
+            - .pytest_cache/
+            - .mypy_cache/
+            - .coverage
+        - action: sync
+          path: ./config
+          target: /app/config
+        - action: sync
+          path: ./src/tux/plugins
+          target: /app/tux/plugins
+        - action: sync
+          path: ./assets
+          target: /app/assets
+        - action: rebuild
+          path: pyproject.toml
+        - action: rebuild
+          path: uv.lock
+        - action: sync+restart
+          path: .env
+          target: /app/.env
+  tux-adminer:
+    image: adminer:latest@sha256:41898b976011fd87f2d3037366ad97f7d89fddfebc8aa8b3a7d77d0c465aa37b
+    container_name: tux-adminer
+    hostname: tux-adminer
+    profiles: [adminer]
+    restart: 'no'
+    depends_on:
+      tux-postgres:
+        condition: service_healthy
+    ports: ['${ADMINER_PORT:-8080}:8080']
+    environment:
+      ADMINER_DEFAULT_SYSTEM: pgsql
+      ADMINER_DEFAULT_SERVER: tux-postgres
+      ADMINER_DEFAULT_NAME: ${POSTGRES_USER:-tuxuser}
+      ADMINER_DEFAULT_PASS: ${POSTGRES_PASSWORD:-ChangeThisToAStrongPassword123!}
+      ADMINER_DEFAULT_DATABASE: ${POSTGRES_DB:-tuxdb}
+      ADMINER_AUTOLOGIN_AUTOSUBMIT: ${ADMINER_AUTO_LOGIN:-true}
+      ADMINER_PLUGINS: backward-keys tables-filter dump-date dump-json dump-xml dump-zip
+        edit-calendar edit-foreign enum-option foreign-system json-column pretty-json-column
+        table-indexes-structure table-structure row-numbers config
+      ADMINER_THEME: dracula
+    volumes:
+      - ./docker/adminer/autologin-form.php:/var/www/html/plugins-enabled/autologin-form.php:ro
+volumes:
+  tux_postgres_data:
+    driver: local
+  tux_valkey_data:
+    driver: local
