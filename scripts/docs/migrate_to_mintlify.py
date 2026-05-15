@@ -111,8 +111,7 @@ def convert_frontmatter(lines: list[str], filepath: str) -> list[str]:
                 continue
             # Check if this is a field we should drop
             stripped = line.strip()
-            if any(stripped.startswith(f"{fld}:") or stripped.startswith(f"  {fld}:")
-                   or any(f"  - {fld}" in stripped for fld in DROP_FM_FIELDS)
+            if any(stripped.startswith((f"{fld}:", f"  {fld}:")) or any(f"  - {fld}" in stripped for fld in DROP_FM_FIELDS)
                    for fld in DROP_FM_FIELDS):
                 # Drop the line
                 # But might be multi-line YAML, skip until next top-level key
