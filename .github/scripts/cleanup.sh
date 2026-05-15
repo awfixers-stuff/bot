@@ -99,6 +99,8 @@ registry_analysis() {
 }
 
 # Clean old Docker image versions
+# Lists all versions, then deletes individually since gh does not support
+# bulk DELETE with filtering on the collection endpoint.
 clean_old_versions() {
   local package_type="${1}"
   local package_name="${2}"
@@ -113,10 +115,47 @@ clean_old_versions() {
       echo "**DRY RUN**: Would remove untagged: $remove_untagged"
     else
       echo "Cleaning old versions..."
-      gh api -X DELETE "user/packages/$package_type/$package_name/versions" \
-        --field "min-versions-to-keep=$keep_versions" \
-        --field "delete-only-untagged-versions=$remove_untagged" \
-                                                                 || echo "Cleanup completed or no versions to clean"
+
+      # Fetch all versions (paginated), merge pages into a single JSON array
+      local versions_json
+      versions_json=$(gh api "user/packages/$package_type/$package_name/versions" --paginate 2>/dev/null | jq -s 'add' || echo "[]")
+      local total_count
+      total_count=$(echo "$versions_json" | jq 'length')
+      echo "**Total versions**: $total_count"
+
+      # Remove untagged versions first if requested
+      if [ "$remove_untagged" = "true" ]; then
+        local untagged_ids
+        untagged_ids=$(echo "$versions_json" | jq -r '.[] | select(.metadata.container.tags == null or .metadata.container.tags == []) | .id | select(. != null)')
+        if [ -n "$untagged_ids" ]; then
+          echo "**Removing untagged versions:**"
+          while IFS= read -r id; do
+            [ -z "$id" ] && continue
+            echo "Deleting untagged version $id..."
+            gh api -X DELETE "user/packages/$package_type/$package_name/versions/$id" || echo "Failed to delete version $id"
+          done <<< "$untagged_ids"
+        fi
+        # Re-fetch after removing untagged so keep count applies to remaining
+        versions_json=$(gh api "user/packages/$package_type/$package_name/versions" --paginate 2>/dev/null | jq -s 'add' || echo "[]")
+      fi
+
+      # Delete old tagged versions beyond the keep limit
+      # Keep only tagged versions, sort newest-first, skip first keep_versions
+      local to_delete
+      to_delete=$(echo "$versions_json" | jq -r --argjson keep "$keep_versions" \
+        '[.[] | select(.metadata.container.tags != null and .metadata.container.tags != [])]
+         | sort_by(.created_at) | reverse | .[$keep:] | .[].id | select(. != null)')
+
+      if [ -n "$to_delete" ]; then
+        echo "**Removing old versions (keeping $keep_versions most recent):**"
+        while IFS= read -r id; do
+          [ -z "$id" ] && continue
+          echo "Deleting version $id..."
+          gh api -X DELETE "user/packages/$package_type/$package_name/versions/$id" || echo "Failed to delete version $id"
+        done <<< "$to_delete"
+      else
+        echo "No versions to delete."
+      fi
     fi
     echo ""
   } >> "$GITHUB_STEP_SUMMARY"
