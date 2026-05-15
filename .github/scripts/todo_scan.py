@@ -192,7 +192,6 @@ def main() -> None:
     if not args.dry_run:
         removed = remove_todos_from_source(todos)
         section = append_to_todo_md(todos)
-        print(f"\n✓ Removed {len(todos)} TODO comments from source and added to TODO.md.")
         print(f"  Files modified: {len(removed)}")
     else:
         print(f"\n[DRY-RUN] Would remove {len(todos)} comments from source and add to TODO.md.")
