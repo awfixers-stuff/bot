@@ -1,0 +1,39 @@
+# Auto-label PRs based on changed paths
+# Used by .github/workflows/pr-label.yml with actions/labeler@v6
+# See: https://github.com/actions/labeler
+
+bot:
+  - src/bot/**/*
+
+tests:
+  - tests/**/*
+  - conftest.py
+
+documentation:
+  - docs/**/*
+  - '**/*.md'
+  - CHANGELOG.md
+
+ci/cd:
+  - .github/**/*
+
+dependencies:
+  - pyproject.toml
+  - uv.lock
+
+docker:
+  - Containerfile
+  - compose.yaml
+  - docker/**/*
+  - .dockerignore
+
+config:
+  - config/**/*
+  - '**/*.yaml'
+  - '**/*.yml'
+  - '**/*.toml'
+  - '**/*.ini'
+  - '**/*.cfg'
+
+scripts:
+  - scripts/**/*
