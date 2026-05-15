@@ -17,8 +17,7 @@
 2. **Setup:** `uv sync` → configure `.env` & `config.json` → `docker compose up -d tux-postgres` → `uv run db init`
 3. **Develop:** Make changes → `uv run dev all` → `uv run test quick`
 4. **Database:** Modify models → `uv run db new "description"` → `uv run db dev` (or `uv run db dev --name "description"` for auto-create+apply)
-5. **Rules:** Validate rules/commands → `uv run ai validate-rules`
-6. **Commit:** `uv run dev pre-commit` → `uv run test all`
+5. **Commit:** `uv run dev pre-commit` → `uv run test all`
 7. **PR:** Push branch → open pull request → get review → merge → delete branch
 
 ## Docker Compose
@@ -94,7 +93,6 @@ refactor(database): optimize query performance
 - All tests pass (`uv run test all`)
 - Quality checks pass (`uv run dev all`)
 - Migrations tested (`uv run db dev`)
-- Cursor rules/commands validated (`uv run ai validate-rules`)
 - Documentation updated
 - Type hints complete
 - Docstrings for public APIs

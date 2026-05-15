@@ -107,8 +107,5 @@ tux/
 ├── config/                     # Configuration examples
 ├── compose.yaml                # Docker Compose (dev + production)
 ├── Containerfile               # Docker image definition
-└── .cursor/                    # Cursor rules & commands
-    ├── rules/                  # AI coding patterns (.mdc)
-    ├── commands/               # Workflow commands (.md)
-    └── templates/              # Rule/command templates
+└── .agents/                    # Agent rules & patterns
 ```

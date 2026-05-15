@@ -64,7 +64,6 @@ test = "scripts.test:main"
 tests = "scripts.test:main"
 # docs = "scripts.docs:main"  # Removed — Zensical CLI removed in Mintlify migration
 config = "scripts.config:main"
-ai = "scripts.ai:main"
 
 [dependency-groups]
 dev = [
