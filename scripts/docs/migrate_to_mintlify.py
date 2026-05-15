@@ -140,8 +140,6 @@ def convert_admonitions(lines: list[str], filepath: str) -> list[str]:
     """Convert Zensical admonition blocks to Mintlify JSX components."""
     result: list[str] = []
     i = 0
-    indent_stack: list[int] = []  # track indent levels for nested admonitions
-
     while i < len(lines):
         line = lines[i]
         match = ADMONITION_START.match(line)
