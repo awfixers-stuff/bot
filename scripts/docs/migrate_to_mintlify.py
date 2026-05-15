@@ -431,7 +431,6 @@ def main() -> None:
         process_file(fpath, dry_run=args.dry_run, backup=args.backup)
 
     # Summary
-    print(f"\n  ── Summary ──")
     print(f"  Files processed:  {stats['files_processed']}")
     print(f"  Files skipped:    {stats['files_skipped']}")
     print(f"  Admonitions:      {stats['admonitions_converted']}")
