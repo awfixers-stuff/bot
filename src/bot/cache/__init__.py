@@ -1,7 +1,7 @@
 """Cache layer with optional Valkey (Redis-compatible) backend.
 
 Provides CacheService, backends (InMemoryBackend, ValkeyBackend), TTL cache,
-and cache managers (GuildConfigCacheManager, JailStatusCache).
+and cache managers (JailStatusCache).
 """
 
 from bot.cache.backend import (
@@ -10,7 +10,7 @@ from bot.cache.backend import (
     ValkeyBackend,
     get_cache_backend,
 )
-from bot.cache.managers import GuildConfigCacheManager, JailStatusCache
+from bot.cache.managers import JailStatusCache
 from bot.cache.service import CacheService
 from bot.cache.ttl import TTLCache
 
@@ -21,7 +21,6 @@ __all__ = [
     "AsyncCacheBackend",
     "AsyncCacheBackendProtocol",
     "CacheService",
-    "GuildConfigCacheManager",
     "InMemoryBackend",
     "JailStatusCache",
     "TTLCache",

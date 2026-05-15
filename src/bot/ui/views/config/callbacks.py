@@ -15,6 +15,7 @@ import discord
 from loguru import logger
 
 from bot.core.permission_system import RESTRICTED_COMMANDS, get_permission_system
+from bot.shared.config import CONFIG
 from bot.database.models.models import PermissionCommand
 
 from .modals import EditRankModal
@@ -387,15 +388,13 @@ def create_jail_channel_callback(dashboard: ConfigDashboard) -> Any:
             )
             channel_id = selected.id if selected else None
 
-            await dashboard.bot.db.guild_config.update_config(
-                dashboard.guild.id,
-                jail_channel_id=channel_id,
+            # Jail channel config is now deployment-time via CONFIG.LOG_CHANNELS
+            logger.info(
+                f"Jail channel change requested for guild {dashboard.guild.id}: "
+                f"{channel_id} - ignored (config is deployment-time only)",
             )
 
-            # Don't send success message - UI reflects the change automatically
-            # Users can see the updated jail channel in the view itself
-
-            # Invalidate cache and rebuild to show updated configuration
+            # Invalidate cache and rebuild to show current config from CONFIG
             await invalidate_and_rebuild(
                 dashboard,
                 "jail",
@@ -417,7 +416,6 @@ def create_jail_role_callback(dashboard: ConfigDashboard) -> Any:
     """Create a callback for jail role selection."""
 
     async def callback(interaction: discord.Interaction) -> None:
-        # Defer immediately since database operations may take time
         await interaction.response.defer()
 
         if not await validate_author(
@@ -431,15 +429,13 @@ def create_jail_role_callback(dashboard: ConfigDashboard) -> Any:
             values = (interaction.data or {}).get("values", [])
             role_id = int(values[0]) if values else None
 
-            await dashboard.bot.db.guild_config.update_jail_role_id(
-                dashboard.guild.id,
-                role_id,
+            # Jail role config is now deployment-time via CONFIG.LOG_CHANNELS
+            logger.info(
+                f"Jail role change requested for guild {dashboard.guild.id}: "
+                f"{role_id} - ignored (config is deployment-time only)",
             )
 
-            # Don't send success message - UI reflects the change automatically
-            # Users can see the updated role in the view itself
-
-            # Invalidate cache and rebuild to show updated configuration
+            # Invalidate cache and rebuild to show current config from CONFIG
             await invalidate_and_rebuild(
                 dashboard,
                 "jail",
@@ -476,12 +472,8 @@ def create_jail_setup_all_callback(dashboard: ConfigDashboard) -> Any:
         try:
             await interaction.response.defer(ephemeral=True)
 
-            jail_role_id = await dashboard.bot.db.guild_config.get_jail_role_id(
-                dashboard.guild.id,
-            )
-            jail_channel_id = await dashboard.bot.db.guild_config.get_jail_channel_id(
-                dashboard.guild.id,
-            )
+            jail_role_id = CONFIG.LOG_CHANNELS.JAIL_ROLE_ID
+            jail_channel_id = CONFIG.LOG_CHANNELS.JAIL_CHANNEL_ID
 
             if not jail_role_id or not jail_channel_id:
                 await interaction.followup.send(

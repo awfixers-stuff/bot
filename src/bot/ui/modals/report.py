@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 import discord
 from loguru import logger
 
-from bot.database.utils import get_db_controller_from
+from bot.shared.config import CONFIG
 from bot.ui.embeds import EmbedCreator
 
 if TYPE_CHECKING:
@@ -31,20 +31,9 @@ class ReportModal(discord.ui.Modal):
             The modal title, by default "Submit an anonymous report".
         bot : Bot
             The bot instance to use for database access and operations.
-
-        Raises
-        ------
-        RuntimeError
-            If DatabaseService is not available via DI.
         """
         super().__init__(title=title)
         self.bot = bot
-        # Resolve config via shared DB utility (strict DI required)
-        controller = get_db_controller_from(self.bot, fallback_to_direct=False)
-        if controller is None:
-            error_msg = "DatabaseService not available. DI is required for ReportModal"
-            raise RuntimeError(error_msg)
-        self.config = controller.guild_config
 
     short = discord.ui.TextInput(  # type: ignore
         label="Related user(s) or issue(s)",
@@ -84,9 +73,7 @@ class ReportModal(discord.ui.Modal):
         )
 
         try:
-            report_log_channel_id = await self.config.get_report_log_id(
-                interaction.guild.id,
-            )
+            report_log_channel_id = CONFIG.LOG_CHANNELS.REPORT_LOG_ID
         except Exception as e:
             logger.error(
                 f"Failed to get report log channel for guild {interaction.guild.id}. {e}",

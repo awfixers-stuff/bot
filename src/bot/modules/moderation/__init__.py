@@ -18,6 +18,7 @@ from bot.cache import JailStatusCache
 from bot.core.base_cog import BaseCog
 from bot.core.bot import Bot
 from bot.database.models import CaseType as DBCaseType
+from bot.shared.config import CONFIG
 from bot.services.moderation import ModerationServiceFactory
 
 if TYPE_CHECKING:
@@ -188,7 +189,7 @@ class ModerationCogBase(BaseCog):
 
     async def get_jail_role(self, guild: discord.Guild) -> discord.Role | None:
         """Get the jail role for the guild."""
-        jail_role_id = await self.db.guild_config.get_jail_role_id(guild.id)
+        jail_role_id = CONFIG.LOG_CHANNELS.JAIL_ROLE_ID
         return None if jail_role_id is None else guild.get_role(jail_role_id)
 
     async def _respond(

@@ -12,7 +12,7 @@ from discord.ext import commands
 
 from bot.core.bot import Bot
 from bot.database.controllers import DatabaseCoordinator
-from bot.database.models import CaseType, Guild
+from bot.database.models import CaseType
 from bot.database.service import DatabaseService
 from bot.modules.snippets import SnippetsBaseCog
 from bot.modules.snippets.create_snippet import CreateSnippet
@@ -66,14 +66,6 @@ class TestSnippetPermissionChecks:
         mock_bot.db = coordinator
         return cog
 
-    @pytest.fixture
-    async def seed_guild(self, db_service: DatabaseService) -> None:
-        """Insert a minimal guild row for FK-backed operations."""
-        async with db_service.session() as session:
-            session.add(Guild(id=TEST_GUILD_ID, case_count=0))
-            await session.commit()
-
-    @pytest.mark.usefixtures("seed_guild")
     async def test_snippet_banned_user_cannot_create(
         self,
         cog: SnippetsBaseCog,
@@ -103,7 +95,6 @@ class TestSnippetPermissionChecks:
         assert allowed is False
         assert "banned" in reason.lower()
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_snippet_unbanned_user_can_create(
         self,
         cog: SnippetsBaseCog,
@@ -255,14 +246,6 @@ class TestSnippetCreation:
         cog.create_snippet.cog = cog
         return cog
 
-    @pytest.fixture
-    async def seed_guild(self, db_service: DatabaseService) -> None:
-        """Insert a minimal guild row for FK-backed operations."""
-        async with db_service.session() as session:
-            session.add(Guild(id=TEST_GUILD_ID, case_count=0))
-            await session.commit()
-
-    @pytest.mark.usefixtures("seed_guild")
     async def test_create_snippet_stores_in_database(
         self,
         cog: CreateSnippet,
@@ -289,7 +272,6 @@ class TestSnippetCreation:
         assert snippet.snippet_user_id == TEST_USER_ID
         assert snippet.guild_id == TEST_GUILD_ID
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_create_duplicate_name_rejected(
         self,
         cog: CreateSnippet,
@@ -317,7 +299,6 @@ class TestSnippetCreation:
         assert snippet is not None
         assert snippet.snippet_content == "First"
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_create_snippet_invalid_name_rejected(
         self,
         cog: CreateSnippet,
@@ -339,7 +320,6 @@ class TestSnippetCreation:
         )
         assert snippet is None
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_create_alias_when_content_matches_existing_snippet(
         self,
         cog: CreateSnippet,
@@ -372,7 +352,6 @@ class TestSnippetCreation:
         assert alias is not None
         assert alias.alias == "original"
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_banned_user_cannot_create_snippet(
         self,
         cog: CreateSnippet,
@@ -405,14 +384,6 @@ class TestSnippetAliasResolution:
         mock_bot.db = coordinator
         return cog
 
-    @pytest.fixture
-    async def seed_guild(self, db_service: DatabaseService) -> None:
-        """Insert a minimal guild row for FK-backed operations."""
-        async with db_service.session() as session:
-            session.add(Guild(id=TEST_GUILD_ID, case_count=0))
-            await session.commit()
-
-    @pytest.mark.usefixtures("seed_guild")
     async def test_alias_resolves_to_target(
         self,
         cog: SnippetsBaseCog,
@@ -442,7 +413,6 @@ class TestSnippetAliasResolution:
         assert resolved is not None
         assert resolved.snippet_content == "Real content"
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_broken_alias_returns_none(
         self,
         cog: SnippetsBaseCog,
@@ -479,7 +449,6 @@ class TestSnippetAliasResolution:
         assert is_alias is True
         assert resolved is None
 
-    @pytest.mark.usefixtures("seed_guild")
     async def test_non_alias_resolves_to_self(
         self,
         cog: SnippetsBaseCog,

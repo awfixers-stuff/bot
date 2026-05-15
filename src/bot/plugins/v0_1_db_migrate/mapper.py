@@ -16,8 +16,6 @@ from bot.database.models import (
     AFK,
     Case,
     CaseType,
-    Guild,
-    GuildConfig,
     Levels,
     PermissionAssignment,
     PermissionCommand,
@@ -74,27 +72,8 @@ class ModelMapper:
         # Format: {old_db_column_name: new_model_field_name}
         # Note: Old DB uses snake_case column names directly
         self.field_mappings: dict[str, dict[str, str]] = {
-            "Guild": {
-                "guild_id": "id",  # Old DB PK -> New model PK
-                "guild_joined_at": "guild_joined_at",
-                "case_count": "case_count",
-                # Note: Old DB doesn't have created_at/updated_at
-            },
-            "GuildConfig": {
-                "guild_id": "id",  # Old DB PK/FK -> New model PK/FK
-                "prefix": "prefix",
-                "mod_log_id": "mod_log_id",
-                "audit_log_id": "audit_log_id",
-                "join_log_id": "join_log_id",
-                "private_log_id": "private_log_id",
-                "report_log_id": "report_log_id",
-                "dev_log_id": "dev_log_id",
-                "jail_channel_id": "jail_channel_id",
-                "jail_role_id": "jail_role_id",
-                # Note: Old DB has perm_level_*_role_id fields that new model doesn't have
-                # Note: Old DB doesn't have onboarding_completed/onboarding_stage
-                # Note: Old DB doesn't have created_at/updated_at
-            },
+            # Note: Guild and GuildConfig tables were removed (single-guild simplification).
+            # Migration from those tables is no longer supported.
             "Case": {
                 "case_id": "id",  # Old DB PK -> New model PK
                 "case_status": "case_status",
@@ -435,8 +414,7 @@ class ModelMapper:
             If table name is not recognized.
         """
         model_map: dict[str, type[Any]] = {
-            "guild": Guild,
-            "guild_config": GuildConfig,
+            # Note: "guild" and "guild_config" were removed (single-guild simplification).
             "cases": Case,
             "snippet": Snippet,
             "reminder": Reminder,

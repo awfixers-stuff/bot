@@ -1,10 +1,8 @@
 """Tests for model mapper."""
 
-from datetime import datetime
-
 import pytest
 
-from bot.database.models import AFK, Case, Guild, GuildConfig
+from bot.database.models import AFK, Case
 from bot.plugins.v0_1_db_migrate.mapper import (
     ModelMapper,
 )
@@ -20,9 +18,7 @@ class TestModelMapper:
 
     def test_get_table_mapping(self, mapper: ModelMapper) -> None:
         """Test table name mapping."""
-        assert mapper.get_table_mapping("Guild") == "guild"
         assert mapper.get_table_mapping("Case") == "cases"
-        assert mapper.get_table_mapping("GuildConfig") == "guild_config"
         assert mapper.get_table_mapping("AFKModel") == "afk"
         assert mapper.get_table_mapping("Levels") == "levels"
 
@@ -35,7 +31,6 @@ class TestModelMapper:
     def test_get_field_mapping(self, mapper: ModelMapper) -> None:
         """Test field name mapping."""
         # Test mapped fields
-        assert mapper.get_field_mapping("Guild", "guild_id") == "id"
         assert mapper.get_field_mapping("Case", "case_id") == "id"
         assert (
             mapper.get_field_mapping("Case", "case_tempban_expired") == "case_processed"
@@ -46,20 +41,7 @@ class TestModelMapper:
         )
 
         # Test unmapped fields (should use same name)
-        assert mapper.get_field_mapping("Guild", "guild_joined_at") == "guild_joined_at"
         assert mapper.get_field_mapping("Case", "case_reason") == "case_reason"
-
-    def test_transform_row_guild(self, mapper: ModelMapper) -> None:
-        """Test transforming Guild row."""
-        old_row = {
-            "guild_id": 123456789,
-            "guild_joined_at": "2024-01-01T00:00:00Z",
-            "case_count": 5,
-        }
-        transformed = mapper.transform_row("Guild", old_row)
-        assert transformed["id"] == 123456789
-        assert "guild_joined_at" in transformed
-        assert transformed["case_count"] == 5
 
     def test_transform_row_case(self, mapper: ModelMapper) -> None:
         """Test transforming Case row."""
@@ -84,34 +66,6 @@ class TestModelMapper:
         )  # Mapped from case_tempban_expired
         assert transformed["case_type"] == "BAN"
         assert "case_tempban_expired" not in transformed
-
-    def test_transform_row_skips_deprecated_fields(self, mapper: ModelMapper) -> None:
-        """Test that deprecated fields are skipped."""
-        old_row = {
-            "guild_id": 123456789,
-            "prefix": "$",
-            "base_member_role_id": 999,  # Deprecated
-            "base_staff_role_id": 888,  # Deprecated
-            "general_channel_id": 777,  # Deprecated
-        }
-        transformed = mapper.transform_row("GuildConfig", old_row)
-        assert "base_member_role_id" not in transformed
-        assert "base_staff_role_id" not in transformed
-        assert "general_channel_id" not in transformed
-        assert transformed["id"] == 123456789
-        assert transformed["prefix"] == "$"
-
-    def test_transform_row_skips_none_values(self, mapper: ModelMapper) -> None:
-        """Test that None values are skipped."""
-        old_row = {
-            "guild_id": 123456789,
-            "prefix": None,
-            "mod_log_id": None,
-        }
-        transformed = mapper.transform_row("GuildConfig", old_row)
-        # None values should be skipped (will use defaults)
-        assert "prefix" not in transformed or transformed["prefix"] is not None
-        assert transformed["id"] == 123456789
 
     def test_transform_row_afk_model(self, mapper: ModelMapper) -> None:
         """Test transforming AFKModel row."""
@@ -150,9 +104,7 @@ class TestModelMapper:
 
     def test_get_model_class(self, mapper: ModelMapper) -> None:
         """Test model class retrieval."""
-        assert mapper.get_model_class("guild") == Guild
         assert mapper.get_model_class("cases") == Case
-        assert mapper.get_model_class("guild_config") == GuildConfig
         assert mapper.get_model_class("afk") == AFK
 
     def test_get_model_class_invalid(self, mapper: ModelMapper) -> None:
@@ -173,17 +125,6 @@ class TestModelMapper:
         transformed = mapper.transform_row("Case", old_row)
         # Enum should be transformed correctly
         assert transformed["case_type"] == "BAN"
-
-    def test_transform_row_datetime_handling(self, mapper: ModelMapper) -> None:
-        """Test datetime value transformation."""
-        old_row = {
-            "guild_id": 123456789,
-            "guild_joined_at": "2024-01-01T00:00:00Z",
-        }
-        transformed = mapper.transform_row("Guild", old_row)
-        # Datetime should be normalized
-        assert "guild_joined_at" in transformed
-        assert isinstance(transformed["guild_joined_at"], (datetime, str))
 
     def test_transform_row_json_handling(self, mapper: ModelMapper) -> None:
         """Test JSON array handling."""

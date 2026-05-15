@@ -7,8 +7,6 @@ from sqlmodel import SQLModel
 from loguru import logger
 
 from bot.database.controllers import (
-    GuildConfigController,
-    GuildController,
     PermissionAssignmentController,
     PermissionCommandController,
     PermissionRankController,
@@ -68,18 +66,6 @@ async def db_service(pglite_engine):
     )
 
     yield service
-
-
-@pytest.fixture(scope="function")
-async def guild_controller(db_service: DatabaseService) -> GuildController:
-    """GuildController with fresh database per test."""
-    return GuildController(db_service)
-
-
-@pytest.fixture(scope="function")
-async def guild_config_controller(db_service: DatabaseService) -> GuildConfigController:
-    """GuildConfigController with fresh database per test."""
-    return GuildConfigController(db_service)
 
 
 @pytest.fixture(scope="function")

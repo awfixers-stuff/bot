@@ -18,7 +18,7 @@ from bot.core.flags import CaseModifyFlags
 from bot.database.controllers import DatabaseCoordinator
 from bot.database.models import Case, CaseType
 from bot.database.models import CaseType as DBCaseType
-from bot.database.models import Guild as GuildModel
+
 from bot.database.service import DatabaseService
 from bot.modules.moderation.cases import Cases
 from bot.services.moderation.case_service import CaseService
@@ -115,9 +115,7 @@ class TestModerationCoordinatorIntegration:
         # Arrange
         guild = require_guild(mock_ctx)
         async with db_service.session() as session:
-            guild_record = GuildModel(id=guild.id, case_count=0)
-            session.add(guild_record)
-            await session.commit()
+            pass
         cast(discord.Guild, mock_ctx.guild).get_member.return_value = MagicMock()
 
         with patch.object(
@@ -171,9 +169,7 @@ class TestModerationCoordinatorIntegration:
         # Arrange
         guild = require_guild(mock_ctx)
         async with db_service.session() as session:
-            guild_record = GuildModel(id=guild.id, case_count=0)
-            session.add(guild_record)
-            await session.commit()
+            pass
         cast(discord.Guild, mock_ctx.guild).get_member.return_value = MagicMock()
 
         with patch.object(
@@ -354,9 +350,7 @@ class TestModerationCoordinatorIntegration:
         # Arrange
         guild = require_guild(mock_ctx)
         async with db_service.session() as session:
-            guild_record = GuildModel(id=guild.id, case_count=0)
-            session.add(guild_record)
-            await session.commit()
+            pass
         cast(discord.Guild, mock_ctx.guild).get_member.return_value = MagicMock()
         mock_ban_action = AsyncMock(
             side_effect=discord.Forbidden(MagicMock(), "Missing permissions"),
@@ -509,9 +503,7 @@ class TestModerationCoordinatorIntegration:
         # Arrange
         guild = require_guild(mock_ctx)
         async with db_service.session() as session:
-            guild_record = GuildModel(id=guild.id, case_count=0)
-            session.add(guild_record)
-            await session.commit()
+            pass
         mock_bot.db = DatabaseCoordinator(db_service)
         mock_bot.db.guild_config.get_log_channel_ids = AsyncMock(
             return_value=(None, 123456789),

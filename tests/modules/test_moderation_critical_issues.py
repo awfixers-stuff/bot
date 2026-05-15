@@ -17,7 +17,7 @@ from sqlmodel import select
 
 from bot.core.bot import Bot
 from bot.database.controllers import DatabaseCoordinator
-from bot.database.models import Case, Guild
+from bot.database.models import Case
 from bot.database.models import CaseType as DBCaseType
 from bot.database.service import DatabaseService
 from bot.services.moderation.case_service import CaseService
@@ -121,10 +121,6 @@ class TestCriticalIssuesIntegration:
         """DM failure must not prevent moderation action; case created, action and DM attempted."""
         # Arrange
         guild = require_guild(mock_ctx)
-        async with db_service.session() as session:
-            guild_record = Guild(id=guild.id, case_count=0)
-            session.add(guild_record)
-            await session.commit()
         mock_member = MockMember()
         guild.get_member.return_value = MockBotMember()
 
@@ -182,9 +178,7 @@ class TestCriticalIssuesIntegration:
         guild = require_guild(mock_ctx)
         guild.get_member.return_value = MockBotMember()
         async with db_service.session() as session:
-            guild_record = Guild(id=guild.id, case_count=0)
-            session.add(guild_record)
-            await session.commit()
+            pass
 
         with patch.object(
             moderation_coordinator._communication,
@@ -281,9 +275,7 @@ class TestCriticalIssuesIntegration:
         guild = require_guild(mock_ctx)
         guild.get_member.return_value = mock_bot_member
         async with db_service.session() as session:
-            guild_record = Guild(id=guild.id, case_count=0)
-            session.add(guild_record)
-            await session.commit()
+            pass
 
         with patch.object(
             moderation_coordinator._communication,
@@ -380,9 +372,7 @@ class TestCriticalIssuesIntegration:
         guild = require_guild(mock_ctx)
         guild.get_member.return_value = MockBotMember()
         async with db_service.session() as session:
-            guild_record = Guild(id=guild.id, case_count=0)
-            session.add(guild_record)
-            await session.commit()
+            pass
 
         # Act
         await moderation_coordinator.execute_moderation_action(
@@ -412,9 +402,7 @@ class TestCriticalIssuesIntegration:
         mock_ban_action1 = AsyncMock(return_value=None)
         mock_ban_action2 = AsyncMock(return_value=None)
         async with db_service.session() as session:
-            guild_record = Guild(id=guild.id, case_count=0)
-            session.add(guild_record)
-            await session.commit()
+            pass
 
         with patch.object(
             moderation_coordinator._communication,
@@ -627,9 +615,7 @@ class TestCriticalIssuesIntegration:
         guild = require_guild(mock_ctx)
         guild.get_member.return_value = MockBotMember()
         async with db_service.session() as session:
-            guild_record = Guild(id=guild.id, case_count=0)
-            session.add(guild_record)
-            await session.commit()
+            pass
 
         with patch.object(
             moderation_coordinator._communication,

@@ -20,6 +20,7 @@ from bot.core.checks import requires_command_permission
 from bot.core.flags import CaseModifyFlags, CasesViewFlags
 from bot.database.models import Case
 from bot.database.models import CaseType as DBCaseType
+from bot.shared.config import CONFIG
 from bot.shared.constants import EMBED_COLORS
 from bot.ui.embeds import EmbedCreator, EmbedType
 
@@ -490,10 +491,8 @@ class Cases(ModerationCogBase):
         mod_message: discord.Message | None = None
 
         try:
-            # Get mod log channel ID from guild config
-            _, mod_log_id = await self.bot.db.guild_config.get_log_channel_ids(
-                ctx.guild.id,
-            )
+            # Get mod log channel ID from static config
+            mod_log_id = CONFIG.LOG_CHANNELS.MOD_LOG_ID
             if not mod_log_id:
                 logger.debug(f"No mod log channel configured for guild {ctx.guild.id}")
                 return

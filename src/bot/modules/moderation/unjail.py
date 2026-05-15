@@ -17,6 +17,7 @@ from bot.core.checks import requires_command_permission
 from bot.core.flags import UnjailFlags
 from bot.database.models import Case
 from bot.database.models import CaseType as DBCaseType
+from bot.shared.config import CONFIG
 
 from . import ModerationCogBase
 
@@ -154,16 +155,11 @@ class Unjail(ModerationCogBase):
         """
         assert ctx.guild
 
-        # Parallelize independent database queries
-        jail_role_id_task = self.db.guild_config.get_jail_role_id(ctx.guild.id)
-        is_jailed_task = self.is_jailed(ctx.guild.id, member.id)
-        latest_jail_case_task = self.get_latest_jail_case(ctx.guild.id, member.id)
-
-        # Wait for all queries to complete
-        jail_role_id, is_jailed_result, case = await asyncio.gather(
-            jail_role_id_task,
-            is_jailed_task,
-            latest_jail_case_task,
+        # Get jail role from static config; parallelize async queries
+        jail_role_id = CONFIG.LOG_CHANNELS.JAIL_ROLE_ID
+        is_jailed_result, case = await asyncio.gather(
+            self.is_jailed(ctx.guild.id, member.id),
+            self.get_latest_jail_case(ctx.guild.id, member.id),
         )
 
         # Get Discord role object (synchronous lookup)

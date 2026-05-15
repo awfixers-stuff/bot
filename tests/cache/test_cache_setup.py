@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from bot.cache import GuildConfigCacheManager, JailStatusCache
+from bot.cache import JailStatusCache
 from bot.core.setup.cache_setup import CacheSetupService
 
 pytestmark = pytest.mark.unit
@@ -105,11 +105,7 @@ async def test_setup_when_connect_and_ping_succeed_sets_cache_service(
                     await service.setup()
         assert mock_bot.cache_service is instance
     finally:
-        guild_mgr = GuildConfigCacheManager()
         jail_cache = JailStatusCache()
-        guild_mgr._backend = None
-        guild_mgr._cache.clear()
-        guild_mgr._locks.clear()
         jail_cache._backend = None
         jail_cache._cache.clear()
         jail_cache._locks.clear()
@@ -117,7 +113,7 @@ async def test_setup_when_connect_and_ping_succeed_sets_cache_service(
 
 @pytest.mark.asyncio
 async def test_setup_wires_backend_to_singletons(mock_bot: MagicMock) -> None:
-    """Setup calls set_backend on GuildConfigCacheManager and JailStatusCache."""
+    """Setup calls set_backend on JailStatusCache."""
     backend = MagicMock()
     backend.__class__.__name__ = "InMemoryBackend"
     try:
@@ -129,16 +125,10 @@ async def test_setup_wires_backend_to_singletons(mock_bot: MagicMock) -> None:
             ):
                 service = CacheSetupService(mock_bot)
                 await service.setup()
-        guild_mgr = GuildConfigCacheManager()
         jail_cache = JailStatusCache()
-        assert guild_mgr._backend is backend
         assert jail_cache._backend is backend
     finally:
-        guild_mgr = GuildConfigCacheManager()
         jail_cache = JailStatusCache()
-        guild_mgr._backend = None
-        guild_mgr._cache.clear()
-        guild_mgr._locks.clear()
         jail_cache._backend = None
         jail_cache._cache.clear()
         jail_cache._locks.clear()

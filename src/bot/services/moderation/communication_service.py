@@ -12,8 +12,8 @@ import discord
 from discord.ext import commands
 from loguru import logger
 
-from bot.cache import GuildConfigCacheManager
 from bot.core.bot import Bot
+from bot.shared.config import CONFIG
 from bot.shared.constants import EMBED_COLORS
 
 
@@ -35,8 +35,6 @@ class CommunicationService:
             The Discord bot instance.
         """
         self.bot = bot
-        # Use shared cache manager for guild config (allows invalidation from anywhere)
-        self._guild_config_cache = GuildConfigCacheManager()
 
     async def send_dm(
         self,
@@ -240,62 +238,19 @@ class CommunicationService:
         guild_id: int,
     ) -> tuple[int | None, int | None]:
         """
-        Get audit log and mod log channel IDs for a guild with caching.
-
-        Uses batch fetching to get both values in a single database query.
+        Get audit log and mod log channel IDs from static config.
 
         Parameters
         ----------
         guild_id : int
-            The guild ID.
+            The guild ID (unused, kept for backward compatibility).
 
         Returns
         -------
         tuple[int | None, int | None]
             Tuple of (audit_log_id, mod_log_id).
         """
-        # Check cache first
-        cached = await self._guild_config_cache.get(guild_id)
-        # Only return cached values if both keys exist in cache
-        # (even if values are None, that means they were explicitly cached as not configured)
-        if cached is not None and "audit_log_id" in cached and "mod_log_id" in cached:
-            audit_log_id = cached.get("audit_log_id")
-            mod_log_id = cached.get("mod_log_id")
-            logger.trace(
-                f"Cache hit for guild config: {guild_id} "
-                f"(audit_log_id={audit_log_id}, mod_log_id={mod_log_id})",
-            )
-            return audit_log_id, mod_log_id
-
-        # Cache miss or partial cache - batch fetch from database (single query)
-        logger.trace(
-            f"Cache miss/partial for guild config: {guild_id}, fetching from DB",
-        )
-        audit_log_id, mod_log_id = await self.bot.db.guild_config.get_log_channel_ids(
-            guild_id,
-        )
-
-        logger.debug(
-            f"_get_guild_log_channels: Fetched from DB for guild {guild_id} "
-            f"(audit_log_id={audit_log_id}, mod_log_id={mod_log_id})",
-        )
-
-        # Cache the result (get_log_channel_ids already caches, but this ensures consistency)
-        # Use async_set to prevent race conditions when multiple coroutines update cache concurrently
-        await self._guild_config_cache.async_set(guild_id, audit_log_id, mod_log_id)
-
-        return audit_log_id, mod_log_id
-
-    async def invalidate_guild_config_cache(self, guild_id: int) -> None:
-        """
-        Invalidate cached guild config for a specific guild.
-
-        Parameters
-        ----------
-        guild_id : int
-            The guild ID to invalidate.
-        """
-        await self._guild_config_cache.invalidate(guild_id)
+        return CONFIG.LOG_CHANNELS.AUDIT_LOG_ID, CONFIG.LOG_CHANNELS.MOD_LOG_ID
 
     async def send_audit_log_embed(  # noqa: PLR0911
         self,

@@ -21,6 +21,7 @@ from bot.core.bot import Bot
 from bot.core.checks import requires_command_permission
 from bot.core.flags import JailFlags
 from bot.database.models import CaseType
+from bot.shared.config import CONFIG
 
 from . import ModerationCogBase
 
@@ -55,7 +56,7 @@ class Jail(ModerationCogBase):
         discord.TextChannel | None
             The jail channel if found, None otherwise.
         """
-        jail_channel_id = await self.db.guild_config.get_jail_channel_id(guild.id)
+        jail_channel_id = CONFIG.LOG_CHANNELS.JAIL_CHANNEL_ID
         channel = (
             guild.get_channel(jail_channel_id) if jail_channel_id is not None else None
         )
@@ -74,9 +75,7 @@ class Jail(ModerationCogBase):
                 f"Cannot rejail {member} on rejoin: no jail role configured for guild {member.guild.id} ({member.guild.name})",
             )
             return
-        jail_channel_id = await self.db.guild_config.get_jail_channel_id(
-            member.guild.id,
-        )
+        jail_channel_id = CONFIG.LOG_CHANNELS.JAIL_CHANNEL_ID
         if not jail_channel_id:
             logger.warning(
                 f"Cannot rejail {member} on rejoin: no jail channel configured for guild {member.guild.id} ({member.guild.name})",
@@ -188,13 +187,10 @@ class Jail(ModerationCogBase):
         """
         assert ctx.guild
 
-        # One DB round-trip for jail config when cache misses; is_jailed in parallel
-        jail_config_task = self.db.guild_config.get_jail_config(ctx.guild.id)
-        is_jailed_task = self.is_jailed(ctx.guild.id, member.id)
-        (jail_role_id, jail_channel_id), is_jailed_result = await asyncio.gather(
-            jail_config_task,
-            is_jailed_task,
-        )
+        # Get jail config from static config; is_jailed in parallel
+        jail_role_id = CONFIG.LOG_CHANNELS.JAIL_ROLE_ID
+        jail_channel_id = CONFIG.LOG_CHANNELS.JAIL_CHANNEL_ID
+        is_jailed_result = await self.is_jailed(ctx.guild.id, member.id)
 
         # Get Discord objects (these are synchronous lookups)
         jail_role = None if jail_role_id is None else ctx.guild.get_role(jail_role_id)

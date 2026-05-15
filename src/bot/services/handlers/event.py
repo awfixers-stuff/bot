@@ -31,57 +31,19 @@ class EventHandler(BaseCog):
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:
-        """Register all guilds the bot is in on startup and reconnections."""
+        """Handle bot ready event."""
         try:
-            # Check if bot setup has completed
             if not self.bot.setup_complete:
                 logger.warning("on_ready fired before setup_complete")
-                # Mark first ready even if setup incomplete to prevent expensive checks
                 if not self.bot.first_ready:
                     self.bot.first_ready = True
-                self.bot.guilds_registered.set()  # Unblock waiters so they do not hang
+                self.bot.guilds_registered.set()
                 return
 
-            self.bot.guilds_registered.clear()  # New cycle; waiters block until we set()
-            logger.info("Bot ready, registering guilds...")
+            self.bot.guilds_registered.clear()
+            logger.info("Bot ready (single-guild mode)")
 
-            # Always register guilds on ready - Discord.py can reconnect and guilds may change
-            logger.info("Registering all guilds in database...")
-            registered_count = 0
-            skipped_count = 0
-
-            for guild in self.bot.guilds:
-                try:
-                    logger.debug(
-                        f"Attempting to register guild {guild.id} ({guild.name})",
-                    )
-                    result, created = await self.db.guild.get_or_create(id=guild.id)
-                    if created:
-                        registered_count += 1
-                        logger.info(
-                            f"Successfully registered guild {guild.id} ({guild.name}) - id {result.id}",
-                        )
-                    else:
-                        skipped_count += 1
-                        logger.debug(
-                            f"Guild {guild.id} ({guild.name}) already exists - skipped",
-                        )
-                except Exception as e:
-                    # This shouldn't happen with get_or_create, but log if it does
-                    skipped_count += 1
-                    logger.error(
-                        f"Unexpected error registering guild {guild.id} ({guild.name}): {e}",
-                    )
-                    logger.debug(
-                        f"Guild registration error details: {e}",
-                        exc_info=True,
-                    )
-
-            logger.info(
-                f"Registered {registered_count} guilds, skipped {skipped_count} existing guilds in database",
-            )
-
-            # Mark first ready (only on first on_ready event, not reconnects)
+            # Mark first ready
             if not self.bot.first_ready:
                 self.bot.first_ready = True
                 logger.debug("First on_ready event completed")
@@ -91,32 +53,21 @@ class EventHandler(BaseCog):
                     permission_system = get_permission_system()
                     await permission_system.prewarm_cache_for_all_guilds()
                 except Exception as e:
-                    # Don't fail startup if pre-warming fails
                     logger.warning(f"Failed to pre-warm permission caches: {e}")
 
             self._guilds_registered = True
-            self.bot.guilds_registered.set()  # Unblock RemindMe, StatusRoles, etc.
+            self.bot.guilds_registered.set()
         except Exception:
-            # Mark first ready even on failure to prevent expensive checks on retry
             if not self.bot.first_ready:
                 self.bot.first_ready = True
-            self.bot.guilds_registered.set()  # Unblock waiters even on failure
+            self.bot.guilds_registered.set()
             logger.exception("EventHandler.on_ready failed (cog=EventHandler)")
             raise
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild) -> None:
         """On guild join event handler."""
-        _, created = await self.db.guild.get_or_create(id=guild.id)
-        if created:
-            logger.info(f"New guild joined: {guild.id} ({guild.name})")
-        else:
-            logger.warning(
-                f"Guild join event fired for existing guild: {guild.id} ({guild.name})",
-            )
-
-        # Initialize basic guild data (permissions only)
-        await self.bot.db.guild_config.update_onboarding_stage(guild.id, "not_started")
+        logger.info(f"Guild joined: {guild.id} ({guild.name})")
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
@@ -214,8 +165,8 @@ class EventHandler(BaseCog):
         if not channel.guild:
             return
 
-        # Get jail role for this guild
-        jail_role_id = await self.db.guild_config.get_jail_role_id(channel.guild.id)
+        # Get jail role from static config
+        jail_role_id = CONFIG.LOG_CHANNELS.JAIL_ROLE_ID
         if not jail_role_id:
             logger.debug(
                 f"No jail role configured for guild {channel.guild.id}, skipping channel setup",

@@ -187,7 +187,6 @@ class BaseCog(commands.Cog):
 
         Examples
         --------
-        >>> await self.db.guild_config.get_guild_config(guild_id)
         >>> await self.db.cases.create_case(...)
         """
         return self.bot.db

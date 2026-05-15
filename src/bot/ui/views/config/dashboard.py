@@ -17,6 +17,7 @@ import discord
 from loguru import logger
 
 from bot.core.permission_system import DEFAULT_RANKS, get_permission_system
+from bot.shared.config import CONFIG
 from bot.shared.constants import (
     CONFIG_COLOR_BLURPLE,
     CONFIG_COLOR_GREEN,
@@ -2022,9 +2023,7 @@ class ConfigDashboard(discord.ui.LayoutView):
                     f"page {getattr(self, 'logs_current_page', 0)}",
                 )
             else:
-                config = await self.bot.db.guild_config.get_config_by_guild_id(
-                    self.guild.id,
-                )
+                config = CONFIG.LOG_CHANNELS
                 self._logs_data = config
 
             # Calculate pagination info
@@ -2134,10 +2133,8 @@ class ConfigDashboard(discord.ui.LayoutView):
 
             self.clear_items()
 
-            # get_or_create_config returns the config; avoids a second DB round-trip
-            config = await self.bot.db.guild_config.get_or_create_config(
-                self.guild.id,
-            )
+            # Config is now deployment-time via CONFIG.LOG_CHANNELS
+            config = CONFIG.LOG_CHANNELS
 
             jail_channel_id = (
                 getattr(config, "jail_channel_id", None) if config else None
@@ -2320,27 +2317,15 @@ class ConfigDashboard(discord.ui.LayoutView):
         option_key: str,
         channel_id: int | None,
     ) -> None:
-        """Save channel configuration to database."""
-        try:
-            # Map option key to database field
-            field_mapping = {
-                "mod_log_channel": "mod_log_id",
-                "audit_log_channel": "audit_log_id",
-                "join_log_channel": "join_log_id",
-                "private_log_channel": "private_log_id",
-                "report_log_channel": "report_log_id",
-                "dev_log_channel": "dev_log_id",
-            }
+        """Log channel configuration change (now read-only deployment-time config).
 
-            if field_name := field_mapping.get(option_key):
-                updates = {field_name: channel_id}
-                await self.bot.db.guild_config.update_config(self.guild.id, **updates)
-                # Cache invalidation is handled automatically by GuildConfigController.update_config
-                logger.info(
-                    f"Saved {option_key} for guild {self.guild.id}: {channel_id}",
-                )
-        except Exception as e:
-            logger.error(f"Failed to save {option_key}: {e}")
+        Log channel settings are now configured via CONFIG.LOG_CHANNELS in config.json.
+        The UI displays the current values but changes cannot be persisted at runtime.
+        """
+        logger.info(
+            f"Log channel {option_key} change requested for guild {self.guild.id}: "
+            f"{channel_id} - ignored (config is deployment-time only via LOG_CHANNELS)",
+        )
 
     def _build_error_mode(self, error_message: str) -> None:
         """Build an error display mode."""
@@ -2425,27 +2410,6 @@ class ConfigDashboard(discord.ui.LayoutView):
             logger.info(
                 f"Starting default rank initialization for guild {self.guild.id}",
             )
-
-            # Ensure guild is registered in database first
-            logger.debug(f"Ensuring guild {self.guild.id} is registered in database")
-            guild_record = await self.bot.db.guild.get_by_id(self.guild.id)
-            if not guild_record:
-                logger.info(
-                    f"Guild {self.guild.id} not found in database, registering it",
-                )
-                try:
-                    await self.bot.db.guild.insert_guild_by_id(self.guild.id)
-                    logger.success(f"Successfully registered guild {self.guild.id}")
-                except Exception as reg_error:
-                    logger.error(
-                        f"Failed to register guild {self.guild.id}: {reg_error}",
-                    )
-                    await interaction.followup.send(
-                        "❌ **Guild Registration Failed**\n\n"
-                        "Unable to register this guild in the database. Please try again later or contact support.",
-                        ephemeral=True,
-                    )
-                    return
 
             # Check if ranks already exist
             logger.trace(f"Checking existing ranks for guild {self.guild.id}")

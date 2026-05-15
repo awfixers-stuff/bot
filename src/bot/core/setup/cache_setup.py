@@ -8,7 +8,6 @@ from loguru import logger
 
 from bot.cache import (
     CacheService,
-    GuildConfigCacheManager,
     JailStatusCache,
     get_cache_backend,
 )
@@ -71,8 +70,7 @@ class CacheSetupService(BotSetupService):
                 if self.bot.cache_service is None:
                     await service.close()
 
-        # Wire cache backend into singletons (Valkey if connected, else in-memory)
+        # Wire cache backend into JailStatusCache singleton (Valkey if connected, else in-memory)
         backend = get_cache_backend(self.bot)
-        GuildConfigCacheManager().set_backend(backend)
         JailStatusCache().set_backend(backend)
         logger.debug("Cache backend wired: {}", type(backend).__name__)

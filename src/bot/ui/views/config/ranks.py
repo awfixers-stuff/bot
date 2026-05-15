@@ -39,18 +39,6 @@ async def initialize_default_ranks(db: DatabaseCoordinator, guild_id: int) -> No
     """
     logger.debug(f"initialize_default_ranks called for guild {guild_id}")
 
-    # Ensure guild is registered in database first
-    logger.debug(f"Ensuring guild {guild_id} is registered in database")
-    guild_record = await db.guild.get_by_id(guild_id)
-    if not guild_record:
-        logger.info(f"Guild {guild_id} not found in database, registering it")
-        try:
-            await db.guild.insert_guild_by_id(guild_id)
-            logger.success(f"Successfully registered guild {guild_id}")
-        except Exception as reg_error:
-            logger.error(f"Failed to register guild {guild_id}: {reg_error}")
-            raise
-
     # Check if ranks already exist (idempotent check)
     logger.trace(f"Checking existing ranks for guild {guild_id}")
     try:

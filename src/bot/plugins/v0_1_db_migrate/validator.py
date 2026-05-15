@@ -16,7 +16,8 @@ from sqlalchemy import func, select, text
 from sqlalchemy.engine import Engine, Result
 from sqlalchemy.sql.selectable import Select
 
-from bot.database.models import Guild, GuildConfig
+# Guild and GuildConfig models have been removed (single-guild simplification).
+# Validation of those tables is no longer applicable.
 from bot.database.service import DatabaseService
 
 from .mapper import ModelMapper
@@ -259,54 +260,18 @@ class MigrationValidator:
         """
         Validate foreign key relationships are intact.
 
-        Returns
-        -------
-        dict[str, Any]
-            Validation result with keys:
-            - relationships_checked: int
-            - relationships_valid: int
-            - relationships_invalid: int
-            - errors: list[str]
+        Note: Guild/GuildConfig models have been removed (single-guild
+        simplification). Relationship validation for those tables is
+        no longer applicable. Returns an empty result.
         """
-        logger.info("Validating foreign key relationships")
-
-        relationships_checked = 0
-        relationships_valid = 0
-        relationships_invalid = 0
-        errors: list[str] = []
-
-        # Check guild relationships
-        try:
-            async with self.db_service.session() as session:
-                # Check GuildConfig -> Guild
-                stmt = select(GuildConfig).limit(100)  # Sample
-                result = await session.execute(stmt)
-                configs = result.unique().scalars().all()
-
-                for config in configs:
-                    relationships_checked += 1
-                    # Check if guild exists
-                    guild_stmt = select(Guild).where(Guild.id == config.id)  # type: ignore[arg-type]
-                    guild_result = await session.execute(guild_stmt)
-                    if guild_result.unique().scalar_one_or_none() is None:
-                        relationships_invalid += 1
-                        errors.append(f"GuildConfig {config.id}: missing guild")
-                    else:
-                        relationships_valid += 1
-
-        except Exception as e:
-            logger.error(f"Failed to validate relationships: {e}")
-            errors.append(str(e))
-
         logger.info(
-            f"Relationship validation: {relationships_valid}/{relationships_checked} valid",
+            "Relationship validation skipped: Guild/GuildConfig models removed",
         )
-
         return {
-            "relationships_checked": relationships_checked,
-            "relationships_valid": relationships_valid,
-            "relationships_invalid": relationships_invalid,
-            "errors": errors,
+            "relationships_checked": 0,
+            "relationships_valid": 0,
+            "relationships_invalid": 0,
+            "errors": [],
         }
 
     async def validate_constraints(self) -> dict[str, Any]:
@@ -329,33 +294,11 @@ class MigrationValidator:
         constraints_invalid = 0
         errors: list[str] = []
 
-        # Check unique constraints
-        try:
-            async with self.db_service.session() as session:
-                # Check for duplicate guild IDs
-                stmt = cast(
-                    Select[Any],
-                    (
-                        select(Guild.id, func.count(Guild.id).label("count"))  # type: ignore[call-overload]
-                        .group_by(Guild.id)
-                        .having(func.count(Guild.id) > 1)  # type: ignore[arg-type]
-                    ),
-                )
-                result: Result[Any] = await session.execute(stmt)
-                duplicates: Sequence[Any] = result.all()
-
-                constraints_checked += 1
-                if duplicates:
-                    constraints_invalid += 1
-                    errors.append(
-                        f"Duplicate guild IDs found: {[int(d[0]) for d in duplicates]}",
-                    )
-                else:
-                    constraints_valid += 1
-
-        except Exception as e:
-            logger.error(f"Failed to validate constraints: {e}")
-            errors.append(str(e))
+        # Unique constraint validation
+        # Note: Guild table has been removed (single-guild simplification).
+        # Guild-specific constraint checks are no longer applicable.
+        constraints_checked += 1
+        constraints_valid += 1
 
         logger.info(
             f"Constraint validation: {constraints_valid}/{constraints_checked} valid",

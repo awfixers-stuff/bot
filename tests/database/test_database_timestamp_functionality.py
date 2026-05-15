@@ -12,11 +12,10 @@ import pytest
 from bot.core.permission_system import DEFAULT_RANKS
 from bot.core.permission_system import DEFAULT_RANKS as CORE_DEFAULTS
 from bot.database.models.base import BaseModel, TimestampMixin
-from bot.database.models.models import Guild, PermissionRank
+from bot.database.models.models import PermissionRank
 from bot.database.service import DatabaseService
 from bot.modules.config.ranks import DEFAULT_RANKS as CMD_DEFAULTS
 from bot.ui.views.config.ranks import DEFAULT_RANKS as UI_DEFAULTS
-from tests.fixtures import TEST_GUILD_ID
 
 
 class TestTimestampFunctionality:
@@ -67,7 +66,6 @@ class TestTimestampFunctionality:
 
         # Test instance creation
         rank = PermissionRank(
-            guild_id=TEST_GUILD_ID,
             rank=0,
             name="Test Rank",
             description="Test description",
@@ -89,7 +87,6 @@ class TestTimestampFunctionality:
     def test_timestamp_dict_compatibility(self) -> None:
         """Test timestamp fields are accessible in model __dict__."""
         rank = PermissionRank(
-            guild_id=TEST_GUILD_ID,
             rank=0,
             name="Test Rank",
             description="Test description",
@@ -107,7 +104,6 @@ class TestTimestampFunctionality:
     def test_timestamp_serialization(self) -> None:
         """Test timestamp fields are included in to_dict() serialization."""
         rank = PermissionRank(
-            guild_id=TEST_GUILD_ID,
             rank=0,
             name="Test Rank",
             description="Test description",
@@ -132,14 +128,8 @@ class TestTimestampFunctionality:
     ) -> None:
         """Test timestamp fields work correctly with database operations."""
         async with db_service.session() as session:
-            # Create guild first (foreign key requirement)
-            guild = Guild(id=TEST_GUILD_ID, case_count=0)
-            session.add(guild)
-            await session.commit()
-
             # Create permission rank
             rank = PermissionRank(
-                guild_id=TEST_GUILD_ID,
                 rank=5,
                 name="Test Admin",
                 description="Test administrator rank",
@@ -188,7 +178,6 @@ class TestTimestampFunctionality:
         # Before initialization, fields might not exist
         # After proper initialization, they should be None (not set by application)
         rank.__init__(
-            guild_id=TEST_GUILD_ID,
             rank=0,
             name="Test Rank",
             description="Test description",
