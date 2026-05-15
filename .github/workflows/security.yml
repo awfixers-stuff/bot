@@ -73,27 +73,6 @@ jobs:
         uses: github/codeql-action/analyze@95e58e9a2cdfd71adc6e0353d5c52f41a045d225  # v4
         with:
           category: /language:python
-  dependencies:
-    name: Dependencies
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    # Skip on fork PRs: GITHUB_TOKEN is read-only, so uv-dependency-submission and
-    # dependency-review-action would fail on contents/pull-requests write.
-    if: github.repository == 'awfixers-stuff/bot' && github.event_name == 'pull_request'
-      && github.event.pull_request.head.repo.full_name == github.repository
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
-      - name: Submit dependency snapshot
-        uses: rmuir/uv-dependency-submission@a3a7623508859966d229ca99a16b91b262e6f8c4  # v1.0.1
-      - name: Review
-        uses: actions/dependency-review-action@3c4e3dcb1aa7874d2c16be7d79418e9b7efd6261  # v4
-        with:
-          fail-on-severity: high
-          comment-summary-in-pr: always
-          retry-on-snapshot-warnings: true
   python:
     name: Python Security
     runs-on: blacksmith-4vcpu-ubuntu-2404

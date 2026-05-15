@@ -96,8 +96,10 @@ jobs:
         run: ./.github/scripts/docker.sh validate-build-config "${{ github.sha }}"
       - name: Calculate SOURCE_DATE_EPOCH
         id: source_date
-        run: ./.github/scripts/docker.sh calculate-source-date-epoch \ "$(git log
-          -1 --format=%ci ${{ github.sha }})" \ "${{ github.event.repository.created_at }}"
+        run: >-
+          ./.github/scripts/docker.sh calculate-source-date-epoch
+          "$(git log -1 --format=%ci ${{ github.sha }})"
+          "${{ github.event.repository.created_at }}"
       - name: Generate Build Date
         id: build_date
         run: echo "date=$(./.github/scripts/docker.sh generate-build-date)" >> "$GITHUB_OUTPUT"

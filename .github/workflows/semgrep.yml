@@ -25,6 +25,7 @@ jobs:
     if: github.repository == 'awfixers-stuff/bot'
     permissions:
       security-events: write
+      actions: read
       contents: read
     steps:
       - name: Checkout
@@ -32,7 +33,7 @@ jobs:
 
       - name: Semgrep scan
         id: semgrep
-        uses: semgrep/semgrep-action@a7cc7f0befadb53ef7b1320e8cd221e440997190  # v1
+        uses: semgrep/semgrep-action@713efdd345f3035192eaa63f56867b88e63e4e5d  # v1
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
         with:

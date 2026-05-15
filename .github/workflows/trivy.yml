@@ -25,13 +25,14 @@ jobs:
     if: github.repository == 'awfixers-stuff/bot'
     permissions:
       security-events: write
+      actions: read
       contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
       - name: Run Trivy vulnerability scanner (fs)
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd835c87d4  # v0.29.0
+        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8  # v0.36.0
         with:
           scan-type: fs
           scan-ref: .
