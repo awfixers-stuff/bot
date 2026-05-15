@@ -11,7 +11,7 @@ from discord.ext import commands
 from bot.services.handlers.error.cog import ErrorHandler
 from bot.shared.exceptions import BotError, BotPermissionDeniedError
 
-pytestmark = pytest.mark.integration
+pytestmark = pytest.mark.e2e
 
 
 class TestErrorHandlingEndToEnd:

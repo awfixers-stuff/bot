@@ -10,6 +10,8 @@ from collections import defaultdict
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.mark.performance
 class TestDataStructurePerformance:

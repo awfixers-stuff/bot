@@ -1,6 +1,8 @@
 """Tests for data extractor."""
 
 import pytest
+
+pytestmark = pytest.mark.unit
 from sqlalchemy import create_engine, text
 
 from bot.plugins.v0_1_db_migrate.config import (

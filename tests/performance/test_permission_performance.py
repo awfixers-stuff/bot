@@ -7,6 +7,8 @@ and efficient batch queries.
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.mark.performance
 @pytest.mark.asyncio

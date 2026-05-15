@@ -384,12 +384,10 @@ addopts = [
     # Allow Unix sockets for PGlite (in-memory PostgreSQL) while blocking network sockets
     "--disable-socket",
     "--allow-unix-socket",
-    # Coverage
+    # Coverage (term-missing only — XML/JSON/lcov are specified per-type in CI)
+    # CI provides explicit --cov-report=xml:coverage-{type}.xml per test category
     "--cov=src/bot",
     "--cov-report=term-missing",
-    "--cov-report=xml",
-    "--cov-report=json",
-    "--cov-report=lcov",
     "--cov-branch",
     # Output formatting
     "--strict-markers",
