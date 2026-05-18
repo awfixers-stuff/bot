@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "bot"
 version = "0.1.0"
-requires-python = ">=3.13.2,<3.14"
+requires-python = ">=3.14.5,<3.15"
 description = "Bot is an all in one bot for the AWFixer Enterprising Inc discord server."
 readme = "README.md"
 license = "GPL-3.0-or-later"

@@ -1,7 +1,7 @@
 # ============================================================================
 # STAGE 1: Common Setup (shared by base and production stages)
 # ============================================================================
-FROM python:3.13.11-slim AS common
+FROM python:3.14.4-slim@sha256:2ca02f32b4d9d893863367ce07ec1972819f476dd38d8612f2a9cb6a41cbb727 AS common
 
 # Common labels (shared across all final images)
 LABEL org.opencontainers.image.source="https://github.com/awfixers-stuff/bot" \
