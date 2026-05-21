@@ -156,7 +156,7 @@ jobs:
       # - Build metadata (tags/labels) for image identification
       # - Build-time variables for versioning and traceability
       - name: Build
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf  # v7
         timeout-minutes: 10
         with:
           # Build context directory (current directory)
@@ -421,7 +421,7 @@ jobs:
       # - Build-time variables for versioning and traceability
       - name: Build for Validation
         id: build_validate
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf  # v7
         timeout-minutes: 15
         env:
           # Set SOURCE_DATE_EPOCH for reproducible builds
@@ -509,7 +509,7 @@ jobs:
       # This second build will be fast due to BuildKit cache from validation build
       - name: Push Validated Image with Attestations
         if: success()
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f  # v7
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf  # v7
         timeout-minutes: 5
         env:
           # Set SOURCE_DATE_EPOCH for reproducible builds

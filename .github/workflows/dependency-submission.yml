@@ -41,4 +41,4 @@ jobs:
           fi
       - name: Submit dependency snapshot
         if: github.event_name != 'pull_request'
-        uses: rmuir/uv-dependency-submission@a3a7623508859966d229ca99a16b91b262e6f8c4  # v1.0.1
+        uses: rmuir/uv-dependency-submission@8c650a3e5e519b93e604e644f7a4a3953144babe  # v1.1.1
